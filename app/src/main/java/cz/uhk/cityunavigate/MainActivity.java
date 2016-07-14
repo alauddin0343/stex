@@ -1,6 +1,7 @@
 package cz.uhk.cityunavigate;
 
-import android.content.Intent;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -17,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.MapFragment;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    private static final int CONTENT_VIEW_ID = 10101010;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
@@ -206,9 +211,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.nav_profile) {
             // Handle the camera action
         } else if (id == R.id.nav_map) {
-
+            /*
             Intent i = new Intent(this, MapActivity.class);
             startActivity(i);
+            */
+            Fragment newFragment = new MapFragment();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            //ft.ad
+
+            ft.add(newFragment, "Map").commit();
 
         } else if (id == R.id.nav_my_activities) {
 
