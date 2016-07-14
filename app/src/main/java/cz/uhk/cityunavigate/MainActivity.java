@@ -27,6 +27,9 @@ public class MainActivity extends AppCompatActivity
 
     private FrameLayout frame;
 
+    private TimeLineFragment tmlFrag;
+    private MapFragment mapFrag;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,12 +62,9 @@ public class MainActivity extends AppCompatActivity
 
         //get DATA and SET ADAPTER
         //INIT FRAGMENT
-        TimeLineFragment mFragment = TimeLineFragment.newInstance();
-        //MapFragment mFragment = cz.uhk.cityunavigate.MapFragment.newInstance();
+        tmlFrag = TimeLineFragment.newInstance();
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        FragmentTransaction add = ft.add(frame.getId(), mFragment);
-        add.commit();
-        //ft.add(frame.getId(), mFragment).commit();
+        ft.add(frame.getId(), tmlFrag).commit();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -73,19 +73,28 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_profile) {
-            // Handle the camera action
+        if (id == R.id.nav_timeline) {
+
+            if(tmlFrag == null){
+                tmlFrag = TimeLineFragment.newInstance();
+            }
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.replace(frame.getId(), tmlFrag).commit();
+
         } else if (id == R.id.nav_map) {
 
-            MapFragment mFragment = cz.uhk.cityunavigate.MapFragment.newInstance();
+            if(mapFrag == null){
+                mapFrag = cz.uhk.cityunavigate.MapFragment.newInstance();
+            }
             FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(frame.getId(), mFragment).commit();
+            ft.replace(frame.getId(), mapFrag).commit();
 
-        } else if (id == R.id.nav_my_activities) {
+        }
+        /*else if (id == R.id.nav_my_activities) {
 
         } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
+        }*/ else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
             Toast.makeText(this, "Nasrati", Toast.LENGTH_LONG).show();
