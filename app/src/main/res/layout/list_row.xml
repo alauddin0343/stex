@@ -18,6 +18,9 @@
             android:layout_centerVertical="true"
             android:scaleType="centerCrop"
             android:src="@drawable/placeholder" />
+
+            TODO - dodělat komponenty a layout podle nabízených příspěvků - programově měnit
+
         -->
 
         <TextView
@@ -33,4 +36,5 @@
             android:textSize="15dp" />
 
     </RelativeLayout>
+
 </android.support.v7.widget.CardView>

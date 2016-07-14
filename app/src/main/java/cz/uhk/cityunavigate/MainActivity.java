@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
+    private SwipeRefreshLayout mSwipeRefresh;
 
     private List<FeedItem> feedsList;
     private RecyclerView mRecyclerView;
@@ -60,6 +62,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         drawerToggle.syncState();
+
+        mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+
+        mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Refresh items
+                refreshItems();
+            }
+        });
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerMainContent);
 
@@ -91,6 +103,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         new AsyncHttpTask().execute(url);
     }
 
+    //SWIPE REFRESH LAYOUT SETTINGS AND FUNCTIONS
+    void refreshItems() {
+        // Load items
+        // ...
+
+        Toast.makeText(this, "IN PROGRESS...", Toast.LENGTH_SHORT).show();
+
+        // Load complete
+        onItemsLoadComplete();
+    }
+
+    void onItemsLoadComplete() {
+        // Update the adapter and notify data set changed
+        // ...
+
+        // Stop refresh animation
+        mSwipeRefresh.setRefreshing(false);
+    }
 
     //INITIALIZING RECYCLE VIEW ADAPTER
     public class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
@@ -198,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.menu_main, menu);
+        //getMenuInflater().inflate(R.menu.menu_map, menu);
         return true;
     }
 
