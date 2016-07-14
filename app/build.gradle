@@ -5,23 +5,30 @@ android {
     compileSdkVersion 24
     buildToolsVersion "23.0.3"
 
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
     defaultConfig {
         applicationId "cz.uhk.cityunavigate"
         minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
     }
     sourceSets { main { res.srcDirs = ['src/main/res', 'src/main/res/colors'] } }
 }
 
 dependencies {
+    compile 'com.android.support:multidex:1.0.1'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
 
