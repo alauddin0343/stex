@@ -35,26 +35,11 @@
         </LinearLayout>
 
         <!-- DRAWER MENU -->
-
         <android.support.design.widget.NavigationView android:id="@+id/nav_view"
             android:layout_width="wrap_content" android:layout_height="match_parent"
             android:layout_gravity="start" android:fitsSystemWindows="true"
             app:headerLayout="@layout/drawer_header" app:menu="@menu/drawer_menu" />
-        <!--
-        <LinearLayout
-            android:id="@+id/left_drawer"
-            android:layout_width="280dp"
-            android:layout_height="fill_parent"
-            android:orientation="vertical"
-            android:layout_gravity="start"
-            android:background="#FFFFFF"
-            android:clickable="true"
-            android:padding="0dp">
 
-            <include layout="@layout/drawer_menu" />
-
-        </LinearLayout>
-        -->
     </android.support.v4.widget.DrawerLayout>
 
 </android.support.design.widget.CoordinatorLayout>

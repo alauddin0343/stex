@@ -1,9 +1,9 @@
 package cz.uhk.cityunavigate;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,58 +63,8 @@ public class MapFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
 
-        markers = new ArrayList<>();
-        circles = new ArrayList<>();
-        polygons = new ArrayList<>();
 
-        // Gets the MapView from the XML layout and creates it
-        mapView = (MapView) getView().findViewById(R.id.mapview);
-        mapView.onCreate(savedInstanceState);
-
-        // Gets to GoogleMap from the MapView and does initialization stuff
-        mapView.getMapAsync(new OnMapReadyCallback() {
-
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                map = googleMap;
-                map.getUiSettings().setMyLocationButtonEnabled(false);
-                //map.setMyLocationEnabled(true);
-                //MapsInitializer.initialize(getApplicationContext());
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 10);
-
-                map.setBuildingsEnabled(true);
-                map.getUiSettings().setAllGesturesEnabled(true);
-                map.getUiSettings().setCompassEnabled(true);
-                map.getUiSettings().setMyLocationButtonEnabled(true);
-                map.getUiSettings().setMapToolbarEnabled(true);
-
-                map.animateCamera(cameraUpdate);
-                map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                    @Override
-                    public void onInfoWindowClick(Marker marker) {
-                        Toast.makeText(getContext(), "TODO přidat akci", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-                    @Override
-                    public void onMapLongClick(LatLng latLng) {
-                        markers.add(map.addMarker(new MarkerOptions().position(latLng).title("Si podržel").snippet("dobrý ne?")));
-                    }
-                });
-                map.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
-                    @Override
-                    public void onInfoWindowLongClick(Marker marker) {
-                        marker.hideInfoWindow();
-                        removeMarker(marker);
-                    }
-                });
-            }
-        });
     }
 
 
@@ -158,7 +108,58 @@ public class MapFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_map, container, false);
+        View view = inflater.inflate(R.layout.fragment_map, container, false);
+
+        markers = new ArrayList<>();
+        circles = new ArrayList<>();
+        polygons = new ArrayList<>();
+
+        // Gets the MapView from the XML layout and creates it
+        mapView = (MapView) view.findViewById(R.id.mapview);
+        mapView.onCreate(savedInstanceState);
+
+        // Gets to GoogleMap from the MapView and does initialization stuff
+        mapView.getMapAsync(new OnMapReadyCallback() {
+
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                map = googleMap;
+                map.getUiSettings().setMyLocationButtonEnabled(false);
+                //map.setMyLocationEnabled(true);
+                //MapsInitializer.initialize(getApplicationContext());
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 10);
+
+                map.setBuildingsEnabled(true);
+                map.getUiSettings().setAllGesturesEnabled(true);
+                map.getUiSettings().setCompassEnabled(true);
+                map.getUiSettings().setMyLocationButtonEnabled(true);
+                map.getUiSettings().setMapToolbarEnabled(true);
+
+                map.animateCamera(cameraUpdate);
+                map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(Marker marker) {
+                        Toast.makeText(getActivity(), "TODO přidat akci", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                    @Override
+                    public void onMapLongClick(LatLng latLng) {
+                        markers.add(map.addMarker(new MarkerOptions().position(latLng).title("Si podržel").snippet("dobrý ne?")));
+                    }
+                });
+                map.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
+                    @Override
+                    public void onInfoWindowLongClick(Marker marker) {
+                        marker.hideInfoWindow();
+                        removeMarker(marker);
+                    }
+                });
+            }
+        });
+
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -199,4 +200,30 @@ public class MapFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    //FOLLOWING METHODS ARE FOR MAPVIEW CONTROLLING
+    @Override
+    public void onResume() {
+        mapView.onResume();
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
 }
