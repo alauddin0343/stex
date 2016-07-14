@@ -138,7 +138,7 @@ public class TimeLineFragment extends Fragment {
         protected void onPostExecute(Integer result) {
             // Download complete. Let us update UI
             if (result == 1) {
-                mRecyclerAdapter = new MyRecyclerAdapter(getContext(), feedsList);
+                mRecyclerAdapter = new MyRecyclerAdapter(getContext(), feedsList, (MainActivity)getActivity());
                 mRecyclerView.setAdapter(mRecyclerAdapter);
             } else {
                 //Toast.makeText(FeedListActivity.this, "Failed to fetch data!", Toast.LENGTH_SHORT).show();

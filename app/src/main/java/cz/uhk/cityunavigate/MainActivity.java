@@ -75,19 +75,30 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_timeline) {
 
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
             if(tmlFrag == null){
                 tmlFrag = TimeLineFragment.newInstance();
+                ft.add(frame.getId(), tmlFrag).commit();
             }
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(frame.getId(), tmlFrag).commit();
+            else{
+                if(mapFrag != null)
+                    ft.hide(mapFrag);
+                ft.show(tmlFrag).commit();
+            }
 
         } else if (id == R.id.nav_map) {
 
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
             if(mapFrag == null){
                 mapFrag = cz.uhk.cityunavigate.MapFragment.newInstance();
+                ft.add(frame.getId(), mapFrag).commit();
+            }else{
+                if(tmlFrag != null)
+                    ft.hide(tmlFrag);
+                ft.show(mapFrag).commit();
             }
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(frame.getId(), mapFrag).commit();
+
+
 
         }
         /*else if (id == R.id.nav_my_activities) {

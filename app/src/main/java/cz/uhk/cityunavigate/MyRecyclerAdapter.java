@@ -1,6 +1,7 @@
 package cz.uhk.cityunavigate;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -8,20 +9,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
 /**
  * Created by petrw on 12.07.2016.
  */
-public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.CustomViewHolder> {
+public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.CustomViewHolder>{
 
     private List<FeedItem> feedItemList;
     private Context mContext;
 
-    public MyRecyclerAdapter(Context context, List<FeedItem> feedItemList) {
+    private MainActivity activity;
+
+    public MyRecyclerAdapter(Context context, List<FeedItem> feedItemList, MainActivity activity) {
         this.feedItemList = feedItemList;
         this.mContext = context;
+        this.activity = activity;
     }
 
     @Override
@@ -54,7 +59,8 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Cu
 
 
     //VIEW HOLDER FOR RECYCLER ADAPTER
-    public class CustomViewHolder extends RecyclerView.ViewHolder {
+    public class CustomViewHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener{
         protected ImageView imageView;
         protected TextView textView;
 
@@ -62,6 +68,16 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Cu
             super(view);
             //this.imageView = (ImageView) view.findViewById(R.id.thumbnail);
             this.textView = (TextView) view.findViewById(R.id.feed_title);
+            view.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View view) {
+            Intent myIntent = new Intent(activity, DetailActivity.class);
+            activity.startActivity(myIntent);
+            Toast.makeText(activity.getApplicationContext(), "Něco?", Toast.LENGTH_SHORT).show();
+        }
+
     }
+
 }
