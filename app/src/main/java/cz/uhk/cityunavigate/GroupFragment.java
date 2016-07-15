@@ -27,7 +27,7 @@ public class GroupFragment extends Fragment {
 
     private List<FeedItem> feedsList;
     private RecyclerView mRecyclerView;
-    private MyRecyclerAdapter mRecyclerAdapter;
+    private GroupRecylerAdapter mRecyclerAdapter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -53,6 +53,7 @@ public class GroupFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_group, container, false);
+
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerMainContent);
 
@@ -120,7 +121,7 @@ public class GroupFragment extends Fragment {
         protected void onPostExecute(Integer result) {
             // Download complete. Let us update UI
             if (result == 1) {
-                mRecyclerAdapter = new MyRecyclerAdapter(getContext(), feedsList, (MainActivity)getActivity());
+                mRecyclerAdapter = new GroupRecylerAdapter(getContext(), feedsList, (MainActivity)getActivity());
                 mRecyclerView.setAdapter(mRecyclerAdapter);
             } else {
                 //Toast.makeText(FeedListActivity.this, "Failed to fetch data!", Toast.LENGTH_SHORT).show();

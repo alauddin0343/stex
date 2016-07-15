@@ -29,7 +29,7 @@ public class TimeLineFragment extends Fragment {
     private SwipeRefreshLayout mSwipeRefresh;
     private List<FeedItem> feedsList;
     private RecyclerView mRecyclerView;
-    private MyRecyclerAdapter mRecyclerAdapter;
+    private TimelineRecylerAdapter mRecyclerAdapter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -134,7 +134,7 @@ public class TimeLineFragment extends Fragment {
         protected void onPostExecute(Integer result) {
             // Download complete. Let us update UI
             if (result == 1) {
-                mRecyclerAdapter = new MyRecyclerAdapter(getContext(), feedsList, (MainActivity)getActivity());
+                mRecyclerAdapter = new TimelineRecylerAdapter(getContext(), feedsList, (MainActivity)getActivity());
                 mRecyclerView.setAdapter(mRecyclerAdapter);
             } else {
                 //Toast.makeText(FeedListActivity.this, "Failed to fetch data!", Toast.LENGTH_SHORT).show();

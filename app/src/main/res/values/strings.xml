@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">CityU Navigate</string>
+
     <string name="action_settings">Settings</string>
+    <string name="action_change_map">Change Map</string>
+
+
+
     <string name="drawer_open">Otevřeno</string>
     <string name="drawer_close">Otevřeno</string>
     <string name="title_activity_main2">Main2Activity</string>

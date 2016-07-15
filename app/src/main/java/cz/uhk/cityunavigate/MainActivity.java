@@ -105,18 +105,19 @@ public class MainActivity extends AppCompatActivity
         }
 
         } else if (id == R.id.nav_group) {
-                if(grpFrag == null){
-                    grpFrag = cz.uhk.cityunavigate.GroupFragment.newInstance();
-                    ft.add(frame.getId(), grpFrag).commit();
 
-                }else{
-                    if(tmlFrag != null){
-                        ft.hide(tmlFrag);
-                        if(mapFrag != null)
-                            ft.hide(grpFrag);
-                        ft.show(mapFrag).commit();
-                    }
+            if(grpFrag == null){
+                grpFrag = cz.uhk.cityunavigate.GroupFragment.newInstance();
+                ft.add(frame.getId(), grpFrag).commit();
+
+            }else{
+                if(tmlFrag != null){
+                    ft.hide(tmlFrag);
+                if(mapFrag != null)
+                    ft.hide(mapFrag);
+                ft.show(grpFrag).commit();
                 }
+            }
 
         } else if (id == R.id.nav_send) {
             Toast.makeText(this, "Nasrati", Toast.LENGTH_LONG).show();
