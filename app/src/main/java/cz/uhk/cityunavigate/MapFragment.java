@@ -84,18 +84,6 @@ public class MapFragment extends Fragment {
         markers.remove(m);
     }
 
-    private void changeMap(){
-        if(mapStyle == 0){
-            map.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-        }else if(mapStyle == 1){
-            map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-        }else{
-            map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-            mapStyle = -1;
-        }
-        mapStyle++;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -116,9 +104,10 @@ public class MapFragment extends Fragment {
             public void onMapReady(GoogleMap googleMap) {
                 map = googleMap;
                 map.getUiSettings().setMyLocationButtonEnabled(false);
-                map.setMyLocationEnabled(true);
+
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 10);
 
+                //map.setMyLocationEnabled(true);
                 map.setBuildingsEnabled(true);
                 map.getUiSettings().setAllGesturesEnabled(true);
                 map.getUiSettings().setCompassEnabled(true);
@@ -145,6 +134,7 @@ public class MapFragment extends Fragment {
                         removeMarker(marker);
                     }
                 });
+
             }
         });
 
@@ -206,6 +196,7 @@ public class MapFragment extends Fragment {
     }
 
     //FOLLOWING METHODS ARE FOR MAPVIEW CONTROLLING
+
     @Override
     public void onResume() {
         mapView.onResume();

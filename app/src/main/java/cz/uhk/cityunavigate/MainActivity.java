@@ -18,7 +18,8 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         MapFragment.OnFragmentInteractionListener,
-        TimeLineFragment.OnFragmentInteractionListener{
+        TimeLineFragment.OnFragmentInteractionListener,
+        GroupFragment.OnFragmentInteractionListener{
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity
 
     private TimeLineFragment tmlFrag;
     private MapFragment mapFrag;
+    private GroupFragment grpFrag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +72,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
 
         if (id == R.id.nav_timeline) {
 
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
             if(tmlFrag == null){
                 tmlFrag = TimeLineFragment.newInstance();
                 ft.add(frame.getId(), tmlFrag).commit();
@@ -81,22 +83,40 @@ public class MainActivity extends AppCompatActivity
             else{
                 if(mapFrag != null)
                     ft.hide(mapFrag);
+                if(grpFrag != null)
+                    ft.hide(grpFrag);
                 ft.show(tmlFrag).commit();
             }
 
         } else if (id == R.id.nav_map) {
 
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
             if(mapFrag == null){
                 mapFrag = cz.uhk.cityunavigate.MapFragment.newInstance();
                 ft.add(frame.getId(), mapFrag).commit();
 
             }else{
-                if(tmlFrag != null)
+                if(tmlFrag != null){
                     ft.hide(tmlFrag);
+                if(grpFrag != null)
+                    ft.hide(grpFrag);
                 ft.show(mapFrag).commit();
             }
-        } else if (id == R.id.nav_share) {
+
+        }
+
+        } else if (id == R.id.nav_group) {
+                if(grpFrag == null){
+                    grpFrag = cz.uhk.cityunavigate.GroupFragment.newInstance();
+                    ft.add(frame.getId(), grpFrag).commit();
+
+                }else{
+                    if(tmlFrag != null){
+                        ft.hide(tmlFrag);
+                        if(mapFrag != null)
+                            ft.hide(grpFrag);
+                        ft.show(mapFrag).commit();
+                    }
+                }
 
         } else if (id == R.id.nav_send) {
             Toast.makeText(this, "Nasrati", Toast.LENGTH_LONG).show();
