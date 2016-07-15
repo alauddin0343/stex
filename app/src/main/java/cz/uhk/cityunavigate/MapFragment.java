@@ -5,6 +5,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -25,14 +28,6 @@ import java.util.List;
 
 
 public class MapFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private MapView mapView;
     private GoogleMap map;
@@ -63,10 +58,7 @@ public class MapFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
     }
-
 
     //FUNCTIONS
     private void centerMapToLatLng(LatLng latLng){
@@ -107,26 +99,24 @@ public class MapFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_map, container, false);
+
+        setHasOptionsMenu(true);
 
         markers = new ArrayList<>();
         circles = new ArrayList<>();
         polygons = new ArrayList<>();
 
-        // Gets the MapView from the XML layout and creates it
         mapView = (MapView) view.findViewById(R.id.mapview);
         mapView.onCreate(savedInstanceState);
 
-        // Gets to GoogleMap from the MapView and does initialization stuff
         mapView.getMapAsync(new OnMapReadyCallback() {
 
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 map = googleMap;
                 map.getUiSettings().setMyLocationButtonEnabled(false);
-                //map.setMyLocationEnabled(true);
-                //MapsInitializer.initialize(getApplicationContext());
+                map.setMyLocationEnabled(true);
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 10);
 
                 map.setBuildingsEnabled(true);
@@ -158,11 +148,9 @@ public class MapFragment extends Fragment {
             }
         });
 
-
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -186,18 +174,34 @@ public class MapFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        getActivity().getMenuInflater().inflate(R.menu.menu_map, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {//noinspection SimplifiableIfStatement
+
+        int id = item.getItemId();
+
+        if (id == R.id.action_map_change) {
+            if(mapStyle == 0){
+                map.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+            }else if (mapStyle == 1){
+                map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+            }else if (mapStyle == 2){
+                map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            }else if (mapStyle == 3){
+                mapStyle = -1;
+                map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            }
+        }
+        mapStyle++;
+
+        return super.onOptionsItemSelected(item);
+    }
+
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 

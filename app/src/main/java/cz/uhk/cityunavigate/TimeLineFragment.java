@@ -69,7 +69,7 @@ public class TimeLineFragment extends Fragment {
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerMainContent);
 
-        final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity()); //TODO will it work ??
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
 
@@ -91,8 +91,6 @@ public class TimeLineFragment extends Fragment {
     }
 
     void onItemsLoadComplete() {
-        // Update the adapter and notify data set changed
-        // ...
 
         // Stop refresh animation
         mSwipeRefresh.setRefreshing(false);
@@ -103,7 +101,6 @@ public class TimeLineFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            //setProgressBarIndeterminateVisibility(true);
         }
 
         @Override
@@ -129,7 +126,6 @@ public class TimeLineFragment extends Fragment {
                     result = 0; //"Failed to fetch data!";
                 }
             } catch (Exception e) {
-                //Log.d(TAG, e.getLocalizedMessage());
             }
             return result; //"Failed to fetch data!";
         }
@@ -164,7 +160,6 @@ public class TimeLineFragment extends Fragment {
         }
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -188,18 +183,7 @@ public class TimeLineFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 }

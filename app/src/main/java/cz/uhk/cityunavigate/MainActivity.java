@@ -20,8 +20,6 @@ public class MainActivity extends AppCompatActivity
         MapFragment.OnFragmentInteractionListener,
         TimeLineFragment.OnFragmentInteractionListener{
 
-    private static final int CONTENT_VIEW_ID = 10101010;
-
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
 
@@ -92,20 +90,13 @@ public class MainActivity extends AppCompatActivity
             if(mapFrag == null){
                 mapFrag = cz.uhk.cityunavigate.MapFragment.newInstance();
                 ft.add(frame.getId(), mapFrag).commit();
+
             }else{
                 if(tmlFrag != null)
                     ft.hide(tmlFrag);
                 ft.show(mapFrag).commit();
             }
-
-
-
-        }
-        /*else if (id == R.id.nav_my_activities) {
-
-        } else if (id == R.id.nav_manage) {
-
-        }*/ else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
             Toast.makeText(this, "Nasrati", Toast.LENGTH_LONG).show();
@@ -118,23 +109,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.menu_map, menu);
-        return true;
+        return false;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 

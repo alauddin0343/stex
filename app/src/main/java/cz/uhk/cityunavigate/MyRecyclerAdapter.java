@@ -40,14 +40,6 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Cu
     @Override
     public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
         FeedItem feedItem = feedItemList.get(i);
-
-        //Download image using picasso library
-        /* //TODO
-        Picasso.with(mContext).load(feedItem.getThumbnail())
-                .error(R.drawable.placeholder)
-                .placeholder(R.drawable.placeholder)
-                .into(customViewHolder.imageView);
-        */
         //Setting text view title
         customViewHolder.textView.setText(Html.fromHtml(feedItem.getTitle()));
     }
@@ -74,6 +66,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Cu
         @Override
         public void onClick(View view) {
             Intent myIntent = new Intent(activity, DetailActivity.class);
+            myIntent.putExtra("id","ídéčko objektu"); // TODO přidat ID z objektu
             activity.startActivity(myIntent);
             Toast.makeText(activity.getApplicationContext(), "Něco?", Toast.LENGTH_SHORT).show();
         }
