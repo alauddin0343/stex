@@ -61,24 +61,33 @@ public class MapFragment extends Fragment {
     }
 
     //FUNCTIONS
-    private void centerMapToLatLng(LatLng latLng){
+    private void centreMapToLatLngSmooth(LatLng latLng){
         if(map != null){
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 16);
             map.animateCamera(cameraUpdate);
         }
     }
-
-    @Deprecated
-    private void putPlaceOnMap(Object place){ //TODO STILL IN DEPLOY
-        //z model objektu vytvořit marker na mapě
-        LatLng l = new LatLng(22.336292, 114.173910); //TODO get latLng and other stuff from place
-
-        markers.add(map.addMarker(new MarkerOptions().position(l).title("TODO TITLE").snippet("TODO SNIPPET")));
+    private void centreMapToLatLng(LatLng latLng){
+        if(map != null){
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 16);
+            map.moveCamera(cameraUpdate);
+        }
     }
 
     private void clearMap(){
-        map.clear(); //FULL CLEAN
+        map.clear(); markers.clear(); //FULL CLEAN
     }
+
+    private void putMarker(cz.uhk.cityunavigate.model.Marker marker){ //TODO STILL IN DEPLOY
+        //z model objektu vytvořit marker na mapě
+        //LatLng l = new LatLng(22.336292, 114.173910); //TODO get latLng and other stuff from place
+
+        markers.add(map.addMarker(new MarkerOptions() //saving in List<Marker> to be able to clear only one from all possible markers
+                .position(marker.getLocation())
+                .title(marker.toString())
+                .snippet("TODO SNIPPET")));
+    }
+
     private void removeMarker(Marker m){
         m.remove();
         markers.remove(m);
@@ -105,8 +114,6 @@ public class MapFragment extends Fragment {
                 map = googleMap;
                 map.getUiSettings().setMyLocationButtonEnabled(false);
 
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 10);
-
                 //map.setMyLocationEnabled(true);
                 map.setBuildingsEnabled(true);
                 map.getUiSettings().setAllGesturesEnabled(true);
@@ -114,7 +121,11 @@ public class MapFragment extends Fragment {
                 map.getUiSettings().setMyLocationButtonEnabled(true);
                 map.getUiSettings().setMapToolbarEnabled(true);
 
-                map.animateCamera(cameraUpdate);
+                //CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 10);
+                //TODO - ADD CENTER TO MY POSITION
+                centreMapToLatLng(new LatLng(22.336292, 114.173910));
+
+                //MAP LISTENERS
                 map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
                     public void onInfoWindowClick(Marker marker) {
@@ -180,8 +191,6 @@ public class MapFragment extends Fragment {
             }else if (mapStyle == 1){
                 map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
             }else if (mapStyle == 2){
-                map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-            }else if (mapStyle == 3){
                 mapStyle = -1;
                 map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             }
@@ -195,8 +204,7 @@ public class MapFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    //FOLLOWING METHODS ARE FOR MAPVIEW CONTROLLING
-
+    //FOLLOWING METHODS ARE FOR MAPVIEW CONTROLLING (map fragment must have)
     @Override
     public void onResume() {
         mapView.onResume();

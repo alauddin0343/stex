@@ -23,9 +23,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.uhk.cityunavigate.model.Group;
+
 public class GroupFragment extends Fragment {
 
-    private List<FeedItem> feedsList;
+    private List<Group> groups;
     private RecyclerView mRecyclerView;
     private GroupRecylerAdapter mRecyclerAdapter;
 
@@ -121,7 +123,7 @@ public class GroupFragment extends Fragment {
         protected void onPostExecute(Integer result) {
             // Download complete. Let us update UI
             if (result == 1) {
-                mRecyclerAdapter = new GroupRecylerAdapter(getContext(), feedsList, (MainActivity)getActivity());
+                mRecyclerAdapter = new GroupRecylerAdapter(getContext(), groups, (MainActivity)getActivity());
                 mRecyclerView.setAdapter(mRecyclerAdapter);
             } else {
                 //Toast.makeText(FeedListActivity.this, "Failed to fetch data!", Toast.LENGTH_SHORT).show();
@@ -132,15 +134,17 @@ public class GroupFragment extends Fragment {
         try {
             JSONObject response = new JSONObject(result);
             JSONArray posts = response.optJSONArray("posts");
-            feedsList = new ArrayList<>();
+            groups = new ArrayList<>();
 
             for (int i = 0; i < posts.length(); i++) {
                 JSONObject post = posts.optJSONObject(i);
-                FeedItem item = new FeedItem();
-                item.setTitle(post.optString("title"));
-                item.setThumbnail(post.optString("thumbnail"));
+                Group item = new Group(null,null,null,null,null); //TODO ;)
 
-                feedsList.add(item);
+                //TODO - SET GROUP ATTRIBUTES HERE
+                //item.setTitle(post.optString("title"));
+                //item.setThumbnail(post.optString("thumbnail"));
+
+                groups.add(item);
             }
         } catch (JSONException e) {
             e.printStackTrace();

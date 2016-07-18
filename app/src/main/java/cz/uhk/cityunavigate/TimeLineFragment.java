@@ -137,7 +137,7 @@ public class TimeLineFragment extends Fragment {
                 mRecyclerAdapter = new TimelineRecylerAdapter(getContext(), feedsList, (MainActivity)getActivity());
                 mRecyclerView.setAdapter(mRecyclerAdapter);
             } else {
-                //Toast.makeText(FeedListActivity.this, "Failed to fetch data!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Failed to fetch data!", Toast.LENGTH_SHORT).show();
             }
         }
     }
