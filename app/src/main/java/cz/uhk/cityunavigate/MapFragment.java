@@ -17,6 +17,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -85,6 +86,7 @@ public class MapFragment extends Fragment {
         markers.add(map.addMarker(new MarkerOptions() //saving in List<Marker> to be able to clear only one from all possible markers
                 .position(marker.getLocation())
                 .title(marker.toString())
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
                 .snippet("TODO SNIPPET")));
     }
 
