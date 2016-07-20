@@ -13,20 +13,11 @@ public class Marker {
     private String id, idGroup, idUserAuthor, idUserAdmin, idCategory;
     private LatLng location;
     private List<String> commentIds;
+    private String title, text;
 
     // For Firebase
     public Marker() {
 
-    }
-
-    public Marker(String id, String idGroup, String idUserAuthor, String idUserAdmin, String idCategory, LatLng location, List<String> commentIds) {
-        this.id = id;
-        this.idGroup = idGroup;
-        this.idUserAuthor = idUserAuthor;
-        this.idUserAdmin = idUserAdmin;
-        this.idCategory = idCategory;
-        this.location = location;
-        this.commentIds = commentIds;
     }
 
     private Marker(Builder builder) {
@@ -37,10 +28,14 @@ public class Marker {
         idCategory = builder.idCategory;
         location = builder.location;
         commentIds = builder.commentIds;
+        title = builder.title;
+        text = builder.text;
     }
 
-    public static Builder newBuilder(Marker copy) {
+    public static Builder builder(Marker copy) {
         Builder builder = new Builder();
+        builder.text = copy.text;
+        builder.title = copy.title;
         builder.commentIds = copy.commentIds;
         builder.location = copy.location;
         builder.idCategory = copy.idCategory;
@@ -83,13 +78,29 @@ public class Marker {
         return commentIds;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public String getText() {
+        return text;
+    }
+
 
     public interface IBuild {
         Marker build();
     }
 
+    public interface IText {
+        IBuild withText(String val);
+    }
+
+    public interface ITitle {
+        IText withTitle(String val);
+    }
+
     public interface ICommentIds {
-        IBuild withCommentIds(List<String> val);
+        ITitle withCommentIds(List<String> val);
     }
 
     public interface ILocation {
@@ -116,7 +127,9 @@ public class Marker {
         IIdGroup withId(String val);
     }
 
-    public static final class Builder implements ICommentIds, ILocation, IIdCategory, IIdUserAdmin, IIdUserAuthor, IIdGroup, IId, IBuild {
+    public static final class Builder implements IText, ITitle, ICommentIds, ILocation, IIdCategory, IIdUserAdmin, IIdUserAuthor, IIdGroup, IId, IBuild {
+        private String text;
+        private String title;
         private List<String> commentIds;
         private LatLng location;
         private String idCategory;
@@ -129,7 +142,19 @@ public class Marker {
         }
 
         @Override
-        public IBuild withCommentIds(List<String> val) {
+        public IBuild withText(String val) {
+            text = val;
+            return this;
+        }
+
+        @Override
+        public IText withTitle(String val) {
+            title = val;
+            return this;
+        }
+
+        @Override
+        public ITitle withCommentIds(List<String> val) {
             commentIds = val;
             return this;
         }
