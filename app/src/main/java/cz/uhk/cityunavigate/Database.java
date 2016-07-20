@@ -17,6 +17,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import cz.uhk.cityunavigate.model.Category;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Group;
 import cz.uhk.cityunavigate.model.Marker;
@@ -129,9 +130,21 @@ public class Database {
                 .addChildEventListener(new ChildEventAdapter() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        Group group = dataSnapshot.getValue(Group.class);
-                        if (group != null)
-                            result.add(group);
+                        String groupId = dataSnapshot.getKey();
+                        if (groupId != null)
+                            db().getReference("groups").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Group group = dataSnapshot.getValue(Group.class);
+                                    if (group != null)
+                                        result.add(group);
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
                     }
 
                     @Override
@@ -189,6 +202,29 @@ public class Database {
                 Marker marker = dataSnapshot.getValue(Marker.class);
                 if (marker != null)
                     res.resolve(marker);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                res.reject(databaseError.toException());
+            }
+        });
+        return res;
+    }
+
+    /**
+     * Get a {@link Category} by its id.
+     * @param categoryId category id
+     * @return category object (asynchronously)
+     */
+    public static Promise<Category> getCategoryById(String categoryId) {
+        final PromiseImpl<Category> res = new PromiseImpl<>();
+        db().getReference("categories").child(categoryId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Category category = dataSnapshot.getValue(Category.class);
+                if (category != null)
+                    res.resolve(category);
             }
 
             @Override
