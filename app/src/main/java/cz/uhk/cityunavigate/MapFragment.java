@@ -27,11 +27,17 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import cz.uhk.cityunavigate.model.Category;
 import cz.uhk.cityunavigate.model.Group;
+import cz.uhk.cityunavigate.util.ObservableList;
+import cz.uhk.cityunavigate.util.Promise;
 
 
 public class MapFragment extends Fragment {
@@ -91,35 +97,49 @@ public class MapFragment extends Fragment {
     private void putAllMarkersOnMap(){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        List<cz.uhk.cityunavigate.model.Marker> myMarkers = new ArrayList<>();
         if(user != null){
-            List<Group> groups = Database.getUserGroups(user);
-            for(Group grp : groups){
-                myMarkers.addAll(Database.getGroupMarkers(grp.getId()));
-            }
+            ObservableList<Group> groupss = Database.getUserGroups(user);
+            groupss.onItemsAdded.subscribe(new ObservableList.ItemAddListener<Group>() {
+                @Override
+                public void onItemAdded(@NotNull ObservableList<Group> list, @NotNull Collection<Group> addedItems) {
+                    for(Group grp : addedItems){
+                        ObservableList<cz.uhk.cityunavigate.model.Marker> myMarkers = Database.getGroupMarkers(grp.getId());
+                        myMarkers.onItemsAdded.subscribe(new ObservableList.ItemAddListener<cz.uhk.cityunavigate.model.Marker>() {
+                            @Override
+                            public void onItemAdded(@NotNull ObservableList<cz.uhk.cityunavigate.model.Marker> list, @NotNull Collection<cz.uhk.cityunavigate.model.Marker> addedItems) {
+                                for(cz.uhk.cityunavigate.model.Marker m : addedItems){
+                                    putMarker(m);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
         }
         else{
             Toast.makeText(getActivity(),"YOU'RE NOT LOGGED IN", Toast.LENGTH_SHORT).show();
         }
-
-        System.out.println("Dopadlo to?");
-
-        for(cz.uhk.cityunavigate.model.Marker m : myMarkers){
-            putMarker(m);
-        }
     }
 
-    private void putMarker(cz.uhk.cityunavigate.model.Marker marker) { //TODO STILL IN DEPLOY
-        int i = 0;
-        //i = Database.getCategory(marker.getId());
-        //IF SOMETHING HAPPENS, i = 0 SO THE COLOR OF THE MARKER WILL BE DEFAULT RED
-        Marker m = map.addMarker(new MarkerOptions() //saving in List<Marker> to be able to clear only one from all possible markers
-                .position(marker.getLocation())
-                .title(marker.getTitle())
-                .icon(BitmapDescriptorFactory.defaultMarker(i))
-                .snippet(marker.getText()));
-        markerIds.put(m, marker);
-        markers.add(m);
+    private void putMarker(final cz.uhk.cityunavigate.model.Marker marker) { //TODO STILL IN DEPLOY
+
+        Promise<Category> pc = Database.getCategoryById(marker.getIdCategory());
+        pc.success(new Promise.SuccessListener<Category, Object>() {
+            @Override
+            public Object onSuccess(Category result) {
+                //IF SOMETHING HAPPENS, i = 0 SO THE COLOR OF THE MARKER WILL BE DEFAULT RED
+                Marker m = map.addMarker(new MarkerOptions() //saving in List<Marker> to be able to clear only one from all possible markers
+                        .position(marker.getLocation())
+                        .title(marker.getTitle())
+                        .icon(BitmapDescriptorFactory.defaultMarker(result.getHue()))
+                        .snippet(marker.getText()));
+                markerIds.put(m, marker);
+                markers.add(m);
+                return null;
+            }
+        });
+
     }
 
     private void removeMarker(Marker m) {
