@@ -98,43 +98,43 @@ public class FeedItem implements Comparable<FeedItem> {
     }
 
 
-    interface IBuild {
+    public interface IBuild {
         FeedItem build();
     }
 
-    interface IThumbnail {
+    public interface IThumbnail {
         IBuild withThumbnail(URI val);
     }
 
-    interface ITitle {
+    public interface ITitle {
         IThumbnail withTitle(String val);
     }
 
-    interface IText {
+    public interface IText {
         ITitle withText(String val);
     }
 
-    interface IType {
+    public interface IType {
         IText withType(Type val);
     }
 
-    interface ICreated {
+    public interface ICreated {
         IType withCreated(long val);
     }
 
-    interface IMarkerId {
+    public interface IMarkerId {
         ICreated withMarkerId(String val);
     }
 
-    interface IGroupId {
+    public interface IGroupId {
         IMarkerId withGroupId(String val);
     }
 
-    interface IUserId {
+    public interface IUserId {
         IGroupId withUserId(String val);
     }
 
-    interface IId {
+    public interface IId {
         IUserId withId(String val);
     }
 
