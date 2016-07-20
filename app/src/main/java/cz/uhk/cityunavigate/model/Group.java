@@ -116,27 +116,27 @@ public class Group {
         }
     }
 
-    interface IBuild {
+    public interface IBuild {
         Group build();
     }
 
-    interface IUserIds {
+    public interface IUserIds {
         IBuild withUserIds(List<String> val);
     }
 
-    interface IAdminsIds {
+    public interface IAdminsIds {
         IUserIds withAdminsIds(List<String> val);
     }
 
-    interface IUniversity {
+    public interface IUniversity {
         IAdminsIds withUniversity(University val);
     }
 
-    interface IName {
+    public interface IName {
         IUniversity withName(String val);
     }
 
-    interface IId {
+    public interface IId {
         IName withId(String val);
     }
 }
