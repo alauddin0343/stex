@@ -2,7 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#eee"
     tools:context="cz.uhk.cityunavigate.TimeLineFragment">
 
     <android.support.v4.widget.SwipeRefreshLayout
@@ -14,6 +13,7 @@
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="#ddd"
             android:id="@+id/recyclerMainContent"/>
 
     </android.support.v4.widget.SwipeRefreshLayout>

@@ -1,19 +1,20 @@
-<android.support.v7.widget.CardView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:cardview="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="5dp">
 
-    <RelativeLayout
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp">
+        cardview:contentPadding="10dp"
+        cardview:cardCornerRadius="0dp"
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -21,83 +22,77 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingRight="5dp">
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
                     <ImageView
                         android:layout_width="50dp"
                         android:layout_height="50dp"
+                        android:layout_marginRight="5dp"
                         android:adjustViewBounds="true"
                         android:scaleType="centerCrop"
-                        android:id="@+id/imgProfilePicture"
-                        android:src="@drawable/ic_help_b"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:textAppearance="?android:textAppearanceSmall"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/txtDateAdded"
-                            android:layout_marginRight="5dp"
-                            android:text="30.2."
-                            android:textSize="15dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:text="Autor příspěvku"
-                            android:id="@+id/txtAuthor"
-                            android:textSize="15dp" />
-
-                    </LinearLayout>
+                        android:id="@+id/imgUser"
+                        android:src="@drawable/tmp_user"/>
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text="Název příspěvku"
+                        android:textStyle="bold"
                         android:id="@+id/txtTitle"
-                        android:textSize="25dp" />
+                        android:textSize="15dp" />
 
                 </LinearLayout>
 
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Ales Berger"
+                    android:textStyle="bold"
+                    android:id="@+id/txtAuthor"
+                    android:textSize="15dp" />
+
+                <TextView
+                    android:textAppearance="?android:textAppearanceSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtDate"
+                    android:layout_marginLeft="5dp"
+                    android:text="yesterday"
+                    android:textSize="15dp" />
 
             </LinearLayout>
 
-
             <TextView
-                android:id="@+id/txtContent"
+                android:id="@+id/txtText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
                 android:maxLines="3"
                 android:text="Popisek příspěvku, loremipsum atd, maximálně 3 řádky, takže takhle to necháme.."
                 android:textColor="#222"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:textSize="15dp" />
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/imgTimeline"
-
+                android:id="@+id/imgImage"
                 android:src="@drawable/cityu_logo"/>
 
         </LinearLayout>
 
-    </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
-</android.support.v7.widget.CardView>
+</LinearLayout>

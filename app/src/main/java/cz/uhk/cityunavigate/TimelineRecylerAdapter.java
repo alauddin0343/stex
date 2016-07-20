@@ -42,8 +42,13 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
     @Override
     public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
         FeedItem feedItem = feedItemList.get(i);
+
         //Setting text view title
-        customViewHolder.txtTitle.setText(Html.fromHtml(feedItem.getTitle()));
+        customViewHolder.txtTitle.setText(feedItem.getTitle());
+        customViewHolder.txtText.setText(feedItem.getText());
+        customViewHolder.txtDate.setText("" + feedItem.getCreated());
+
+        //customViewHolder.imgUser.setImageURI(feedItem.getThumbnail());
     }
 
     @Override
@@ -55,22 +60,26 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
     //VIEW HOLDER FOR RECYCLER ADAPTER
     public class CustomViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener{
-        protected ImageView imgTimeline;
-        protected TextView txtTitle;
-        protected TextView txtContent;
+
+        protected ImageView imgUser, imgImage;
+        protected TextView txtTitle, txtText, txtAuthor, txtDate;
 
         public CustomViewHolder(View view) {
             super(view);
+            this.imgUser = (ImageView) view.findViewById(R.id.imgUser);
+            this.imgImage = (ImageView) view.findViewById(R.id.imgUser);
+
             this.txtTitle = (TextView) view.findViewById(R.id.txtTitle);
-            this.txtContent = (TextView) view.findViewById(R.id.txtContent);
-            this.imgTimeline = (ImageView) view.findViewById(R.id.imageView);
+            this.txtText = (TextView) view.findViewById(R.id.txtText);
+            this.txtAuthor = (TextView) view.findViewById(R.id.txtAuthor);
+            this.txtDate = (TextView) view.findViewById(R.id.txtDate);
             view.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
             Intent myIntent = new Intent(activity, DetailActivity.class);
-            myIntent.putExtra("id","ídéčko objektu"); // TODO přidat ID z objektu
+            myIntent.putExtra("id", "ídéčko objektu"); // TODO přidat ID z objektu
             activity.startActivity(myIntent);
             Toast.makeText(activity.getApplicationContext(), "Něco?", Toast.LENGTH_SHORT).show();
         }

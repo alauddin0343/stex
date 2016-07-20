@@ -14,6 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,9 +29,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import cz.uhk.cityunavigate.model.FeedItem;
+import cz.uhk.cityunavigate.model.Group;
+import cz.uhk.cityunavigate.util.ObservableList;
 
 public class TimeLineFragment extends Fragment {
 
@@ -81,6 +88,35 @@ public class TimeLineFragment extends Fragment {
         final String url = "http://stacktips.com/?json=get_recent_posts&count=45";
         new AsyncHttpTask().execute(url);
 
+
+        mRecyclerAdapter = new TimelineRecylerAdapter(getActivity(), feedsList, (MainActivity)getActivity());
+        mRecyclerView.setAdapter(mRecyclerAdapter);
+/*
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser != null) {
+
+            ObservableList<Group> userGroups = Database.getUserGroups(firebaseUser);
+            userGroups.onItemsAdded.subscribe(new ObservableList.ItemAddListener<Group>() {
+                @Override
+                public void onItemAdded(@NotNull ObservableList<Group> list, @NotNull Collection<Group> addedItems) {
+                    for (Group group : addedItems) {
+
+                        ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), 10);
+
+                        feedItems.onItemsAdded.subscribe(new ObservableList.ItemAddListener<FeedItem>() {
+                            @Override
+                            public void onItemAdded(@NotNull ObservableList<FeedItem> list, @NotNull Collection<FeedItem> addedItems) {
+                                feedsList.addAll(addedItems);
+                                mRecyclerAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                }
+            });
+
+            // TODO onItemsRemoved
+        }
+        */
         return view;
     }
 
