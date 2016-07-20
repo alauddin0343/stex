@@ -24,6 +24,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.uhk.cityunavigate.model.FeedItem;
+
 public class TimeLineFragment extends Fragment {
 
     private SwipeRefreshLayout mSwipeRefresh;

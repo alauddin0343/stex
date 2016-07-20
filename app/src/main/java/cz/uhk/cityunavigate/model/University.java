@@ -3,18 +3,25 @@ package cz.uhk.cityunavigate.model;
 import android.graphics.Bitmap;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.net.URL;
 
 /**
  * University DTO
  */
+@IgnoreExtraProperties
 public class University {
     private String id;
     private String name;
     private Bitmap logo;
     private URL website;
     private LatLng coord;
+
+    // For Firebase
+    public University() {
+
+    }
 
     public University(String id, String name, Bitmap logo, URL website, LatLng coord) {
         this.id = id;

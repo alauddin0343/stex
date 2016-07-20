@@ -1,16 +1,23 @@
 package cz.uhk.cityunavigate.model;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.List;
 
 /**
  * Marker DTO
  */
+@IgnoreExtraProperties
 public class Marker {
     private String id, idGroup, idUserAuthor, idUserAdmin;
     private LatLng location;
     private List<String> commentIds;
+
+    // For Firebase
+    public Marker() {
+
+    }
 
     public Marker(String id, String idGroup, String idUserAuthor, String idUserAdmin, LatLng location, List<String> commentIds) {
         this.id = id;

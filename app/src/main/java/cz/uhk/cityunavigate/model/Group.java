@@ -1,16 +1,24 @@
 package cz.uhk.cityunavigate.model;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import java.util.List;
 
 /**
  * Group DTO
  */
+@IgnoreExtraProperties
 public class Group {
     private String id;
     private String name;
     private University university;
     private List<String> adminsIds;
     private List<String> userIds;
+
+    // For Firebase
+    public Group() {
+
+    }
 
     public Group(String id, String name, University university, List<String> adminIds, List<String> userIds) {
         this.id = id;

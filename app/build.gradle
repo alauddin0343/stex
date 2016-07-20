@@ -44,6 +44,8 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:9.2.1'
     compile 'com.google.firebase:firebase-database:9.2.0'
     compile 'com.firebaseui:firebase-ui:0.4.2'
+    //noinspection GradleDynamicVersion
+    compile 'com.intellij:annotations:+@jar'
 }
 
 

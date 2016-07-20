@@ -33,58 +33,8 @@ public class StartupActivity extends Activity {
                 if (loggedInUser == null)
                     return;
 
-                DatabaseReference invitations = FirebaseDatabase.getInstance()
-                        .getReference("invitations")
-                        .child(Util.MD5(loggedInUser.getEmail()))
-                        .child("groups");
-                invitations.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            String groupId = snapshot.getKey();
-                            DatabaseReference groupUsers = FirebaseDatabase.getInstance()
-                                    .getReference("groups")
-                                    .child(groupId)
-                                    .child("users")
-                                    .child(loggedInUser.getUid());
-                            groupUsers.setValue(System.currentTimeMillis());
-
-                            DatabaseReference userGroups = FirebaseDatabase.getInstance()
-                                    .getReference("users")
-                                    .child(loggedInUser.getUid())
-                                    .child("groups")
-                                    .child(groupId);
-                            userGroups.setValue(System.currentTimeMillis());
-
-                            snapshot.getRef().removeValue();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-                final DatabaseReference userRef = FirebaseDatabase.getInstance()
-                        .getReference("users")
-                        .child(loggedInUser.getUid());
-
-                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            // Add the user if not present
-                            userRef.child("created").setValue(System.currentTimeMillis());
-                            userRef.child("email").setValue(loggedInUser.getEmail());
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                Database.acceptInvitations(loggedInUser);
+                Database.registerUserToDatabase(loggedInUser);
             }
         });
 
