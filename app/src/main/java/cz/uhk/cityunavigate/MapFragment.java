@@ -2,6 +2,7 @@ package cz.uhk.cityunavigate;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -196,8 +197,12 @@ public class MapFragment extends Fragment {
                 mapStyle = -1;
                 map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             }
+            mapStyle++;
         }
-        mapStyle++;
+
+        if (id == R.id.action_marker_add){
+            getActivity().startActivity(new Intent(getActivity(), AddMarkerActivity.class));
+        }
 
         return super.onOptionsItemSelected(item);
     }
