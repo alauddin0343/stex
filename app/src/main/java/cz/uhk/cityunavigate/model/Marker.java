@@ -9,8 +9,8 @@ import java.util.List;
  * Marker DTO
  */
 @IgnoreExtraProperties
-public class Marker {
-    private String id, idGroup, idUserAuthor, idUserAdmin, idCategory;
+public class Marker implements Identifiable {
+    private String id, idGroup, idUserAuthor;
     private LatLng location;
     private List<String> commentIds;
     private String title, text;
@@ -24,22 +24,18 @@ public class Marker {
         id = builder.id;
         idGroup = builder.idGroup;
         idUserAuthor = builder.idUserAuthor;
-        idUserAdmin = builder.idUserAdmin;
-        idCategory = builder.idCategory;
         location = builder.location;
         commentIds = builder.commentIds;
         title = builder.title;
         text = builder.text;
     }
 
-    public static Builder builder(Marker copy) {
+    public static Builder newBuilder(Marker copy) {
         Builder builder = new Builder();
         builder.text = copy.text;
         builder.title = copy.title;
         builder.commentIds = copy.commentIds;
         builder.location = copy.location;
-        builder.idCategory = copy.idCategory;
-        builder.idUserAdmin = copy.idUserAdmin;
         builder.idUserAuthor = copy.idUserAuthor;
         builder.idGroup = copy.idGroup;
         builder.id = copy.id;
@@ -60,14 +56,6 @@ public class Marker {
 
     public String getIdUserAuthor() {
         return idUserAuthor;
-    }
-
-    public String getIdUserAdmin() {
-        return idUserAdmin;
-    }
-
-    public String getIdCategory() {
-        return idCategory;
     }
 
     public LatLng getLocation() {
@@ -107,16 +95,8 @@ public class Marker {
         ICommentIds withLocation(LatLng val);
     }
 
-    public interface IIdCategory {
-        ILocation withIdCategory(String val);
-    }
-
-    public interface IIdUserAdmin {
-        IIdCategory withIdUserAdmin(String val);
-    }
-
     public interface IIdUserAuthor {
-        IIdUserAdmin withIdUserAuthor(String val);
+        ILocation withIdUserAuthor(String val);
     }
 
     public interface IIdGroup {
@@ -127,13 +107,11 @@ public class Marker {
         IIdGroup withId(String val);
     }
 
-    public static final class Builder implements IText, ITitle, ICommentIds, ILocation, IIdCategory, IIdUserAdmin, IIdUserAuthor, IIdGroup, IId, IBuild {
+    public static final class Builder implements IText, ITitle, ICommentIds, ILocation, IIdUserAuthor, IIdGroup, IId, IBuild {
         private String text;
         private String title;
         private List<String> commentIds;
         private LatLng location;
-        private String idCategory;
-        private String idUserAdmin;
         private String idUserAuthor;
         private String idGroup;
         private String id;
@@ -166,19 +144,7 @@ public class Marker {
         }
 
         @Override
-        public ILocation withIdCategory(String val) {
-            idCategory = val;
-            return this;
-        }
-
-        @Override
-        public IIdCategory withIdUserAdmin(String val) {
-            idUserAdmin = val;
-            return this;
-        }
-
-        @Override
-        public IIdUserAdmin withIdUserAuthor(String val) {
+        public ILocation withIdUserAuthor(String val) {
             idUserAuthor = val;
             return this;
         }

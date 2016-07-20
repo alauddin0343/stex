@@ -1,5 +1,9 @@
+
 package cz.uhk.cityunavigate;
 
+import android.support.annotation.Nullable;
+
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -10,16 +14,18 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import cz.uhk.cityunavigate.model.Category;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Group;
+import cz.uhk.cityunavigate.model.Identifiable;
 import cz.uhk.cityunavigate.model.Marker;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
@@ -135,9 +141,17 @@ public class Database {
                             db().getReference("groups").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                    Group group = dataSnapshot.getValue(Group.class);
-                                    if (group != null)
-                                        result.add(group);
+                                    Map<String, Object> groupMap = snapshotToMap(dataSnapshot);
+                                    Map<String, Object> userMap = objectToMap(groupMap.get("users"));
+                                    List<String> users = new ArrayList<>(userMap.keySet());
+                                    Group group = Group.builder()
+                                            .withId(dataSnapshot.getKey())
+                                            .withName((String)groupMap.get("name"))
+                                            .withUniversity((String)groupMap.get("university"))
+                                            .withAdminsIds(Collections.singletonList((String)groupMap.get("administrator")))
+                                            .withUserIds(users)
+                                            .build();
+                                    result.add(group);
                                 }
 
                                 @Override
@@ -149,9 +163,7 @@ public class Database {
 
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
-                        Group group = dataSnapshot.getValue(Group.class);
-                        if (group != null)
-                            result.remove(group);
+                        removeFromListById(result, dataSnapshot.getKey());
                     }
                 });
         return result;
@@ -164,7 +176,7 @@ public class Database {
      * @param feedItemLimit maximum number of items to fetch
      * @return group feed
      */
-    public static ObservableList<FeedItem> getGroupFeed(@NotNull String groupId, final int feedItemLimit) {
+    public static ObservableList<FeedItem> getGroupFeed(@NotNull final String groupId, final int feedItemLimit) {
         final ObservableList<FeedItem> result = new ObservableList<>();
         db().getReference("timeline")
                 .child(groupId)
@@ -173,16 +185,24 @@ public class Database {
                 .addChildEventListener(new ChildEventAdapter() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        FeedItem item = dataSnapshot.getValue(FeedItem.class);
-                        if (item != null)
-                            result.add(item);
+                        Map<String, Object> itemMap = snapshotToMap(dataSnapshot);
+                        FeedItem item = FeedItem.builder()
+                                .withId(dataSnapshot.getKey())
+                                .withUserId((String)itemMap.get("user"))
+                                .withGroupId(groupId)
+                                .withMarkerId((String)itemMap.get("marker"))
+                                .withCreated(longFromMap(itemMap, "created"))
+                                .withType(enumFromMap(itemMap, "type", FeedItem.Type.MarkerAdd))
+                                .withText((String)itemMap.get("text"))
+                                .withTitle((String)itemMap.get("title"))
+                                .withThumbnail(uriFromMap(itemMap, "url"))
+                                .build();
+                        result.add(item);
                     }
 
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
-                        FeedItem item = dataSnapshot.getValue(FeedItem.class);
-                        if (item != null)
-                            result.remove(item);
+                        removeFromListById(result, dataSnapshot.getKey());
                     }
                 });
         return result;
@@ -217,14 +237,18 @@ public class Database {
      * @param categoryId category id
      * @return category object (asynchronously)
      */
-    public static Promise<Category> getCategoryById(String categoryId) {
+    public static Promise<Category> getCategoryById(final String categoryId) {
         final PromiseImpl<Category> res = new PromiseImpl<>();
         db().getReference("categories").child(categoryId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Category category = dataSnapshot.getValue(Category.class);
-                if (category != null)
-                    res.resolve(category);
+                Map<String, Object> catMap = snapshotToMap(dataSnapshot);
+                Category category = Category.builder()
+                        .withId(dataSnapshot.getKey())
+                        .withName((String)catMap.get("name"))
+                        .withHue((float)doubleFromMap(catMap, "hue"))
+                        .build();
+                res.resolve(category);
             }
 
             @Override
@@ -241,24 +265,95 @@ public class Database {
      * @param groupId group ID
      * @return group markers
      */
-    public static ObservableList<Marker> getGroupMarkers(String groupId) {
+    public static ObservableList<Marker> getGroupMarkers(final String groupId) {
         final ObservableList<Marker> res = new ObservableList<>();
         db().getReference("markers").child(groupId).addChildEventListener(new ChildEventAdapter() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Marker marker = dataSnapshot.getValue(Marker.class);
-                if (marker != null)
-                    res.add(marker);
+                Map<String, Object> markerMap = snapshotToMap(dataSnapshot);
+                Marker marker = Marker.builder()
+                        .withId(dataSnapshot.getKey())
+                        .withIdGroup(groupId)
+                        .withIdUserAuthor((String)markerMap.get("user"))
+                        .withLocation(new LatLng(doubleFromMap(markerMap, "lat"), doubleFromMap(markerMap, "lng")))
+                        .withCommentIds(Collections.<String>emptyList())
+                        .withTitle((String)markerMap.get("title"))
+                        .withText((String)markerMap.get("text"))
+                        .build();
+                res.add(marker);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Marker marker = dataSnapshot.getValue(Marker.class);
-                if (marker != null)
-                    res.remove(marker);
+                removeFromListById(res, dataSnapshot.getKey());
             }
         });
         return res;
+    }
+
+    private static void removeFromListById(List<? extends Identifiable> list, String id) {
+        for (Identifiable identifiable : list) {
+            if (id.equals(identifiable.getId())) {
+                list.remove(identifiable);
+                break;
+            }
+        }
+    }
+
+    private static @Nullable URI uriFromMap(Map<String, Object> map, String key) {
+        Object res = map.get(key);
+        if (res instanceof String) {
+            try {
+                return new URI((String) res);
+            } catch (URISyntaxException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private static <T extends Enum<T>> T enumFromMap(Map<String, Object> map, String key, @NotNull T def) {
+        Object res = map.get(key);
+        if (res instanceof String) {
+            for (Enum anEnum : def.getClass().getEnumConstants()) {
+                if (anEnum.name().equals(res))
+                    //noinspection unchecked
+                    return (T)anEnum;
+            }
+        }
+        return def;
+    }
+
+    private static double doubleFromMap(Map<String, Object> map, String key) {
+        Object res = map.get(key);
+        if (res instanceof Double)
+            return (double)res;
+        if (res instanceof Float)
+            return (float)(double)res;
+        return 0;
+    }
+
+    private static long longFromMap(Map<String, Object> map, String key) {
+        Object res = map.get(key);
+        if (res instanceof Long)
+            return (long)res;
+        return 0;
+    }
+
+    private static Map<String, Object> objectToMap(Object object) {
+        if (object == null)
+            return new HashMap<>();
+        if (object instanceof Map) {
+            //noinspection unchecked
+            return (Map<String, Object>)object;
+        }
+        return new HashMap<>();
+    }
+
+    private static Map<String, Object> snapshotToMap(DataSnapshot snapshot) {
+        if (snapshot == null)
+            return new HashMap<>();
+        return objectToMap(snapshot.getValue());
     }
 
     private static abstract class ChildEventAdapter implements ChildEventListener {

@@ -6,7 +6,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
  * Marker category
  */
 @IgnoreExtraProperties
-public class Category {
+public class Category implements Identifiable {
     private String id;
     private String name;
     private float hue;

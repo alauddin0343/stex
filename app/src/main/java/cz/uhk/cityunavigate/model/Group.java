@@ -8,7 +8,7 @@ import java.util.List;
  * Group DTO
  */
 @IgnoreExtraProperties
-public class Group {
+public class Group implements Identifiable {
     private String id;
     private String name;
     private String idUniversity;

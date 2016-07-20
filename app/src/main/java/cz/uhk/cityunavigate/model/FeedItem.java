@@ -10,7 +10,7 @@ import java.net.URI;
  * User feed item
  */
 @IgnoreExtraProperties
-public class FeedItem implements Comparable<FeedItem> {
+public class FeedItem implements Comparable<FeedItem>, Identifiable {
     private String id;
     private String userId;
     private String groupId;

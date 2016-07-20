@@ -11,7 +11,7 @@ import java.net.URL;
  * University DTO
  */
 @IgnoreExtraProperties
-public class University {
+public class University implements Identifiable {
     private String id;
     private String name;
     private Bitmap logo;
