@@ -130,9 +130,21 @@ public class Database {
                 .addChildEventListener(new ChildEventAdapter() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        Group group = dataSnapshot.getValue(Group.class);
-                        if (group != null)
-                            result.add(group);
+                        String groupId = dataSnapshot.getKey();
+                        if (groupId != null)
+                            db().getReference("groups").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Group group = dataSnapshot.getValue(Group.class);
+                                    if (group != null)
+                                        result.add(group);
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
                     }
 
                     @Override

@@ -11,7 +11,7 @@ import java.util.List;
 public class Group {
     private String id;
     private String name;
-    private University university;
+    private String idUniversity;
     private List<String> adminsIds;
     private List<String> userIds;
 
@@ -20,10 +20,10 @@ public class Group {
 
     }
 
-    public Group(String id, String name, University university, List<String> adminIds, List<String> userIds) {
+    public Group(String id, String name, String idUniversity, List<String> adminIds, List<String> userIds) {
         this.id = id;
         this.name = name;
-        this.university = university;
+        this.idUniversity = idUniversity;
         this.adminsIds = adminIds;
         this.userIds = userIds;
     }
@@ -31,7 +31,7 @@ public class Group {
     private Group(Builder builder) {
         id = builder.id;
         name = builder.name;
-        university = builder.university;
+        idUniversity = builder.idUniversity;
         adminsIds = builder.adminsIds;
         userIds = builder.userIds;
     }
@@ -40,7 +40,7 @@ public class Group {
         Builder builder = new Builder();
         builder.userIds = copy.userIds;
         builder.adminsIds = copy.adminsIds;
-        builder.university = copy.university;
+        builder.idUniversity = copy.idUniversity;
         builder.name = copy.name;
         builder.id = copy.id;
         return builder;
@@ -58,8 +58,8 @@ public class Group {
         return name;
     }
 
-    public University getUniversity() {
-        return university;
+    public String getIdUniversity() {
+        return idUniversity;
     }
 
     public List<String> getAdminsIds() {
@@ -74,7 +74,7 @@ public class Group {
     public static final class Builder implements IUserIds, IAdminsIds, IUniversity, IName, IId, IBuild {
         private List<String> userIds;
         private List<String> adminsIds;
-        private University university;
+        private String idUniversity;
         private String name;
         private String id;
 
@@ -94,8 +94,8 @@ public class Group {
         }
 
         @Override
-        public IAdminsIds withUniversity(University val) {
-            university = val;
+        public IAdminsIds withUniversity(String val) {
+            idUniversity = val;
             return this;
         }
 
@@ -129,7 +129,7 @@ public class Group {
     }
 
     public interface IUniversity {
-        IAdminsIds withUniversity(University val);
+        IAdminsIds withUniversity(String val);
     }
 
     public interface IName {
