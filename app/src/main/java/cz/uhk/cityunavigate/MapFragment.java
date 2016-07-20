@@ -28,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import cz.uhk.cityunavigate.model.Group;
@@ -38,6 +39,7 @@ public class MapFragment extends Fragment {
     private MapView mapView;
     private GoogleMap map;
 
+    private HashMap<Marker, cz.uhk.cityunavigate.model.Marker> markerIds;
     private List<Marker> markers;
     private List<Circle> circles;
     private List<Polygon> polygons;
@@ -101,20 +103,27 @@ public class MapFragment extends Fragment {
         }
 
         System.out.println("Dopadlo to?");
+
+        for(cz.uhk.cityunavigate.model.Marker m : myMarkers){
+            putMarker(m);
+        }
     }
 
     private void putMarker(cz.uhk.cityunavigate.model.Marker marker) { //TODO STILL IN DEPLOY
-        //z model objektu vytvořit marker na mapě
-        //LatLng l = new LatLng(22.336292, 114.173910); //TODO get latLng and other stuff from place
-
-        markers.add(map.addMarker(new MarkerOptions() //saving in List<Marker> to be able to clear only one from all possible markers
+        int i = 0;
+        //i = Database.getCategory(marker.getId());
+        //IF SOMETHING HAPPENS, i = 0 SO THE COLOR OF THE MARKER WILL BE DEFAULT RED
+        Marker m = map.addMarker(new MarkerOptions() //saving in List<Marker> to be able to clear only one from all possible markers
                 .position(marker.getLocation())
-                .title(marker.toString())
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
-                .snippet("TODO SNIPPET")));
+                .title(marker.getTitle())
+                .icon(BitmapDescriptorFactory.defaultMarker(i))
+                .snippet(marker.getText()));
+        markerIds.put(m, marker);
+        markers.add(m);
     }
 
     private void removeMarker(Marker m) {
+        markerIds.remove(m);
         m.remove();
         markers.remove(m);
     }
@@ -129,6 +138,7 @@ public class MapFragment extends Fragment {
         markers = new ArrayList<>();
         circles = new ArrayList<>();
         polygons = new ArrayList<>();
+        markerIds = new HashMap<>();
 
         mapView = (MapView) view.findViewById(R.id.mapview);
         mapView.onCreate(savedInstanceState);
@@ -170,17 +180,21 @@ public class MapFragment extends Fragment {
                         Toast.makeText(getActivity(), "TODO přidat akci", Toast.LENGTH_SHORT).show();
                     }
                 });
+                /*
+                //TODO? případně by na dlouhé podržení mohla vyskočit addMarkerActivity se zvolenou polohou
                 map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                     @Override
                     public void onMapLongClick(LatLng latLng) {
                         markers.add(map.addMarker(new MarkerOptions().position(latLng).title("Si podržel").snippet("dobrý ne?")));
                     }
                 });
+                */
                 map.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
                     @Override
                     public void onInfoWindowLongClick(Marker marker) {
                         marker.hideInfoWindow();
-                        removeMarker(marker);
+                        Intent detailIntent = new Intent(getActivity(),DetailActivity.class);
+                        detailIntent.putExtra("id",markerIds.get(marker).getId());
                     }
                 });
 
