@@ -275,6 +275,7 @@ public class Database {
                         .withId(dataSnapshot.getKey())
                         .withIdGroup(groupId)
                         .withIdUserAuthor((String)markerMap.get("user"))
+                        .withIdCategory((String)markerMap.get("category"))
                         .withLocation(new LatLng(doubleFromMap(markerMap, "lat"), doubleFromMap(markerMap, "lng")))
                         .withCommentIds(Collections.<String>emptyList())
                         .withTitle((String)markerMap.get("title"))
