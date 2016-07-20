@@ -24,9 +24,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import cz.uhk.cityunavigate.model.Group;
 
 
 public class MapFragment extends Fragment {
@@ -63,24 +67,43 @@ public class MapFragment extends Fragment {
     }
 
     //FUNCTIONS
-    private void centreMapToLatLngSmooth(LatLng latLng){
-        if(map != null){
+    private void centreMapToLatLngSmooth(LatLng latLng) {
+        if (map != null) {
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 16);
             map.animateCamera(cameraUpdate);
         }
     }
-    private void centreMapToLatLng(LatLng latLng){
-        if(map != null){
+
+    private void centreMapToLatLng(LatLng latLng) {
+        if (map != null) {
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 16);
             map.moveCamera(cameraUpdate);
         }
     }
 
-    private void clearMap(){
-        map.clear(); markers.clear(); //FULL CLEAN
+    private void clearMap() {
+        map.clear();
+        markers.clear(); //FULL CLEAN
     }
 
-    private void putMarker(cz.uhk.cityunavigate.model.Marker marker){ //TODO STILL IN DEPLOY
+    private void putAllMarkersOnMap(){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        List<cz.uhk.cityunavigate.model.Marker> myMarkers = new ArrayList<>();
+        if(user != null){
+            List<Group> groups = Database.getUserGroups(user);
+            for(Group grp : groups){
+                myMarkers.addAll(Database.getGroupMarkers(grp.getId()));
+            }
+        }
+        else{
+            Toast.makeText(getActivity(),"YOU'RE NOT LOGGED IN", Toast.LENGTH_SHORT).show();
+        }
+
+        System.out.println("Dopadlo to?");
+    }
+
+    private void putMarker(cz.uhk.cityunavigate.model.Marker marker) { //TODO STILL IN DEPLOY
         //z model objektu vytvořit marker na mapě
         //LatLng l = new LatLng(22.336292, 114.173910); //TODO get latLng and other stuff from place
 
@@ -91,7 +114,7 @@ public class MapFragment extends Fragment {
                 .snippet("TODO SNIPPET")));
     }
 
-    private void removeMarker(Marker m){
+    private void removeMarker(Marker m) {
         m.remove();
         markers.remove(m);
     }
@@ -116,8 +139,20 @@ public class MapFragment extends Fragment {
             public void onMapReady(GoogleMap googleMap) {
                 map = googleMap;
                 map.getUiSettings().setMyLocationButtonEnabled(false);
-
-                //map.setMyLocationEnabled(true);
+                /*
+                if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                                              int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                map.setMyLocationEnabled(true);
+                */
                 map.setBuildingsEnabled(true);
                 map.getUiSettings().setAllGesturesEnabled(true);
                 map.getUiSettings().setCompassEnabled(true);
@@ -148,6 +183,9 @@ public class MapFragment extends Fragment {
                         removeMarker(marker);
                     }
                 });
+
+                //ADDING ALL COMPONENTS
+                putAllMarkersOnMap();
 
             }
         });
