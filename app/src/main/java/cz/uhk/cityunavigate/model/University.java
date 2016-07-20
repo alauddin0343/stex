@@ -119,27 +119,27 @@ public class University {
         }
     }
 
-    interface IBuild {
+    public interface IBuild {
         University build();
     }
 
-    interface ICoord {
+    public interface ICoord {
         IBuild withCoord(LatLng val);
     }
 
-    interface IWebsite {
+    public interface IWebsite {
         ICoord withWebsite(URL val);
     }
 
-    interface ILogo {
+    public interface ILogo {
         IWebsite withLogo(Bitmap val);
     }
 
-    interface IName {
+    public interface IName {
         ILogo withName(String val);
     }
 
-    interface IId {
+    public interface IId {
         IName withId(String val);
     }
 

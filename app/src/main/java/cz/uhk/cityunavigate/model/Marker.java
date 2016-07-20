@@ -10,7 +10,7 @@ import java.util.List;
  */
 @IgnoreExtraProperties
 public class Marker {
-    private String id, idGroup, idUserAuthor, idUserAdmin;
+    private String id, idGroup, idUserAuthor, idUserAdmin, idCategory;
     private LatLng location;
     private List<String> commentIds;
 
@@ -19,11 +19,12 @@ public class Marker {
 
     }
 
-    public Marker(String id, String idGroup, String idUserAuthor, String idUserAdmin, LatLng location, List<String> commentIds) {
+    public Marker(String id, String idGroup, String idUserAuthor, String idUserAdmin, String idCategory, LatLng location, List<String> commentIds) {
         this.id = id;
         this.idGroup = idGroup;
         this.idUserAuthor = idUserAuthor;
         this.idUserAdmin = idUserAdmin;
+        this.idCategory = idCategory;
         this.location = location;
         this.commentIds = commentIds;
     }
@@ -33,14 +34,16 @@ public class Marker {
         idGroup = builder.idGroup;
         idUserAuthor = builder.idUserAuthor;
         idUserAdmin = builder.idUserAdmin;
+        idCategory = builder.idCategory;
         location = builder.location;
         commentIds = builder.commentIds;
     }
 
-    public static Builder builder(Marker copy) {
+    public static Builder newBuilder(Marker copy) {
         Builder builder = new Builder();
         builder.commentIds = copy.commentIds;
         builder.location = copy.location;
+        builder.idCategory = copy.idCategory;
         builder.idUserAdmin = copy.idUserAdmin;
         builder.idUserAuthor = copy.idUserAuthor;
         builder.idGroup = copy.idGroup;
@@ -68,6 +71,10 @@ public class Marker {
         return idUserAdmin;
     }
 
+    public String getIdCategory() {
+        return idCategory;
+    }
+
     public LatLng getLocation() {
         return location;
     }
@@ -77,9 +84,42 @@ public class Marker {
     }
 
 
-    public static final class Builder implements ICommentIds, ILocation, IIdUserAdmin, IIdUserAuthor, IIdGroup, IId, IBuild {
+    public interface IBuild {
+        Marker build();
+    }
+
+    public interface ICommentIds {
+        IBuild withCommentIds(List<String> val);
+    }
+
+    public interface ILocation {
+        ICommentIds withLocation(LatLng val);
+    }
+
+    public interface IIdCategory {
+        ILocation withIdCategory(String val);
+    }
+
+    public interface IIdUserAdmin {
+        IIdCategory withIdUserAdmin(String val);
+    }
+
+    public interface IIdUserAuthor {
+        IIdUserAdmin withIdUserAuthor(String val);
+    }
+
+    public interface IIdGroup {
+        IIdUserAuthor withIdGroup(String val);
+    }
+
+    public interface IId {
+        IIdGroup withId(String val);
+    }
+
+    public static final class Builder implements ICommentIds, ILocation, IIdCategory, IIdUserAdmin, IIdUserAuthor, IIdGroup, IId, IBuild {
         private List<String> commentIds;
         private LatLng location;
+        private String idCategory;
         private String idUserAdmin;
         private String idUserAuthor;
         private String idGroup;
@@ -101,7 +141,13 @@ public class Marker {
         }
 
         @Override
-        public ILocation withIdUserAdmin(String val) {
+        public ILocation withIdCategory(String val) {
+            idCategory = val;
+            return this;
+        }
+
+        @Override
+        public IIdCategory withIdUserAdmin(String val) {
             idUserAdmin = val;
             return this;
         }
@@ -127,33 +173,5 @@ public class Marker {
         public Marker build() {
             return new Marker(this);
         }
-    }
-
-    interface IBuild {
-        Marker build();
-    }
-
-    interface ICommentIds {
-        IBuild withCommentIds(List<String> val);
-    }
-
-    interface ILocation {
-        ICommentIds withLocation(LatLng val);
-    }
-
-    interface IIdUserAdmin {
-        ILocation withIdUserAdmin(String val);
-    }
-
-    interface IIdUserAuthor {
-        IIdUserAdmin withIdUserAuthor(String val);
-    }
-
-    interface IIdGroup {
-        IIdUserAuthor withIdGroup(String val);
-    }
-
-    interface IId {
-        IIdGroup withId(String val);
     }
 }
