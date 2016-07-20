@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import cz.uhk.cityunavigate.model.FeedItem;
+
 /**
  * Created by petrw on 12.07.2016.
  */

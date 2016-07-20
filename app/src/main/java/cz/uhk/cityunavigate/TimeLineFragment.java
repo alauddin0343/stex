@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +21,13 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import cz.uhk.cityunavigate.model.FeedItem;
 
 public class TimeLineFragment extends Fragment {
 
@@ -149,11 +154,22 @@ public class TimeLineFragment extends Fragment {
 
             for (int i = 0; i < posts.length(); i++) {
                 JSONObject post = posts.optJSONObject(i);
-                FeedItem item = new FeedItem();
-                item.setTitle(post.optString("title"));
-                item.setThumbnail(post.optString("thumbnail"));
-
-                feedsList.add(item);
+                try {
+                    FeedItem item = FeedItem.builder()
+                            .withId("XXX")
+                            .withUserId("USERID")
+                            .withGroupId("GROUPID")
+                            .withMarkerId("MARKERID")
+                            .withCreated(System.currentTimeMillis())
+                            .withType(FeedItem.Type.MarkerAdd)
+                            .withText(post.optString("title"))
+                            .withTitle(post.optString("title"))
+                            .withThumbnail(new URI(post.optString("thumbnail")))
+                            .build();
+                    feedsList.add(item);
+                } catch (URISyntaxException ex) {
+                    Log.e("URL", "Error parsing url", ex);
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();

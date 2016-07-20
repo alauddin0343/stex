@@ -1,4 +1,4 @@
-package cz.uhk.cityunavigate;
+package cz.uhk.cityunavigate.util;
 
 import android.util.Log;
 
