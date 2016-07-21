@@ -31,6 +31,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Group;
@@ -89,6 +91,33 @@ public class TimeLineFragment extends Fragment {
         mRecyclerAdapter = new TimelineRecylerAdapter(getActivity(), feedsList);
         mRecyclerView.setAdapter(mRecyclerAdapter);
 
+        mSwipeRefresh.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefresh.setRefreshing(true);
+            }
+        });
+
+        refreshItems();
+
+        return view;
+    }
+
+    //SWIPE REFRESH LAYOUT SETTINGS AND FUNCTIONS
+    void refreshItems() {
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mSwipeRefresh.setRefreshing(false);
+                    }
+                });
+            }
+        }, 2500);
+
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser != null) {
 
@@ -98,12 +127,30 @@ public class TimeLineFragment extends Fragment {
                 public void onItemAdded(@NotNull ObservableList<Group> list, @NotNull Collection<Group> addedItems) {
                     for (Group group : addedItems) {
 
-                        ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), 50);
+                        final ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), 50);
 
                         feedItems.addItemAddListener(new ObservableList.ItemAddListener<FeedItem>() {
                             @Override
                             public void onItemAdded(@NotNull ObservableList<FeedItem> list, @NotNull Collection<FeedItem> addedItems) {
-                                feedsList.addAll(addedItems);
+
+                                for (FeedItem addedItem : addedItems) {
+
+                                    for (int i = 0; i < feedsList.size(); i++) {
+
+                                        FeedItem feedItem = feedsList.get(i);
+
+                                        if (feedItem.getId() == addedItem.getId()) {
+                                            return;
+                                        }
+
+                                        if (addedItem.getCreated() > feedItem.getCreated()) {
+                                            feedsList.add(i, addedItem);
+                                            return;
+                                        }
+                                    }
+                                    feedsList.add(addedItem);
+                                }
+
                                 mRecyclerAdapter.notifyDataSetChanged();
                             }
                         });
@@ -113,19 +160,6 @@ public class TimeLineFragment extends Fragment {
 
             // TODO onItemsRemoved
         }
-
-        return view;
-    }
-
-    //SWIPE REFRESH LAYOUT SETTINGS AND FUNCTIONS
-    void refreshItems() {
-        // Load items
-        // ...
-
-        Toast.makeText(getActivity(), "IN PROGRESS...", Toast.LENGTH_SHORT).show();
-
-        // Load complete
-        onItemsLoadComplete();
     }
 
     void onItemsLoadComplete() {
