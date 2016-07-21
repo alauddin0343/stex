@@ -85,7 +85,7 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
             view.setOnClickListener(this);
         }
 
-        public void bindView(final FeedItem feedItem) {
+        public void bindView(FeedItem feedItem) {
 
             this.feedItem = feedItem;
 

@@ -103,6 +103,36 @@ public class TimeLineFragment extends Fragment {
         return view;
     }
 
+    private void updateTimeLine(Group group) {
+
+        final ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), 50);
+        feedItems.addItemAddListener(new ObservableList.ItemAddListener<FeedItem>() {
+            @Override
+            public void onItemAdded(@NotNull ObservableList<FeedItem> list, @NotNull Collection<FeedItem> addedItems) {
+
+                for (FeedItem addedItem : addedItems) {
+
+                    for (int i = 0; i < feedsList.size(); i++) {
+
+                        FeedItem feedItem = feedsList.get(i);
+
+                        if (feedItem.getId().equals(addedItem.getId())) {
+                            break;
+                        }
+
+                        if (addedItem.getCreated() > feedItem.getCreated()) {
+                            feedsList.add(i, addedItem);
+                            break;
+                        }
+                    }
+                    feedsList.add(addedItem);
+                }
+
+                mRecyclerAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
     //SWIPE REFRESH LAYOUT SETTINGS AND FUNCTIONS
     void refreshItems() {
 
@@ -126,34 +156,7 @@ public class TimeLineFragment extends Fragment {
                 @Override
                 public void onItemAdded(@NotNull ObservableList<Group> list, @NotNull Collection<Group> addedItems) {
                     for (Group group : addedItems) {
-
-                        final ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), 50);
-
-                        feedItems.addItemAddListener(new ObservableList.ItemAddListener<FeedItem>() {
-                            @Override
-                            public void onItemAdded(@NotNull ObservableList<FeedItem> list, @NotNull Collection<FeedItem> addedItems) {
-
-                                for (FeedItem addedItem : addedItems) {
-
-                                    for (int i = 0; i < feedsList.size(); i++) {
-
-                                        FeedItem feedItem = feedsList.get(i);
-
-                                        if (feedItem.getId() == addedItem.getId()) {
-                                            return;
-                                        }
-
-                                        if (addedItem.getCreated() > feedItem.getCreated()) {
-                                            feedsList.add(i, addedItem);
-                                            return;
-                                        }
-                                    }
-                                    feedsList.add(addedItem);
-                                }
-
-                                mRecyclerAdapter.notifyDataSetChanged();
-                            }
-                        });
+                        updateTimeLine(group);
                     }
                 }
             });
