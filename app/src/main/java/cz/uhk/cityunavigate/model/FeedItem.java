@@ -132,6 +132,7 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
 
     public interface IUserId {
         IGroupId withUserId(String val);
+        FeedItem build();
     }
 
     public interface IId {

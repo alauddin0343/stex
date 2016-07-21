@@ -20,7 +20,7 @@ public class Comment implements Identifiable {
         userId = builder.userId;
     }
 
-    public static Builder newBuilder(Comment copy) {
+    public static Builder builder(Comment copy) {
         Builder builder = new Builder();
         builder.userId = copy.userId;
         builder.text = copy.text;
@@ -74,6 +74,7 @@ public class Comment implements Identifiable {
 
     public interface ICreated {
         IImage withCreated(long val);
+        Comment build();
     }
 
     public interface IId {
