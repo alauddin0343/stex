@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import cz.uhk.cityunavigate.model.Category;
+import cz.uhk.cityunavigate.model.Comment;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Group;
 import cz.uhk.cityunavigate.model.Identifiable;
@@ -51,7 +52,7 @@ public class Database {
                 .child(Util.MD5(user.getEmail()))
                 .child("groups");
 
-        invitations.addChildEventListener(new ChildEventListener() {
+        invitations.addChildEventListener(new ChildEventAdapter() {
             @Override
             public void onChildAdded(DataSnapshot snapshot, String s) {
                 String groupId = snapshot.getKey();
@@ -72,25 +73,6 @@ public class Database {
                 snapshot.getRef().removeValue();
             }
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
         });
     }
 
@@ -167,6 +149,35 @@ public class Database {
                     }
                 });
         return result;
+    }
+
+    /**
+     * Returns a list of comments for the given marker
+     * @param markerId marker ID
+     * @return marker comments
+     */
+    public static ObservableList<Comment> getCommentsForMarker(String markerId) {
+        final ObservableList<Comment> res = new ObservableList<>();
+        db().getReference("comments").child(markerId).addChildEventListener(new ChildEventAdapter() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Map<String, Object> commentMap = snapshotToMap(dataSnapshot);
+                Comment comment = Comment.builder()
+                        .withId(dataSnapshot.getKey())
+                        .withCreated(longFromMap(commentMap, "created"))
+                        .withImage(uriFromMap(commentMap, "image"))
+                        .withText((String)commentMap.get("text"))
+                        .withUserId((String)commentMap.get("user"))
+                        .build();
+                res.add(comment);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                removeFromListById(res, dataSnapshot.getKey());
+            }
+        });
+        return res;
     }
 
     /**
