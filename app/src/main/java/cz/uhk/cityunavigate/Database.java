@@ -111,6 +111,7 @@ public class Database {
     /**
      * Returns the list of groups the user is enrolled in. You can add observers
      * to the list to react when the user is added/removed to/from a group.
+     *
      * @param user user to get the groups for
      * @return user groups
      */
@@ -132,9 +133,9 @@ public class Database {
                                     List<String> users = new ArrayList<>(userMap.keySet());
                                     Group group = Group.builder()
                                             .withId(dataSnapshot.getKey())
-                                            .withName((String)groupMap.get("name"))
-                                            .withUniversity((String)groupMap.get("university"))
-                                            .withAdminsIds(Collections.singletonList((String)groupMap.get("administrator")))
+                                            .withName((String) groupMap.get("name"))
+                                            .withUniversity((String) groupMap.get("university"))
+                                            .withAdminsIds(Collections.singletonList((String) groupMap.get("administrator")))
                                             .withUserIds(users)
                                             .build();
                                     result.add(group);
@@ -157,6 +158,7 @@ public class Database {
 
     /**
      * Returns a list of comments for the given marker
+     *
      * @param markerId marker ID
      * @return marker comments
      */
@@ -170,8 +172,8 @@ public class Database {
                         .withId(dataSnapshot.getKey())
                         .withCreated(longFromMap(commentMap, "created"))
                         .withImage(uriFromMap(commentMap, "image"))
-                        .withText((String)commentMap.get("text"))
-                        .withUserId((String)commentMap.get("user"))
+                        .withText((String) commentMap.get("text"))
+                        .withUserId((String) commentMap.get("user"))
                         .build();
                 res.add(comment);
             }
@@ -187,7 +189,8 @@ public class Database {
     /**
      * Gets feed for the given group. The resulting list should be observed
      * for any changes in the feed.
-     * @param groupId group to get the feed for
+     *
+     * @param groupId       group to get the feed for
      * @param feedItemLimit maximum number of items to fetch
      * @return group feed
      */
@@ -203,13 +206,13 @@ public class Database {
                         Map<String, Object> itemMap = snapshotToMap(dataSnapshot);
                         FeedItem item = FeedItem.builder()
                                 .withId(dataSnapshot.getKey())
-                                .withUserId((String)itemMap.get("user"))
+                                .withUserId((String) itemMap.get("user"))
                                 .withGroupId(groupId)
-                                .withMarkerId((String)itemMap.get("marker"))
+                                .withMarkerId((String) itemMap.get("marker"))
                                 .withCreated(longFromMap(itemMap, "created"))
                                 .withType(enumFromMap(itemMap, "type", FeedItem.Type.MarkerAdd))
-                                .withText((String)itemMap.get("text"))
-                                .withTitle((String)itemMap.get("title"))
+                                .withText((String) itemMap.get("text"))
+                                .withTitle((String) itemMap.get("title"))
                                 .withThumbnail(uriFromMap(itemMap, "thumbnail"))
                                 .build();
                         result.add(item);
@@ -225,7 +228,8 @@ public class Database {
 
     /**
      * Get a {@link Marker} by its ID.
-     * @param groupId group id
+     *
+     * @param groupId  group id
      * @param markerId marker id
      * @return marker (asynchronously)
      */
@@ -238,11 +242,11 @@ public class Database {
                 Marker marker = Marker.builder()
                         .withId(dataSnapshot.getKey())
                         .withIdGroup(groupId)
-                        .withIdUserAuthor((String)markerMap.get("user"))
-                        .withIdCategory((String)markerMap.get("category"))
+                        .withIdUserAuthor((String) markerMap.get("user"))
+                        .withIdCategory((String) markerMap.get("category"))
                         .withLocation(new LatLng(doubleFromMap(markerMap, "lat"), doubleFromMap(markerMap, "lng")))
-                        .withTitle((String)markerMap.get("title"))
-                        .withText((String)markerMap.get("text"))
+                        .withTitle((String) markerMap.get("title"))
+                        .withText((String) markerMap.get("text"))
                         .withCreated(longFromMap(markerMap, "created"))
                         .withImage(uriFromMap(markerMap, "image"))
                         .build();
@@ -259,6 +263,7 @@ public class Database {
 
     /**
      * Get a {@link Category} by its id.
+     *
      * @param categoryId category id
      * @return category object (asynchronously)
      */
@@ -270,8 +275,8 @@ public class Database {
                 Map<String, Object> catMap = snapshotToMap(dataSnapshot);
                 Category category = Category.builder()
                         .withId(dataSnapshot.getKey())
-                        .withName((String)catMap.get("name"))
-                        .withHue((float)doubleFromMap(catMap, "hue"))
+                        .withName((String) catMap.get("name"))
+                        .withHue((float) doubleFromMap(catMap, "hue"))
                         .build();
                 res.resolve(category);
             }
@@ -286,6 +291,7 @@ public class Database {
 
     /**
      * Resolve user info based on the user ID.
+     *
      * @param userId user ID
      * @return user (asynchronously)
      */
@@ -297,8 +303,8 @@ public class Database {
                 Map<String, Object> userMap = snapshotToMap(dataSnapshot);
                 User user = User.builder()
                         .withId(dataSnapshot.getKey())
-                        .withName((String)userMap.get("name"))
-                        .withEmail((String)userMap.get("email"))
+                        .withName((String) userMap.get("name"))
+                        .withEmail((String) userMap.get("email"))
                         .withGroups(new ArrayList<>(objectToMap(userMap.get("groups")).keySet()))
                         .withAdministrators(new ArrayList<>(objectToMap(userMap.get("administrator")).keySet()))
                         .withImage(uriFromMap(userMap, "image"))
@@ -318,6 +324,7 @@ public class Database {
     /**
      * Get all markers for the given group. The resulting list should be observed for changes
      * in the markers list.
+     *
      * @param groupId group ID
      * @return group markers
      */
@@ -330,11 +337,11 @@ public class Database {
                 Marker marker = Marker.builder()
                         .withId(dataSnapshot.getKey())
                         .withIdGroup(groupId)
-                        .withIdUserAuthor((String)markerMap.get("user"))
-                        .withIdCategory((String)markerMap.get("category"))
+                        .withIdUserAuthor((String) markerMap.get("user"))
+                        .withIdCategory((String) markerMap.get("category"))
                         .withLocation(new LatLng(doubleFromMap(markerMap, "lat"), doubleFromMap(markerMap, "lng")))
-                        .withTitle((String)markerMap.get("title"))
-                        .withText((String)markerMap.get("text"))
+                        .withTitle((String) markerMap.get("title"))
+                        .withText((String) markerMap.get("text"))
                         .withCreated(longFromMap(markerMap, "created"))
                         .withImage(uriFromMap(markerMap, "image"))
                         .build();
@@ -352,18 +359,21 @@ public class Database {
     /**
      * Adds a new comment to the given marker. Returns comment with a filled-in ID as soon
      * as the comment is stored in the database.
+     *
      * @param markerId marker id
-     * @param comment comment to add
+     * @param comment  comment to add
      * @return comment with database ID
      */
     public static Promise<Comment> addComment(String markerId, @NotNull final Comment comment) {
         final PromiseImpl<Comment> res = new PromiseImpl<>();
         final DatabaseReference commentRef = db().getReference("comments").child(markerId).push();
-        commentRef.child("created").setValue(comment.getCreated());
-        if (comment.getImage() != null)
-            commentRef.child("image").setValue(comment.getImage().toString());
-        commentRef.child("text").setValue(comment.getText());
-        commentRef.child("user").setValue(comment.getUserId()).addOnSuccessListener(new OnSuccessListener<Void>() {
+        commentRef.setValue(new HashMap<String, Object>() {{
+            put("created", comment.getCreated());
+            if (comment.getImage() != null)
+                put("image", comment.getImage().toString());
+            put("text", comment.getText());
+            put("user", comment.getUserId());
+        }}).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 res.resolve(Comment.builder(comment).withId(commentRef.getKey()).build());
@@ -380,21 +390,24 @@ public class Database {
     /**
      * Adds a new feed item to the database. Returns a new Feed Item with the proper database
      * ID set.
-     * @param groupId group id
+     *
+     * @param groupId  group id
      * @param feedItem feed item to add
      * @return promise to a stored feed item
      */
     public static Promise<FeedItem> addFeedItem(String groupId, final FeedItem feedItem) {
         final PromiseImpl<FeedItem> res = new PromiseImpl<>();
         final DatabaseReference commentRef = db().getReference("timeline").child(groupId).push();
-        commentRef.child("created").setValue(feedItem.getCreated());
-        commentRef.child("marker").setValue(feedItem.getMarkerId());
-        commentRef.child("text").setValue(feedItem.getText());
-        commentRef.child("title").setValue(feedItem.getTitle());
-        commentRef.child("type").setValue(feedItem.getType().toString());
-        if (feedItem.getThumbnail() != null)
-            commentRef.child("thumbnail").setValue(feedItem.getThumbnail().toString());
-        commentRef.child("user").setValue(feedItem.getUserId()).addOnSuccessListener(new OnSuccessListener<Void>() {
+        commentRef.setValue(new HashMap<String, Object>() {{
+            put("created", feedItem.getCreated());
+            put("marker", feedItem.getMarkerId());
+            put("text", feedItem.getText());
+            put("title", feedItem.getTitle());
+            put("type", feedItem.getType());
+            if (feedItem.getThumbnail() != null)
+                put("thumbnail", feedItem.getThumbnail().toString());
+            put("user", feedItem.getUserId());
+        }}).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 res.resolve(FeedItem.builder(feedItem).withId(commentRef.getKey()).build());
@@ -410,22 +423,25 @@ public class Database {
 
     /**
      * Add a new marker. Returns a promise to the database marker with a proper database ID set.
+     *
      * @param groupId group ID
-     * @param marker marker to save
+     * @param marker  marker to save
      * @return database marker promise
      */
     public static Promise<Marker> addMarker(String groupId, final Marker marker) {
         final PromiseImpl<Marker> res = new PromiseImpl<>();
         final DatabaseReference markerRef = db().getReference("markers").child(groupId).push();
-        markerRef.child("category").setValue(marker.getIdCategory());
-        markerRef.child("created").setValue(marker.getCreated());
-        if (marker.getImage() != null)
-            markerRef.child("image").setValue(marker.getImage().toString());
-        markerRef.child("lat").setValue(marker.getLocation().latitude);
-        markerRef.child("lng").setValue(marker.getLocation().longitude);
-        markerRef.child("text").setValue(marker.getText());
-        markerRef.child("title").setValue(marker.getTitle());
-        markerRef.child("user").setValue(marker.getIdUserAuthor()).addOnSuccessListener(new OnSuccessListener<Void>() {
+        markerRef.setValue(new HashMap<String, Object>() {{
+            put("category", marker.getIdCategory());
+            put("created", marker.getCreated());
+            if (marker.getImage() != null)
+                put("image", marker.getImage().toString());
+            put("lat", marker.getLocation().latitude);
+            put("lng", marker.getLocation().longitude);
+            put("text", marker.getText());
+            put("title", marker.getTitle());
+            put("user", marker.getIdUserAuthor());
+        }}).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 res.resolve(Marker.builder().withId(markerRef.getKey()).build());
@@ -448,7 +464,8 @@ public class Database {
         }
     }
 
-    private static @Nullable
+    private static
+    @Nullable
     Uri uriFromMap(Map<String, Object> map, String key) {
         Object res = map.get(key);
         if (res instanceof String) {
@@ -463,7 +480,7 @@ public class Database {
             for (Enum anEnum : def.getClass().getEnumConstants()) {
                 if (anEnum.name().equals(res))
                     //noinspection unchecked
-                    return (T)anEnum;
+                    return (T) anEnum;
             }
         }
         return def;
@@ -472,16 +489,16 @@ public class Database {
     private static double doubleFromMap(Map<String, Object> map, String key) {
         Object res = map.get(key);
         if (res instanceof Double)
-            return (double)res;
+            return (double) res;
         if (res instanceof Float)
-            return (float)(double)res;
+            return (float) (double) res;
         return 0;
     }
 
     private static long longFromMap(Map<String, Object> map, String key) {
         Object res = map.get(key);
         if (res instanceof Long)
-            return (long)res;
+            return (long) res;
         return 0;
     }
 
@@ -490,7 +507,7 @@ public class Database {
             return new HashMap<>();
         if (object instanceof Map) {
             //noinspection unchecked
-            return (Map<String, Object>)object;
+            return (Map<String, Object>) object;
         }
         return new HashMap<>();
     }
