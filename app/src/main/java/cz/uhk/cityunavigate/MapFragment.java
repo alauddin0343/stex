@@ -188,6 +188,7 @@ public class MapFragment extends Fragment {
                 map.getUiSettings().setCompassEnabled(true);
                 map.getUiSettings().setMyLocationButtonEnabled(true);
                 map.getUiSettings().setMapToolbarEnabled(true);
+                map.getUiSettings().setZoomControlsEnabled(true);
 
                 //CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 10);
                 //TODO - ADD CENTER TO MY POSITION
