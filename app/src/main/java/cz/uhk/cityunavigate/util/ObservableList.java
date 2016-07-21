@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -282,6 +283,8 @@ public class ObservableList<E> implements List<E>, Serializable {
      */
     public ObservableList<E> addItemAddListener(ItemAddListener<E> listener) {
         addListeners.add(listener);
+        if (!this.isEmpty())
+            listener.onItemAdded(this, this);
         return this;
     }
 
@@ -369,52 +372,49 @@ public class ObservableList<E> implements List<E>, Serializable {
      * to each element of the list. The lists stay synchronized.
      * @param mapper mapping function
      * @param <R> result type
-     * @return mapped observable list
+     * @return flat mapped observable list
      */
     public <R> ObservableList<R> flatMap(final Function<? super E, ObservableList<R>> mapper) {
         final ObservableList<R> res = new ObservableList<>();
 
-        final Map<E, R> cache = new HashMap<>();
+        final Map<E, ObservableList<R>> listCache = new HashMap<>();
         for (E elem : this) {
             ObservableList<R> mapped = mapper.apply(elem);
-            for (R r : mapped) {
-                res.add(r);
-                cache.put(elem, r);
-            }
-
-            addItemAddListener(new ItemAddListener<E>() {
-                @Override
-                public void onItemAdded(@NotNull ObservableList<E> list, @NotNull Collection<E> addedItems) {
-                    for (E addedItem : addedItems) {
-                        ObservableList<R> mapped = mapper.apply(addedItem);
-                        mapped.addItemAddListener(new ItemAddListener<R>() {
-                            @Override
-                            public void onItemAdded(@NotNull ObservableList<R> list, @NotNull Collection<R> addedItems) {
-
-                            }
-                        });
-                        for (R r : mapped) {
-                            res.add(r);
-                            cache.put(addedItem, r);
-                        }
-                    }
-                }
-            });
-
-            addItemRemoveListener(new ItemRemoveListener<E>() {
-                @Override
-                public void onItemRemoved(@NotNull ObservableList<E> list, @NotNull Collection<E> removedItems) {
-                    for (E removedItem : removedItems) {
-                        R mapped = cache.get(removedItem);
-                        if (mapped != null)
-                            res.remove(mapped);
-                        cache.remove(removedItem);
-                    }
-                }
-            });
+            listCache.put(elem, mapped);
         }
 
+        addItemAddListener(new ItemAddListener<E>() {
+            @Override
+            public void onItemAdded(@NotNull ObservableList<E> list, @NotNull Collection<E> addedItems) {
+                for (E addedItem : addedItems) {
+                    ObservableList<R> mapped = mapper.apply(addedItem);
+                    mapped.addItemAddListener(new ItemAddListener<R>() {
+                        @Override
+                        public void onItemAdded(@NotNull ObservableList<R> list, @NotNull Collection<R> addedItems) {
+                            res.addAll(addedItems);
+                        }
+                    });
+                    mapped.addItemRemoveListener(new ItemRemoveListener<R>() {
+                        @Override
+                        public void onItemRemoved(@NotNull ObservableList<R> list, @NotNull Collection<R> removedItems) {
+                            res.removeAll(new HashSet<>(removedItems));
+                        }
+                    });
+                }
+            }
+        });
 
+        addItemRemoveListener(new ItemRemoveListener<E>() {
+            @Override
+            public void onItemRemoved(@NotNull ObservableList<E> list, @NotNull Collection<E> removedItems) {
+                for (E removedItem : removedItems) {
+                    ObservableList<R> mapped = listCache.get(removedItem);
+                    if (mapped != null)
+                        res.removeAll(new HashSet<>(mapped));
+                    listCache.remove(removedItem);
+                }
+            }
+        });
 
         return res;
     }
