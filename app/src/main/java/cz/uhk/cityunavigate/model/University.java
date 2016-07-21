@@ -18,11 +18,6 @@ public class University implements Identifiable {
     private URL website;
     private LatLng coord;
 
-    // For Firebase
-    public University() {
-
-    }
-
     public University(String id, String name, Bitmap logo, URL website, LatLng coord) {
         this.id = id;
         this.name = name;

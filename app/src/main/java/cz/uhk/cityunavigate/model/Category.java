@@ -17,10 +17,6 @@ public class Category implements Identifiable {
         this.hue = hue;
     }
 
-    // For Firebase
-    public Category() {
-    }
-
     private Category(Builder builder) {
         id = builder.id;
         name = builder.name;

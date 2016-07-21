@@ -15,11 +15,6 @@ public class Marker implements Identifiable {
     private List<String> commentIds;
     private String title, text;
 
-    // For Firebase
-    public Marker() {
-
-    }
-
     private Marker(Builder builder) {
         id = builder.id;
         idGroup = builder.idGroup;

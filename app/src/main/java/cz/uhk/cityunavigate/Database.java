@@ -94,6 +94,7 @@ public class Database {
                     // Add the user if not present
                     userRef.child("created").setValue(System.currentTimeMillis());
                     userRef.child("email").setValue(user.getEmail());
+                    userRef.child("name").setValue(user.getDisplayName());
                 }
             }
 
