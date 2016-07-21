@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class Promise<T> {
     public abstract <R> Promise<R> success(@NotNull SuccessListener<T, R> listener);
 
-    public abstract <R> Promise<R> error(@NotNull ErrorListener<R> listener);
+    public abstract Promise<T> error(@NotNull ErrorListener<T> listener);
 
     public interface SuccessListener<T, R> {
         R onSuccess(T result);
