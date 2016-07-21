@@ -112,20 +112,27 @@ public class TimeLineFragment extends Fragment {
 
                 for (FeedItem addedItem : addedItems) {
 
+                    boolean itemWasAdded = false;
+
                     for (int i = 0; i < feedsList.size(); i++) {
 
                         FeedItem feedItem = feedsList.get(i);
 
                         if (feedItem.getId().equals(addedItem.getId())) {
+                            itemWasAdded = true;
                             break;
                         }
 
                         if (addedItem.getCreated() > feedItem.getCreated()) {
                             feedsList.add(i, addedItem);
+                            itemWasAdded = true;
                             break;
                         }
                     }
-                    feedsList.add(addedItem);
+
+                    if (!itemWasAdded) {
+                        feedsList.add(addedItem);
+                    }
                 }
 
                 mRecyclerAdapter.notifyDataSetChanged();

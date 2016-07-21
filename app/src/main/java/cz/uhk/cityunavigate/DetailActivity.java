@@ -1,8 +1,14 @@
 package cz.uhk.cityunavigate;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,7 +17,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,8 +26,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StreamDownloadTask;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +40,6 @@ import java.util.Collection;
 import cz.uhk.cityunavigate.model.Comment;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Marker;
-import cz.uhk.cityunavigate.util.CommentListAdapter;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
 
@@ -45,13 +52,12 @@ public class DetailActivity extends AppCompatActivity {
 
     //private TextView txtDetailTitle;
     private TextView txtDetailText;
-    private ImageView imgDetailPic;
-    private ListView lstComments;
+    private RecyclerView recyclerView;
     private EditText editCommentText;
     private Button btnSendComment;
 
     private ArrayList<Comment> commentsArray;
-    private CommentListAdapter commentsAdapter;
+    private CommentsRecyclerAdapter commentsAdapter;
 
     private String markerId;
     private String groupId;
@@ -71,16 +77,17 @@ public class DetailActivity extends AppCompatActivity {
 
         txtDetailText = (TextView)findViewById(R.id.txtDetailText);
         //txtDetailTitle = (TextView)findViewById(R.id.txtDetailTitle);
-        imgDetailPic = (ImageView)findViewById(R.id.imgDetailPic);
-        lstComments = (ListView)findViewById(R.id.lstComments);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerComments);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+        recyclerView.setLayoutManager(layoutManager);
+
         editCommentText = (EditText)findViewById(R.id.editCommentText);
         btnSendComment = (Button)findViewById(R.id.btnSendComment);
 
         mapView = (MapView)findViewById(R.id.mapview);
         mapView.onCreate(savedInstanceState);
-
-        //TODO if (imageIsMissing)
-        imgDetailPic.setVisibility(View.GONE);
 
         btnSendComment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,8 +101,8 @@ public class DetailActivity extends AppCompatActivity {
         });
 
         commentsArray = new ArrayList<>();
-        commentsAdapter = new CommentListAdapter(getApplicationContext(), R.layout.list_comment_row, commentsArray);
-        lstComments.setAdapter(commentsAdapter);
+        commentsAdapter = new CommentsRecyclerAdapter(this, commentsArray);
+        recyclerView.setAdapter(commentsAdapter);
 
         fillDetailInfo(markerId, groupId);
     }
@@ -108,11 +115,34 @@ public class DetailActivity extends AppCompatActivity {
             marker.success(new Promise.SuccessListener<Marker, Object>() {
                 @Override
                 public Object onSuccess(Marker result) {
-                    //txtDetailTitle.setText(result.getTitle());
-                    setTitle(result.getTitle());
+
+                    ((CollapsingToolbarLayout)findViewById(R.id.toolbar_layout)).setTitle(result.getTitle());
+                    final ImageView imageView = (ImageView) ((CollapsingToolbarLayout)findViewById(R.id.toolbar_layout)).findViewById(R.id.header);
+
+                    if (result.getImage() != null) {
+                        new AsyncTask<String, Void, Void>() {
+                            @Override
+                            protected Void doInBackground(String... strings) {
+                                FirebaseStorage.getInstance().getReferenceFromUrl(strings[0]).getStream().addOnSuccessListener(new OnSuccessListener<StreamDownloadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onSuccess(StreamDownloadTask.TaskSnapshot taskSnapshot) {
+                                        final Bitmap bitmap = BitmapFactory.decodeStream(taskSnapshot.getStream());
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                imageView.setImageBitmap(bitmap);
+                                            }
+                                        });
+                                    }
+                                });
+                                return null;
+                            }
+                        }.execute(result.getImage().toString());
+                    }
+
                     txtDetailText.setText(result.getText());
 
-                    fillComents(markerId);
+                    fillComments(markerId);
 
                     myMarker = result;
 
@@ -125,7 +155,8 @@ public class DetailActivity extends AppCompatActivity {
             Toast.makeText(this,"YOU'RE NOT LOGGED IN", Toast.LENGTH_SHORT).show();
         }
     }
-    private void fillComents(String markerId){
+    private void fillComments(String markerId){
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         if(user != null){
@@ -136,20 +167,27 @@ public class DetailActivity extends AppCompatActivity {
                 public void onItemAdded(@NotNull ObservableList<Comment> list, @NotNull Collection<Comment> addedItems) {
                     for (Comment addedItem : addedItems) {
 
+                        boolean itemWasAdded = false;
+
                         for (int i = 0; i < commentsArray.size(); i++) {
 
                             Comment commentItem = commentsArray.get(i);
 
-                            if (commentItem.getId() == addedItem.getId()) {
-                                return;
+                            if (commentItem.getId().equals(addedItem.getId())) {
+                                itemWasAdded = true;
+                                break;
                             }
 
                             if (addedItem.getCreated() > commentItem.getCreated()) {
                                 commentsArray.add(i, addedItem);
-                                return;
+                                itemWasAdded = true;
+                                break;
                             }
                         }
-                        commentsArray.add(addedItem);
+
+                        if (!itemWasAdded) {
+                            commentsArray.add(addedItem);
+                        }
                     }
 
                     commentsAdapter.notifyDataSetChanged();

@@ -9,4 +9,6 @@
     <color name="colorControlActivated">#74033e</color>
     <color name="colorControlHighlight">#b3164b</color>
     <color name="colorBackground">#DEDEDE</color>
+
+    <color name="colorBackgroundGray">#dddddd</color>
 </resources>
