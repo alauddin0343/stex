@@ -43,6 +43,7 @@ public class StartupActivity extends Activity {
             startActivityForResult(
                     AuthUI.getInstance().createSignInIntentBuilder()
                             .setProviders("email")
+                            .setTheme(R.style.PurpleTheme)
                             .build(),
                     RC_SIGN_IN);
             return;

@@ -5,4 +5,8 @@
     <color name="colorPrimaryDark">#74033e</color>
     <color name="colorAccent">#b3164b</color>
 
+    <color name="colorControlNormal">#ba2d7d</color>
+    <color name="colorControlActivated">#74033e</color>
+    <color name="colorControlHighlight">#b3164b</color>
+    <color name="colorBackground">#DEDEDE</color>
 </resources>
