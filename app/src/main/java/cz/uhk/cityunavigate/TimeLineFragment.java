@@ -81,6 +81,7 @@ public class TimeLineFragment extends Fragment {
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
         mRecyclerView.setLayoutManager(layoutManager);
 
         feedsList = new ArrayList<>();
@@ -97,7 +98,7 @@ public class TimeLineFragment extends Fragment {
                 public void onItemAdded(@NotNull ObservableList<Group> list, @NotNull Collection<Group> addedItems) {
                     for (Group group : addedItems) {
 
-                        ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), 10);
+                        ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), 50);
 
                         feedItems.addItemAddListener(new ObservableList.ItemAddListener<FeedItem>() {
                             @Override

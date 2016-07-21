@@ -35,14 +35,29 @@
                         android:id="@+id/imgUser"
                         android:src="@drawable/tmp_user"/>
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="Název příspěvku"
-                        android:textStyle="bold"
-                        android:id="@+id/txtTitle"
-                        android:textSize="15dp" />
+                        android:orientation="vertical"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceLarge"
+                            android:text="Author"
+                            android:textStyle="bold"
+                            android:id="@+id/txtAuthor"
+                            android:textSize="15dp" />
+
+                        <TextView
+                            android:textAppearance="?android:textAppearanceSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/txtDate"
+                            android:text="yesterday"
+                            android:textSize="15dp" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -55,21 +70,12 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Ales Berger"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Title"
                     android:textStyle="bold"
-                    android:id="@+id/txtAuthor"
-                    android:textSize="15dp" />
-
-                <TextView
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/txtDate"
-                    android:layout_marginLeft="5dp"
-                    android:text="yesterday"
+                    android:id="@+id/txtTitle"
                     android:textSize="15dp" />
 
             </LinearLayout>
@@ -79,7 +85,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="3"
-                android:text="Popisek příspěvku, loremipsum atd, maximálně 3 řádky, takže takhle to necháme.."
+                android:text="Text"
                 android:textColor="#222"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
@@ -87,9 +93,14 @@
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="150dp"
                 android:id="@+id/imgImage"
-                android:src="@drawable/cityu_logo"/>
+                android:src="@drawable/cityu_logo"
+                android:scaleType="centerCrop" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp" />
 
         </LinearLayout>
 
