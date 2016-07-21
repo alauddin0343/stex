@@ -45,9 +45,7 @@ public class TimeLineFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public TimeLineFragment() {
-        // Required empty public constructor
-    }
+    public TimeLineFragment() { }
 
     public static TimeLineFragment newInstance() {
         TimeLineFragment fragment = new TimeLineFragment();
@@ -85,25 +83,23 @@ public class TimeLineFragment extends Fragment {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
 
-        final String url = "http://stacktips.com/?json=get_recent_posts&count=45";
-        new AsyncHttpTask().execute(url);
+        feedsList = new ArrayList<>();
 
-
-        mRecyclerAdapter = new TimelineRecylerAdapter(getActivity(), feedsList, (MainActivity)getActivity());
+        mRecyclerAdapter = new TimelineRecylerAdapter(getActivity(), feedsList);
         mRecyclerView.setAdapter(mRecyclerAdapter);
-/*
+
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser != null) {
 
             ObservableList<Group> userGroups = Database.getUserGroups(firebaseUser);
-            userGroups.onItemsAdded.subscribe(new ObservableList.ItemAddListener<Group>() {
+            userGroups.addItemAddListener(new ObservableList.ItemAddListener<Group>() {
                 @Override
                 public void onItemAdded(@NotNull ObservableList<Group> list, @NotNull Collection<Group> addedItems) {
                     for (Group group : addedItems) {
 
                         ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), 10);
 
-                        feedItems.onItemsAdded.subscribe(new ObservableList.ItemAddListener<FeedItem>() {
+                        feedItems.addItemAddListener(new ObservableList.ItemAddListener<FeedItem>() {
                             @Override
                             public void onItemAdded(@NotNull ObservableList<FeedItem> list, @NotNull Collection<FeedItem> addedItems) {
                                 feedsList.addAll(addedItems);
@@ -116,7 +112,7 @@ public class TimeLineFragment extends Fragment {
 
             // TODO onItemsRemoved
         }
-        */
+
         return view;
     }
 
@@ -135,81 +131,6 @@ public class TimeLineFragment extends Fragment {
 
         // Stop refresh animation
         mSwipeRefresh.setRefreshing(false);
-    }
-
-    //INITIALIZING RECYCLE VIEW ADAPTER
-    public class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected Integer doInBackground(String... params) {
-            Integer result = 0;
-            HttpURLConnection urlConnection;
-            try {
-                URL url = new URL(params[0]);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                int statusCode = urlConnection.getResponseCode();
-
-                // 200 represents HTTP OK
-                if (statusCode == 200) {
-                    BufferedReader r = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-                    while ((line = r.readLine()) != null) {
-                        response.append(line);
-                    }
-                    parseResult(response.toString());
-                    result = 1; // Successful
-                } else {
-                    result = 0; //"Failed to fetch data!";
-                }
-            } catch (Exception e) {
-            }
-            return result; //"Failed to fetch data!";
-        }
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            // Download complete. Let us update UI
-            if (result == 1) {
-                mRecyclerAdapter = new TimelineRecylerAdapter(getContext(), feedsList, (MainActivity)getActivity());
-                mRecyclerView.setAdapter(mRecyclerAdapter);
-            } else {
-                Toast.makeText(getActivity(), "Failed to fetch data!", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-    private void parseResult(String result) {
-        try {
-            JSONObject response = new JSONObject(result);
-            JSONArray posts = response.optJSONArray("posts");
-            feedsList = new ArrayList<>();
-
-            for (int i = 0; i < posts.length(); i++) {
-                JSONObject post = posts.optJSONObject(i);
-                try {
-                    FeedItem item = FeedItem.builder()
-                            .withId("XXX")
-                            .withUserId("USERID")
-                            .withGroupId("GROUPID")
-                            .withMarkerId("MARKERID")
-                            .withCreated(System.currentTimeMillis())
-                            .withType(FeedItem.Type.MarkerAdd)
-                            .withText(post.optString("title"))
-                            .withTitle(post.optString("title"))
-                            .withThumbnail(new URI(post.optString("thumbnail")))
-                            .build();
-                    feedsList.add(item);
-                } catch (URISyntaxException ex) {
-                    Log.e("URL", "Error parsing url", ex);
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     public void onButtonPressed(Uri uri) {

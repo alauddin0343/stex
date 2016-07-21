@@ -20,23 +20,18 @@ import cz.uhk.cityunavigate.model.FeedItem;
  */
 public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecylerAdapter.CustomViewHolder>{
 
-    private List<FeedItem> feedItemList;
     private Context mContext;
+    private List<FeedItem> feedItemList;
 
-    private MainActivity activity;
-
-    public TimelineRecylerAdapter(Context context, List<FeedItem> feedItemList, MainActivity activity) {
-        this.feedItemList = feedItemList;
+    public TimelineRecylerAdapter(Context context, List<FeedItem> feedItemList) {
         this.mContext = context;
-        this.activity = activity;
+        this.feedItemList = feedItemList;
     }
 
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_timeline_row, null);
-
-        CustomViewHolder viewHolder = new CustomViewHolder(view);
-        return viewHolder;
+        View view = LayoutInflater.from(mContext).inflate(R.layout.list_timeline_row, null);
+        return new CustomViewHolder(view, feedItemList.get(i));
     }
 
     @Override
@@ -61,11 +56,16 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
     public class CustomViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener{
 
+        private FeedItem feedItem;
+
         protected ImageView imgUser, imgImage;
         protected TextView txtTitle, txtText, txtAuthor, txtDate;
 
-        public CustomViewHolder(View view) {
+        public CustomViewHolder(View view, FeedItem feedItem) {
             super(view);
+
+            this.feedItem = feedItem;
+
             this.imgUser = (ImageView) view.findViewById(R.id.imgUser);
             this.imgImage = (ImageView) view.findViewById(R.id.imgUser);
 
@@ -78,10 +78,9 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
 
         @Override
         public void onClick(View view) {
-            Intent myIntent = new Intent(activity, DetailActivity.class);
-            myIntent.putExtra("id", "ídéčko objektu"); // TODO přidat ID z objektu
-            activity.startActivity(myIntent);
-            Toast.makeText(activity.getApplicationContext(), "Něco?", Toast.LENGTH_SHORT).show();
+            Intent myIntent = new Intent(mContext, DetailActivity.class);
+            myIntent.putExtra("id", feedItem.getId());
+            mContext.startActivity(myIntent);
         }
 
     }
