@@ -360,7 +360,8 @@ public class Database {
         final PromiseImpl<Comment> res = new PromiseImpl<>();
         final DatabaseReference commentRef = db().getReference("comments").child(markerId).push();
         commentRef.child("created").setValue(comment.getCreated());
-        commentRef.child("image").setValue(comment.getImage() == null ? "" : comment.getImage().toString());
+        if (comment.getImage() != null)
+            commentRef.child("image").setValue(comment.getImage().toString());
         commentRef.child("text").setValue(comment.getText());
         commentRef.child("user").setValue(comment.getUserId()).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -391,7 +392,8 @@ public class Database {
         commentRef.child("text").setValue(feedItem.getText());
         commentRef.child("title").setValue(feedItem.getTitle());
         commentRef.child("type").setValue(feedItem.getType().toString());
-        commentRef.child("thumbnail").setValue(feedItem.getThumbnail() == null ? "" : feedItem.getThumbnail().toString());
+        if (feedItem.getThumbnail() != null)
+            commentRef.child("thumbnail").setValue(feedItem.getThumbnail().toString());
         commentRef.child("user").setValue(feedItem.getUserId()).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -417,7 +419,8 @@ public class Database {
         final DatabaseReference markerRef = db().getReference("markers").child(groupId).push();
         markerRef.child("category").setValue(marker.getIdCategory());
         markerRef.child("created").setValue(marker.getCreated());
-        markerRef.child("image").setValue(marker.getImage() == null ? "" : marker.getImage().toString());
+        if (marker.getImage() != null)
+            markerRef.child("image").setValue(marker.getImage().toString());
         markerRef.child("lat").setValue(marker.getLocation().latitude);
         markerRef.child("lng").setValue(marker.getLocation().longitude);
         markerRef.child("text").setValue(marker.getText());
