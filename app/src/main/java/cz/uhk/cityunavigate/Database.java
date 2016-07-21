@@ -207,7 +207,7 @@ public class Database {
                                 .withType(enumFromMap(itemMap, "type", FeedItem.Type.MarkerAdd))
                                 .withText((String)itemMap.get("text"))
                                 .withTitle((String)itemMap.get("title"))
-                                .withThumbnail(uriFromMap(itemMap, "url"))
+                                .withThumbnail(uriFromMap(itemMap, "thumbnail"))
                                 .build();
                         result.add(item);
                     }
