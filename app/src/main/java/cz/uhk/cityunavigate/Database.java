@@ -403,7 +403,7 @@ public class Database {
             put("marker", feedItem.getMarkerId());
             put("text", feedItem.getText());
             put("title", feedItem.getTitle());
-            put("type", feedItem.getType());
+            put("type", feedItem.getType().toString());
             if (feedItem.getThumbnail() != null)
                 put("thumbnail", feedItem.getThumbnail().toString());
             put("user", feedItem.getUserId());
