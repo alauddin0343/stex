@@ -84,7 +84,7 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
         @Override
         public void onClick(View view) {
             Intent myIntent = new Intent(mContext, DetailActivity.class);
-            myIntent.putExtra("id", feedItem.getId());
+            myIntent.putExtra("id", feedItem.getMarkerId());
             myIntent.putExtra("groupid", feedItem.getGroupId());
             mContext.startActivity(myIntent);
         }
