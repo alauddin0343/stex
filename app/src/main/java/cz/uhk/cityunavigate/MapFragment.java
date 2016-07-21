@@ -99,12 +99,12 @@ public class MapFragment extends Fragment {
 
         if(user != null){
             ObservableList<Group> groupss = Database.getUserGroups(user);
-            groupss.onItemsAdded.subscribe(new ObservableList.ItemAddListener<Group>() {
+            groupss.addItemAddListener(new ObservableList.ItemAddListener<Group>() {
                 @Override
                 public void onItemAdded(@NotNull ObservableList<Group> list, @NotNull Collection<Group> addedItems) {
                     for(Group grp : addedItems){
                         ObservableList<cz.uhk.cityunavigate.model.Marker> myMarkers = Database.getGroupMarkers(grp.getId());
-                        myMarkers.onItemsAdded.subscribe(new ObservableList.ItemAddListener<cz.uhk.cityunavigate.model.Marker>() {
+                        myMarkers.addItemAddListener(new ObservableList.ItemAddListener<cz.uhk.cityunavigate.model.Marker>() {
                             @Override
                             public void onItemAdded(@NotNull ObservableList<cz.uhk.cityunavigate.model.Marker> list, @NotNull Collection<cz.uhk.cityunavigate.model.Marker> addedItems) {
                                 for(cz.uhk.cityunavigate.model.Marker m : addedItems){

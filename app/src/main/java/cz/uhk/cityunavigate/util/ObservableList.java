@@ -19,8 +19,8 @@ import java.util.Map;
 public class ObservableList<E> implements List<E>, Serializable {
     private ArrayList<E> data = new ArrayList<>();
 
-    public final ObserverList2<ObservableList<E>, Collection<E>, ItemRemoveListener<E>> onItemsRemoved = new ObserverList2<>();
-    public final ObserverList2<ObservableList<E>, Collection<E>, ItemAddListener<E>> onItemsAdded = new ObserverList2<>();
+    private final List<ItemAddListener<E>> addListeners = new ArrayList<>();
+    private final List<ItemRemoveListener<E>> removeListeners = new ArrayList<>();
 
     public ObservableList() {
     }
@@ -33,6 +33,18 @@ public class ObservableList<E> implements List<E>, Serializable {
      */
     public ObservableList(@NotNull Collection<? extends E> other) {
         addAll(other);
+    }
+
+    private void fireItemsAdded(Collection<E> added) {
+        for (ItemAddListener<E> addListener : addListeners) {
+            addListener.onItemAdded(this, added);
+        }
+    }
+
+    private void fireItemsRemoved(Collection<E> removed) {
+        for (ItemRemoveListener<E> removeListener : removeListeners) {
+            removeListener.onItemRemoved(this, removed);
+        }
     }
 
     @Override
@@ -75,7 +87,7 @@ public class ObservableList<E> implements List<E>, Serializable {
         if (e == null)
             throw new NullPointerException("ObservableList cannot contain null values");
         if (data.add(e)) {
-            onItemsAdded.fire(this, Collections.singletonList(e));
+            fireItemsAdded(Collections.singletonList(e));
             return true;
         }
         return false;
@@ -85,7 +97,7 @@ public class ObservableList<E> implements List<E>, Serializable {
     @Override
     public boolean remove(Object o) {
         if (data.remove(o)) {
-            onItemsRemoved.fire(this, Collections.singletonList((E) o));
+            fireItemsRemoved(Collections.singletonList((E) o));
             return true;
         }
         return false;
@@ -102,7 +114,7 @@ public class ObservableList<E> implements List<E>, Serializable {
             throw new NullPointerException("ObservableList cannot contain null values");
 
         if (data.addAll(c)) {
-            onItemsAdded.fire(this, new ArrayList<>(c));
+            fireItemsAdded(new ArrayList<>(c));
             return true;
         }
         return false;
@@ -113,7 +125,7 @@ public class ObservableList<E> implements List<E>, Serializable {
             throw new NullPointerException("ObservableList cannot contain null values");
 
         if (data.addAll(c)) {
-            onItemsAdded.fire(this, c);
+            fireItemsAdded(c);
             return true;
         }
         return false;
@@ -125,7 +137,7 @@ public class ObservableList<E> implements List<E>, Serializable {
             throw new NullPointerException("ObservableList cannot contain null values");
 
         if (data.addAll(index, c)) {
-            onItemsAdded.fire(this, new ArrayList<>(c));
+            fireItemsAdded(new ArrayList<>(c));
             return true;
         }
         return false;
@@ -171,7 +183,7 @@ public class ObservableList<E> implements List<E>, Serializable {
         if (removed.isEmpty()) {
             return false;
         } else {
-            onItemsRemoved.fire(this, removed);
+            fireItemsRemoved(removed);
             return true;
         }
     }
@@ -181,7 +193,7 @@ public class ObservableList<E> implements List<E>, Serializable {
         if (!data.isEmpty()) {
             ArrayList<E> tmp = new ArrayList<>(data);
             data.clear();
-            onItemsRemoved.fire(this, tmp);
+            fireItemsRemoved(tmp);
         }
     }
 
@@ -197,8 +209,8 @@ public class ObservableList<E> implements List<E>, Serializable {
             throw new NullPointerException("ObservableList cannot contain null values");
 
         final E previous = data.set(index, element);
-        onItemsRemoved.fire(this, Collections.singletonList(previous));
-        onItemsAdded.fire(this, Collections.singletonList(element));
+        fireItemsRemoved(Collections.singletonList(previous));
+        fireItemsAdded(Collections.singletonList(element));
         return previous;
     }
 
@@ -208,13 +220,13 @@ public class ObservableList<E> implements List<E>, Serializable {
         if (element == null)
             throw new NullPointerException("ObservableList cannot contain null values");
         data.add(index, element);
-        onItemsAdded.fire(this, Collections.singletonList(element));
+        fireItemsAdded(Collections.singletonList(element));
     }
 
     @Override
     public E remove(int index) {
         final E res = data.remove(index);
-        onItemsRemoved.fire(this, Collections.singletonList(res));
+        fireItemsRemoved(Collections.singletonList(res));
         return res;
     }
 
@@ -263,6 +275,25 @@ public class ObservableList<E> implements List<E>, Serializable {
         return data.toString();
     }
 
+    /**
+     * Listen to add item events
+     * @param listener add event listener
+     * @return this for fluent api
+     */
+    public ObservableList<E> addItemAddListener(ItemAddListener<E> listener) {
+        addListeners.add(listener);
+        return this;
+    }
+
+    /**
+     * Listen to item remove events
+     * @param listener listener to add
+     * @return this for fluent api
+     */
+    public ObservableList<E> addItemRemoveListener(ItemRemoveListener<E> listener) {
+        removeListeners.add(listener);
+        return this;
+    }
 
     /**
      * Makes sure that all items from the given list are part of this list as well.
@@ -274,13 +305,13 @@ public class ObservableList<E> implements List<E>, Serializable {
         // copy all available content
         this.addAll(list);
         // register future event
-        list.onItemsAdded.subscribe(new ItemAddListener<T>() {
+        list.addItemAddListener(new ItemAddListener<T>() {
             @Override
             public void onItemAdded(@NotNull ObservableList<T> list, @NotNull Collection<T> addedItems) {
                 addAll(addedItems);
             }
         });
-        list.onItemsRemoved.subscribe(new ItemRemoveListener<T>() {
+        list.addItemRemoveListener(new ItemRemoveListener<T>() {
             @Override
             public void onItemRemoved(@NotNull ObservableList<T> list, @NotNull Collection<T> removedItems) {
                 removeAll(removedItems);
@@ -307,7 +338,7 @@ public class ObservableList<E> implements List<E>, Serializable {
             cache.put(elem, mapped);
         }
 
-        onItemsAdded.subscribe(new ItemAddListener<E>() {
+        addItemAddListener(new ItemAddListener<E>() {
             @Override
             public void onItemAdded(@NotNull ObservableList<E> list, @NotNull Collection<E> addedItems) {
                 for (E addedItem : addedItems) {
@@ -318,7 +349,7 @@ public class ObservableList<E> implements List<E>, Serializable {
             }
         });
 
-        onItemsRemoved.subscribe(new ItemRemoveListener<E>() {
+        addItemRemoveListener(new ItemRemoveListener<E>() {
             @Override
             public void onItemRemoved(@NotNull ObservableList<E> list, @NotNull Collection<E> removedItems) {
                 for (E removedItem : removedItems) {
@@ -334,18 +365,68 @@ public class ObservableList<E> implements List<E>, Serializable {
     }
 
     /**
+     * Maps and flattens the observable list to another observable list with the mapper applied
+     * to each element of the list. The lists stay synchronized.
+     * @param mapper mapping function
+     * @param <R> result type
+     * @return mapped observable list
+     */
+    public <R> ObservableList<R> flatMap(final Function<? super E, ObservableList<R>> mapper) {
+        final ObservableList<R> res = new ObservableList<>();
+
+        final Map<E, R> cache = new HashMap<>();
+        for (E elem : this) {
+            ObservableList<R> mapped = mapper.apply(elem);
+            for (R r : mapped) {
+                res.add(r);
+                cache.put(elem, r);
+            }
+
+            addItemAddListener(new ItemAddListener<E>() {
+                @Override
+                public void onItemAdded(@NotNull ObservableList<E> list, @NotNull Collection<E> addedItems) {
+                    for (E addedItem : addedItems) {
+                        ObservableList<R> mapped = mapper.apply(addedItem);
+                        mapped.addItemAddListener(new ItemAddListener<R>() {
+                            @Override
+                            public void onItemAdded(@NotNull ObservableList<R> list, @NotNull Collection<R> addedItems) {
+
+                            }
+                        });
+                        for (R r : mapped) {
+                            res.add(r);
+                            cache.put(addedItem, r);
+                        }
+                    }
+                }
+            });
+
+            addItemRemoveListener(new ItemRemoveListener<E>() {
+                @Override
+                public void onItemRemoved(@NotNull ObservableList<E> list, @NotNull Collection<E> removedItems) {
+                    for (E removedItem : removedItems) {
+                        R mapped = cache.get(removedItem);
+                        if (mapped != null)
+                            res.remove(mapped);
+                        cache.remove(removedItem);
+                    }
+                }
+            });
+        }
+
+
+
+        return res;
+    }
+
+    /**
      * Called when one or more items are removed from the list. The list is given as the first parameter
      * and already has the items removed when the observer is called. You can access the removed items
      * using the second argument removedItems.
      * @param <E> element type
      */
-    public static abstract class ItemRemoveListener<E> implements Observer2<ObservableList<E>, Collection<E>> {
-        @Override
-        public final void onAction(ObservableList<E> es, Collection<E> e) {
-            onItemRemoved(es, e);
-        }
-
-        public abstract void onItemRemoved(@NotNull ObservableList<E> list, @NotNull Collection<E> removedItems);
+    public interface ItemRemoveListener<E> {
+        void onItemRemoved(@NotNull ObservableList<E> list, @NotNull Collection<E> removedItems);
     }
 
     /**
@@ -354,12 +435,7 @@ public class ObservableList<E> implements List<E>, Serializable {
      * using the second argument addedItems.
      * @param <E> element type
      */
-    public static abstract class ItemAddListener<E> implements Observer2<ObservableList<E>, Collection<E>> {
-        @Override
-        public final void onAction(ObservableList<E> es, Collection<E> e) {
-            onItemAdded(es, e);
-        }
-
-        public abstract void onItemAdded(@NotNull ObservableList<E> list, @NotNull Collection<E> addedItems);
+    public interface ItemAddListener<E> {
+        void onItemAdded(@NotNull ObservableList<E> list, @NotNull Collection<E> addedItems);
     }
 }
