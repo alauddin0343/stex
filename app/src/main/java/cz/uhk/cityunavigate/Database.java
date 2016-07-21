@@ -2,9 +2,12 @@
 package cz.uhk.cityunavigate;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -323,6 +326,8 @@ public class Database {
                         .withCommentIds(Collections.<String>emptyList())
                         .withTitle((String)markerMap.get("title"))
                         .withText((String)markerMap.get("text"))
+                        .withCreated(longFromMap(markerMap, "created"))
+                        .withImage(uriFromMap(markerMap, "image"))
                         .build();
                 res.add(marker);
             }
@@ -330,6 +335,93 @@ public class Database {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 removeFromListById(res, dataSnapshot.getKey());
+            }
+        });
+        return res;
+    }
+
+    /**
+     * Adds a new comment to the given marker. Returns comment with a filled-in ID as soon
+     * as the comment is stored in the database.
+     * @param markerId marker id
+     * @param comment comment to add
+     * @return comment with database ID
+     */
+    public static Promise<Comment> addComment(String markerId, @NotNull final Comment comment) {
+        final PromiseImpl<Comment> res = new PromiseImpl<>();
+        final DatabaseReference commentRef = db().getReference("comments").child(markerId).push();
+        commentRef.child("created").setValue(comment.getCreated());
+        commentRef.child("image").setValue(comment.getImage().toString());
+        commentRef.child("text").setValue(comment.getText());
+        commentRef.child("user").setValue(comment.getUserId()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                res.resolve(Comment.builder(comment).withId(commentRef.getKey()).build());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                res.reject(e);
+            }
+        });
+        return res;
+    }
+
+    /**
+     * Adds a new feed item to the database. Returns a new Feed Item with the proper database
+     * ID set.
+     * @param groupId group id
+     * @param feedItem feed item to add
+     * @return promise to a stored feed item
+     */
+    public static Promise<FeedItem> addFeedItem(String groupId, final FeedItem feedItem) {
+        final PromiseImpl<FeedItem> res = new PromiseImpl<>();
+        final DatabaseReference commentRef = db().getReference("timeline").child(groupId).push();
+        commentRef.child("created").setValue(feedItem.getCreated());
+        commentRef.child("marker").setValue(feedItem.getMarkerId());
+        commentRef.child("text").setValue(feedItem.getText());
+        commentRef.child("title").setValue(feedItem.getTitle());
+        commentRef.child("type").setValue(feedItem.getType().toString());
+        commentRef.child("thumbnail").setValue(feedItem.getThumbnail().toString());
+        commentRef.child("user").setValue(feedItem.getUserId()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                res.resolve(FeedItem.builder(feedItem).withId(commentRef.getKey()).build());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                res.reject(e);
+            }
+        });
+        return res;
+    }
+
+    /**
+     * Add a new marker. Returns a promise to the database marker with a proper database ID set.
+     * @param groupId group ID
+     * @param marker marker to save
+     * @return database marker promise
+     */
+    public static Promise<Marker> addMarker(String groupId, final Marker marker) {
+        final PromiseImpl<Marker> res = new PromiseImpl<>();
+        final DatabaseReference markerRef = db().getReference("markers").child(groupId).push();
+        markerRef.child("category").setValue(marker.getIdCategory());
+        markerRef.child("created").setValue(marker.getCreated());
+        markerRef.child("image").setValue(marker.getImage().toString());
+        markerRef.child("lat").setValue(marker.getLocation().latitude);
+        markerRef.child("lng").setValue(marker.getLocation().longitude);
+        markerRef.child("text").setValue(marker.getText());
+        markerRef.child("title").setValue(marker.getTitle());
+        markerRef.child("user").setValue(marker.getIdUserAuthor()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                res.resolve(Marker.builder().withId(markerRef.getKey()).build());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                res.reject(e);
             }
         });
         return res;

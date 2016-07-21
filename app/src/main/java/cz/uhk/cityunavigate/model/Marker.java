@@ -1,5 +1,7 @@
 package cz.uhk.cityunavigate.model;
 
+import android.net.Uri;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.IgnoreExtraProperties;
 
@@ -14,6 +16,8 @@ public class Marker implements Identifiable {
     private LatLng location;
     private List<String> commentIds;
     private String title, text;
+    private long created;
+    private Uri image;
 
     private Marker(Builder builder) {
         id = builder.id;
@@ -24,10 +28,18 @@ public class Marker implements Identifiable {
         commentIds = builder.commentIds;
         title = builder.title;
         text = builder.text;
+        created = builder.created;
+        image = builder.image;
     }
 
-    public static Builder builder(Marker copy) {
+    public static IId builder() {
+        return new Builder();
+    }
+
+    public static Builder newBuilder(Marker copy) {
         Builder builder = new Builder();
+        builder.image = copy.image;
+        builder.created = copy.created;
         builder.text = copy.text;
         builder.title = copy.title;
         builder.commentIds = copy.commentIds;
@@ -38,11 +50,6 @@ public class Marker implements Identifiable {
         builder.id = copy.id;
         return builder;
     }
-
-    public static IId builder() {
-        return new Builder();
-    }
-
 
     public String getId() {
         return id;
@@ -76,12 +83,28 @@ public class Marker implements Identifiable {
         return idCategory;
     }
 
+    public long getCreated() {
+        return created;
+    }
+
+    public Uri getImage() {
+        return image;
+    }
+
     public interface IBuild {
         Marker build();
     }
 
+    public interface IImage {
+        IBuild withImage(Uri val);
+    }
+
+    public interface ICreated {
+        IImage withCreated(long val);
+    }
+
     public interface IText {
-        IBuild withText(String val);
+        ICreated withText(String val);
     }
 
     public interface ITitle {
@@ -106,13 +129,16 @@ public class Marker implements Identifiable {
 
     public interface IIdGroup {
         IIdUserAuthor withIdGroup(String val);
+        Marker build();
     }
 
     public interface IId {
         IIdGroup withId(String val);
     }
 
-    public static final class Builder implements IText, ITitle, ICommentIds, ILocation, IIdCategory, IIdUserAuthor, IIdGroup, IId, IBuild {
+    public static final class Builder implements IImage, ICreated, IText, ITitle, ICommentIds, ILocation, IIdCategory, IIdUserAuthor, IIdGroup, IId, IBuild {
+        private Uri image;
+        private long created;
         private String text;
         private String title;
         private List<String> commentIds;
@@ -126,7 +152,19 @@ public class Marker implements Identifiable {
         }
 
         @Override
-        public IBuild withText(String val) {
+        public IBuild withImage(Uri val) {
+            image = val;
+            return this;
+        }
+
+        @Override
+        public IImage withCreated(long val) {
+            created = val;
+            return this;
+        }
+
+        @Override
+        public ICreated withText(String val) {
             text = val;
             return this;
         }
