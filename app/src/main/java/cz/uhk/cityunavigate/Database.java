@@ -229,14 +229,24 @@ public class Database {
      * @param markerId marker id
      * @return marker (asynchronously)
      */
-    public static Promise<Marker> getMarkerById(String groupId, String markerId) {
+    public static Promise<Marker> getMarkerById(final String groupId, String markerId) {
         final PromiseImpl<Marker> res = new PromiseImpl<>();
         db().getReference("markers").child(groupId).child(markerId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Marker marker = dataSnapshot.getValue(Marker.class);
-                if (marker != null)
-                    res.resolve(marker);
+                Map<String, Object> markerMap = snapshotToMap(dataSnapshot);
+                Marker marker = Marker.builder()
+                        .withId(dataSnapshot.getKey())
+                        .withIdGroup(groupId)
+                        .withIdUserAuthor((String)markerMap.get("user"))
+                        .withIdCategory((String)markerMap.get("category"))
+                        .withLocation(new LatLng(doubleFromMap(markerMap, "lat"), doubleFromMap(markerMap, "lng")))
+                        .withTitle((String)markerMap.get("title"))
+                        .withText((String)markerMap.get("text"))
+                        .withCreated(longFromMap(markerMap, "created"))
+                        .withImage(uriFromMap(markerMap, "image"))
+                        .build();
+                res.resolve(marker);
             }
 
             @Override
@@ -323,7 +333,6 @@ public class Database {
                         .withIdUserAuthor((String)markerMap.get("user"))
                         .withIdCategory((String)markerMap.get("category"))
                         .withLocation(new LatLng(doubleFromMap(markerMap, "lat"), doubleFromMap(markerMap, "lng")))
-                        .withCommentIds(Collections.<String>emptyList())
                         .withTitle((String)markerMap.get("title"))
                         .withText((String)markerMap.get("text"))
                         .withCreated(longFromMap(markerMap, "created"))

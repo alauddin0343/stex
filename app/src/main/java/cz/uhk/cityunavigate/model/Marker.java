@@ -14,7 +14,6 @@ import java.util.List;
 public class Marker implements Identifiable {
     private String id, idGroup, idUserAuthor, idCategory;
     private LatLng location;
-    private List<String> commentIds;
     private String title, text;
     private long created;
     private Uri image;
@@ -25,15 +24,10 @@ public class Marker implements Identifiable {
         idUserAuthor = builder.idUserAuthor;
         idCategory = builder.idCategory;
         location = builder.location;
-        commentIds = builder.commentIds;
         title = builder.title;
         text = builder.text;
         created = builder.created;
         image = builder.image;
-    }
-
-    public static IId builder() {
-        return new Builder();
     }
 
     public static Builder newBuilder(Marker copy) {
@@ -42,13 +36,16 @@ public class Marker implements Identifiable {
         builder.created = copy.created;
         builder.text = copy.text;
         builder.title = copy.title;
-        builder.commentIds = copy.commentIds;
         builder.location = copy.location;
         builder.idCategory = copy.idCategory;
         builder.idUserAuthor = copy.idUserAuthor;
         builder.idGroup = copy.idGroup;
         builder.id = copy.id;
         return builder;
+    }
+
+    public static IId builder() {
+        return new Builder();
     }
 
     public String getId() {
@@ -65,10 +62,6 @@ public class Marker implements Identifiable {
 
     public LatLng getLocation() {
         return location;
-    }
-
-    public List<String> getCommentIds() {
-        return commentIds;
     }
 
     public String getTitle() {
@@ -91,6 +84,7 @@ public class Marker implements Identifiable {
         return image;
     }
 
+
     public interface IBuild {
         Marker build();
     }
@@ -111,12 +105,8 @@ public class Marker implements Identifiable {
         IText withTitle(String val);
     }
 
-    public interface ICommentIds {
-        ITitle withCommentIds(List<String> val);
-    }
-
     public interface ILocation {
-        ICommentIds withLocation(LatLng val);
+        ITitle withLocation(LatLng val);
     }
 
     public interface IIdCategory {
@@ -136,12 +126,11 @@ public class Marker implements Identifiable {
         IIdGroup withId(String val);
     }
 
-    public static final class Builder implements IImage, ICreated, IText, ITitle, ICommentIds, ILocation, IIdCategory, IIdUserAuthor, IIdGroup, IId, IBuild {
+    public static final class Builder implements IImage, ICreated, IText, ITitle, ILocation, IIdCategory, IIdUserAuthor, IIdGroup, IId, IBuild {
         private Uri image;
         private long created;
         private String text;
         private String title;
-        private List<String> commentIds;
         private LatLng location;
         private String idCategory;
         private String idUserAuthor;
@@ -176,13 +165,7 @@ public class Marker implements Identifiable {
         }
 
         @Override
-        public ITitle withCommentIds(List<String> val) {
-            commentIds = val;
-            return this;
-        }
-
-        @Override
-        public ICommentIds withLocation(LatLng val) {
+        public ITitle withLocation(LatLng val) {
             location = val;
             return this;
         }
