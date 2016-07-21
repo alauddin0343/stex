@@ -133,7 +133,25 @@ public class DetailActivity extends AppCompatActivity {
             comments.addItemAddListener(new ObservableList.ItemAddListener<Comment>() {
                 @Override
                 public void onItemAdded(@NotNull ObservableList<Comment> list, @NotNull Collection<Comment> addedItems) {
-                    commentsAdapter.addAll(addedItems);
+                    for (Comment addedItem : addedItems) {
+
+                        for (int i = 0; i < commentsArray.size(); i++) {
+
+                            Comment commentItem = commentsArray.get(i);
+
+                            if (commentItem.getId() == addedItem.getId()) {
+                                return;
+                            }
+
+                            if (addedItem.getCreated() > commentItem.getCreated()) {
+                                commentsArray.add(i, addedItem);
+                                return;
+                            }
+                        }
+                        commentsArray.add(addedItem);
+                    }
+
+                    commentsAdapter.notifyDataSetChanged();
                 }
             });
 
@@ -148,8 +166,12 @@ public class DetailActivity extends AppCompatActivity {
                 .withImage(null).withText(s).withUserId(FirebaseAuth.getInstance().getCurrentUser().getUid()).build();
         Database.addComment(markerId,c);
 
-        commentsAdapter.add(c);
+        //commentsAdapter.add(c);
         editCommentText.setText("");
+
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editCommentText.getWindowToken(),
+                InputMethodManager.RESULT_UNCHANGED_SHOWN);
 
         FeedItem fi = FeedItem.builder().withId(null).withUserId(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .withGroupId(groupId).withMarkerId(markerId).withCreated(System.currentTimeMillis())
