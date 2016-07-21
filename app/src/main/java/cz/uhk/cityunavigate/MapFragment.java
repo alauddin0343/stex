@@ -197,7 +197,11 @@ public class MapFragment extends Fragment {
                 map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
                     public void onInfoWindowClick(Marker marker) {
-                        Toast.makeText(getActivity(), "TODO přidat akci", Toast.LENGTH_SHORT).show();
+                        marker.hideInfoWindow();
+                        Intent detailIntent = new Intent(getActivity(),DetailActivity.class);
+                        detailIntent.putExtra("id",markerIds.get(marker).getId());
+                        detailIntent.putExtra("groupid",markerIds.get(marker).getIdGroup());
+                        getActivity().startActivity(detailIntent);
                     }
                 });
                 /*
@@ -215,6 +219,8 @@ public class MapFragment extends Fragment {
                         marker.hideInfoWindow();
                         Intent detailIntent = new Intent(getActivity(),DetailActivity.class);
                         detailIntent.putExtra("id",markerIds.get(marker).getId());
+                        detailIntent.putExtra("groupid",markerIds.get(marker).getIdGroup());
+                        getActivity().startActivity(detailIntent);
                     }
                 });
 
