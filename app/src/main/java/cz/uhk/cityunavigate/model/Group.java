@@ -15,11 +15,6 @@ public class Group implements Identifiable {
     private List<String> adminsIds;
     private List<String> userIds;
 
-    // For Firebase
-    public Group() {
-
-    }
-
     public Group(String id, String name, String idUniversity, List<String> adminIds, List<String> userIds) {
         this.id = id;
         this.name = name;
