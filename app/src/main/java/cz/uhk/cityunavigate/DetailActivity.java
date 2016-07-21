@@ -43,7 +43,7 @@ public class DetailActivity extends AppCompatActivity {
     private GoogleMap map;
     private Marker myMarker;
 
-    private TextView txtDetailTitle;
+    //private TextView txtDetailTitle;
     private TextView txtDetailText;
     private ImageView imgDetailPic;
     private ListView lstComments;
@@ -70,7 +70,7 @@ public class DetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         txtDetailText = (TextView)findViewById(R.id.txtDetailText);
-        txtDetailTitle = (TextView)findViewById(R.id.txtDetailTitle);
+        //txtDetailTitle = (TextView)findViewById(R.id.txtDetailTitle);
         imgDetailPic = (ImageView)findViewById(R.id.imgDetailPic);
         lstComments = (ListView)findViewById(R.id.lstComments);
         editCommentText = (EditText)findViewById(R.id.editCommentText);
@@ -108,7 +108,8 @@ public class DetailActivity extends AppCompatActivity {
             marker.success(new Promise.SuccessListener<Marker, Object>() {
                 @Override
                 public Object onSuccess(Marker result) {
-                    txtDetailTitle.setText(result.getTitle());
+                    //txtDetailTitle.setText(result.getTitle());
+                    setTitle(result.getTitle());
                     txtDetailText.setText(result.getText());
 
                     fillComents(markerId);
