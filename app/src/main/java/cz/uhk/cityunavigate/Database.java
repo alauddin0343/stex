@@ -26,6 +26,7 @@ import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Group;
 import cz.uhk.cityunavigate.model.Identifiable;
 import cz.uhk.cityunavigate.model.Marker;
+import cz.uhk.cityunavigate.model.User;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
 import cz.uhk.cityunavigate.util.PromiseImpl;
@@ -248,6 +249,37 @@ public class Database {
                         .withHue((float)doubleFromMap(catMap, "hue"))
                         .build();
                 res.resolve(category);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                res.reject(databaseError.toException());
+            }
+        });
+        return res;
+    }
+
+    /**
+     * Resolve user info based on the user ID.
+     * @param userId user ID
+     * @return user (asynchronously)
+     */
+    public static Promise<User> getUserById(final String userId) {
+        final PromiseImpl<User> res = new PromiseImpl<>();
+        db().getReference("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String, Object> userMap = snapshotToMap(dataSnapshot);
+                User user = User.builder()
+                        .withId(dataSnapshot.getKey())
+                        .withName((String)userMap.get("name"))
+                        .withEmail((String)userMap.get("email"))
+                        .withGroups(new ArrayList<>(objectToMap(userMap.get("groups")).keySet()))
+                        .withAdministrators(new ArrayList<>(objectToMap(userMap.get("administrator")).keySet()))
+                        .withImage(uriFromMap(userMap, "image"))
+                        .withCreated(longFromMap(userMap, "created"))
+                        .build();
+                res.resolve(user);
             }
 
             @Override
