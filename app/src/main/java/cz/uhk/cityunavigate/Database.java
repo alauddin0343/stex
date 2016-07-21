@@ -1,6 +1,7 @@
 
 package cz.uhk.cityunavigate;
 
+import android.net.Uri;
 import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -14,8 +15,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -301,14 +300,11 @@ public class Database {
         }
     }
 
-    private static @Nullable URI uriFromMap(Map<String, Object> map, String key) {
+    private static @Nullable
+    Uri uriFromMap(Map<String, Object> map, String key) {
         Object res = map.get(key);
         if (res instanceof String) {
-            try {
-                return new URI((String) res);
-            } catch (URISyntaxException e) {
-                return null;
-            }
+            return Uri.parse((String) res);
         }
         return null;
     }
