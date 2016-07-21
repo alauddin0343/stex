@@ -20,6 +20,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StreamDownloadTask;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import cz.uhk.cityunavigate.model.FeedItem;
@@ -90,7 +92,10 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
             //Setting text view title
             txtTitle.setText(feedItem.getTitle());
             txtText.setText(feedItem.getText());
-            txtDate.setText("" + feedItem.getCreated());
+
+            Date created = new Date();
+            created.setTime(feedItem.getCreated());
+            txtDate.setText(new SimpleDateFormat("dd.MM.yyyy HH:mm").format(created));
 
             Database.getUserById(feedItem.getUserId()).success(new Promise.SuccessListener<User, Void>() {
                 @Override
