@@ -31,19 +31,13 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.list_timeline_row, null);
-        return new CustomViewHolder(view, feedItemList.get(i));
+        return new CustomViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
         FeedItem feedItem = feedItemList.get(i);
-
-        //Setting text view title
-        customViewHolder.txtTitle.setText(feedItem.getTitle());
-        customViewHolder.txtText.setText(feedItem.getText());
-        customViewHolder.txtDate.setText("" + feedItem.getCreated());
-
-        //customViewHolder.imgUser.setImageURI(feedItem.getThumbnail());
+        customViewHolder.bindView(feedItem);
     }
 
     @Override
@@ -58,28 +52,40 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
 
         private FeedItem feedItem;
 
-        protected ImageView imgUser, imgImage;
-        protected TextView txtTitle, txtText, txtAuthor, txtDate;
+        private ImageView imgUser, imgImage;
+        private TextView txtTitle, txtText, txtAuthor, txtDate;
 
-        public CustomViewHolder(View view, FeedItem feedItem) {
+        public CustomViewHolder(View view) {
             super(view);
+
+            imgUser = (ImageView) view.findViewById(R.id.imgUser);
+            imgImage = (ImageView) view.findViewById(R.id.imgUser);
+
+            txtTitle = (TextView) view.findViewById(R.id.txtTitle);
+            txtText = (TextView) view.findViewById(R.id.txtText);
+            txtAuthor = (TextView) view.findViewById(R.id.txtAuthor);
+            txtDate = (TextView) view.findViewById(R.id.txtDate);
+            view.setOnClickListener(this);
+        }
+
+        public void bindView(FeedItem feedItem) {
 
             this.feedItem = feedItem;
 
-            this.imgUser = (ImageView) view.findViewById(R.id.imgUser);
-            this.imgImage = (ImageView) view.findViewById(R.id.imgUser);
+            //Setting text view title
+            txtTitle.setText(feedItem.getTitle());
+            txtText.setText(feedItem.getText());
+            txtDate.setText("" + feedItem.getCreated());
 
-            this.txtTitle = (TextView) view.findViewById(R.id.txtTitle);
-            this.txtText = (TextView) view.findViewById(R.id.txtText);
-            this.txtAuthor = (TextView) view.findViewById(R.id.txtAuthor);
-            this.txtDate = (TextView) view.findViewById(R.id.txtDate);
-            view.setOnClickListener(this);
+            //customViewHolder.imgUser.setImageURI(feedItem.getThumbnail());
+
         }
 
         @Override
         public void onClick(View view) {
             Intent myIntent = new Intent(mContext, DetailActivity.class);
             myIntent.putExtra("id", feedItem.getId());
+            myIntent.putExtra("groupid", feedItem.getGroupId());
             mContext.startActivity(myIntent);
         }
 
