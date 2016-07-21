@@ -46,6 +46,7 @@ dependencies {
     compile 'com.firebaseui:firebase-ui:0.4.2'
     //noinspection GradleDynamicVersion
     compile 'com.intellij:annotations:+@jar'
+    testCompile 'com.google.guava:guava-testlib:17.0'
 }
 
 
