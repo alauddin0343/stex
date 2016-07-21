@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
-import java.net.URI;
+import android.net.Uri;
 
 /**
  * User feed item
@@ -19,7 +19,7 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
     private Type type;
     private String text;
     private String title;
-    private URI thumbnail;
+    private Uri thumbnail;
 
     private FeedItem(Builder builder) {
         id = builder.id;
@@ -79,7 +79,7 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
         return title;
     }
 
-    public URI getThumbnail() {
+    public Uri getThumbnail() {
         return thumbnail;
     }
 
@@ -103,7 +103,7 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
     }
 
     public interface IThumbnail {
-        IBuild withThumbnail(URI val);
+        IBuild withThumbnail(Uri val);
     }
 
     public interface ITitle {
@@ -139,7 +139,7 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
     }
 
     public static final class Builder implements IThumbnail, ITitle, IText, IType, ICreated, IMarkerId, IGroupId, IUserId, IId, IBuild {
-        private URI thumbnail;
+        private Uri thumbnail;
         private String title;
         private String text;
         private Type type;
@@ -153,7 +153,7 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
         }
 
         @Override
-        public IBuild withThumbnail(URI val) {
+        public IBuild withThumbnail(Uri val) {
             thumbnail = val;
             return this;
         }
