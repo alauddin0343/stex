@@ -2,8 +2,6 @@ package cz.uhk.cityunavigate;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -26,11 +24,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StreamDownloadTask;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -40,8 +35,10 @@ import java.util.Collection;
 import cz.uhk.cityunavigate.model.Comment;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Marker;
+import cz.uhk.cityunavigate.util.Function;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
+import cz.uhk.cityunavigate.util.Run;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -117,27 +114,17 @@ public class DetailActivity extends AppCompatActivity {
                 public Object onSuccess(Marker result) {
 
                     ((CollapsingToolbarLayout)findViewById(R.id.toolbar_layout)).setTitle(result.getTitle());
-                    final ImageView imageView = (ImageView) ((CollapsingToolbarLayout)findViewById(R.id.toolbar_layout)).findViewById(R.id.header);
+                    final ImageView imageView = (ImageView) findViewById(R.id.toolbar_layout).findViewById(R.id.header);
 
                     if (result.getImage() != null) {
-                        new AsyncTask<String, Void, Void>() {
-                            @Override
-                            protected Void doInBackground(String... strings) {
-                                FirebaseStorage.getInstance().getReferenceFromUrl(strings[0]).getStream().addOnSuccessListener(new OnSuccessListener<StreamDownloadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(StreamDownloadTask.TaskSnapshot taskSnapshot) {
-                                        final Bitmap bitmap = BitmapFactory.decodeStream(taskSnapshot.getStream());
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                imageView.setImageBitmap(bitmap);
-                                            }
-                                        });
-                                    }
-                                });
-                                return null;
-                            }
-                        }.execute(result.getImage().toString());
+                        Database.downloadImage(result.getImage())
+                            .success(Run.promiseUi(DetailActivity.this, new Function<Bitmap, Void>() {
+                                @Override
+                                public Void apply(Bitmap bitmap) {
+                                    imageView.setImageBitmap(bitmap);
+                                    return null;
+                                }
+                            }));
                     }
 
                     txtDetailText.setText(result.getText());
