@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,12 +25,15 @@ import java.util.List;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Marker;
 import cz.uhk.cityunavigate.model.User;
+import cz.uhk.cityunavigate.util.Function;
 import cz.uhk.cityunavigate.util.Promise;
+import cz.uhk.cityunavigate.util.Run;
+import cz.uhk.cityunavigate.util.Supplier;
 
 /**
  * Created by petrw on 12.07.2016.
  */
-public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecylerAdapter.CustomViewHolder>{
+public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecylerAdapter.CustomViewHolder> {
 
     private Context mContext;
     private List<FeedItem> feedItemList;
@@ -63,7 +67,7 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
 
     //VIEW HOLDER FOR RECYCLER ADAPTER
     public class CustomViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener{
+            implements View.OnClickListener {
 
         private FeedItem feedItem;
 
@@ -91,36 +95,36 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
             txtTitle.setText(feedItem.getTitle());
             txtText.setText(feedItem.getText());
 
+            txtAuthor.setText("");
+            imgUser.setImageBitmap(null);
+            imgImage.setImageBitmap(null);
+
             Date created = new Date();
             created.setTime(feedItem.getCreated());
             txtDate.setText(new SimpleDateFormat("dd.MM.yyyy HH:mm").format(created));
 
-            Database.getUserById(feedItem.getUserId()).success(new Promise.SuccessListener<User, Void>() {
-                @Override
-                public Void onSuccess(User result) {
-                    txtAuthor.setText(result.getName());
-                    new AsyncTask<String, Void, Void>() {
+            Database.getUserById(feedItem.getUserId())
+                    .successFlat(new Promise.SuccessListener<User, Promise<Bitmap>>() {
                         @Override
-                        protected Void doInBackground(String... strings) {
-                            FirebaseStorage.getInstance().getReferenceFromUrl(strings[0]).getStream().addOnSuccessListener(new OnSuccessListener<StreamDownloadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(StreamDownloadTask.TaskSnapshot taskSnapshot) {
-                                    final Bitmap bitmap = BitmapFactory.decodeStream(taskSnapshot.getStream());
-                                    runOnUiThred(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            imgUser.setImageBitmap(bitmap);
-                                        }
-                                    });
-                                }
-                            });
+                        public Promise<Bitmap> onSuccess(User user) {
+                            if (feedItem == CustomViewHolder.this.feedItem)
+                                txtAuthor.setText(user.getName());
+                            return Database.downloadImage(user.getImage());
+                        }
+                    }).successFlat(Run.promiseUi((Activity) mContext, new Function<Bitmap, Void>() {
+                        @Override
+                        public Void apply(Bitmap bitmap) {
+                            if (feedItem == CustomViewHolder.this.feedItem && bitmap != null)
+                                imgUser.setImageBitmap(bitmap);
                             return null;
                         }
-                    }.execute(result.getImage().toString());
-
-                    return null;
-                }
-            });
+                    })).error(new Promise.ErrorListener<Void>() {
+                        @Override
+                        public Void onError(Throwable error) {
+                            Log.e("Bitmap", "Error loading bitmap", error);
+                            return null;
+                        }
+                    });
 
             Database.getMarkerById(feedItem.getGroupId(), feedItem.getMarkerId()).success(new Promise.SuccessListener<Marker, Void>() {
                 @Override

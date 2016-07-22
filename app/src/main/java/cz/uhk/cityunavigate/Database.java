@@ -1,6 +1,8 @@
 
 package cz.uhk.cityunavigate;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +17,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StreamDownloadTask;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -31,9 +35,12 @@ import cz.uhk.cityunavigate.model.Group;
 import cz.uhk.cityunavigate.model.Identifiable;
 import cz.uhk.cityunavigate.model.Marker;
 import cz.uhk.cityunavigate.model.User;
+import cz.uhk.cityunavigate.util.Cache;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
 import cz.uhk.cityunavigate.util.PromiseImpl;
+import cz.uhk.cityunavigate.util.Run;
+import cz.uhk.cityunavigate.util.Supplier;
 import cz.uhk.cityunavigate.util.Util;
 
 /**
@@ -43,6 +50,8 @@ public class Database {
     private static FirebaseDatabase db() {
         return FirebaseDatabase.getInstance();
     }
+
+    private static final Cache<Uri, Bitmap> imageCache = new Cache<>(64);
 
     /**
      * Accept all existing and future group invitations for the given user.
@@ -479,6 +488,43 @@ public class Database {
                 res.reject(e);
             }
         });
+        return res;
+    }
+
+    /**
+     * Downloads a {@link Bitmap} from Firebase storage
+     * @param uri image URI
+     * @return downloaded image
+     */
+    public static Promise<Bitmap> downloadImage(final Uri uri) {
+        final PromiseImpl<Bitmap> res = new PromiseImpl<>();
+        Bitmap cached = imageCache.getItem(uri);
+        if (cached != null) {
+            res.resolve(cached);
+            return res;
+        }
+
+        Run.runAsync(new Supplier<Void>() {
+            @Override
+            public Void supply() throws Exception {
+                FirebaseStorage.getInstance().getReferenceFromUrl(uri.toString()).getStream().addOnSuccessListener(new OnSuccessListener<StreamDownloadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(StreamDownloadTask.TaskSnapshot taskSnapshot) {
+                        final Bitmap bitmap = BitmapFactory.decodeStream(taskSnapshot.getStream());
+                        if (bitmap != null)
+                            imageCache.cacheItem(uri, bitmap);
+                        res.resolve(bitmap);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        res.reject(e);
+                    }
+                });
+                return null;
+            }
+        });
+
         return res;
     }
 

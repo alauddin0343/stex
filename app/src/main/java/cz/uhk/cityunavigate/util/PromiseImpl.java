@@ -158,7 +158,8 @@ public class PromiseImpl<T> extends Promise<T> {
         this.state = State.Resolved;
         this.value = value;
 
-        for (ResolutionListener<T> resolutionListener : resolutionListeners) {
+        Set<ResolutionListener<T>> listenersCopy = new HashSet<>(resolutionListeners);
+        for (ResolutionListener<T> resolutionListener : listenersCopy) {
             resolutionListener.onSuccess(value);
         }
     }
@@ -167,7 +168,8 @@ public class PromiseImpl<T> extends Promise<T> {
         this.state = State.Rejected;
         this.error = error;
 
-        for (RejectionListener rejectionListener : rejectionListeners) {
+        Set<RejectionListener> listenersCopy = new HashSet<>(rejectionListeners);
+        for (RejectionListener rejectionListener : listenersCopy) {
             rejectionListener.onRejected(error);
         }
     }
