@@ -73,6 +73,7 @@ public class PromiseImpl<T> extends Promise<T> {
         return nextPromise;
     }
 
+    @Override
     public synchronized <R> Promise<R> successFlat(@NotNull final SuccessListener<T, Promise<R>> listener) {
         final PromiseImpl<R> nextPromise = new PromiseImpl<>();
         resolutionListeners.add(new ResolutionListener<T>() {
@@ -110,6 +111,7 @@ public class PromiseImpl<T> extends Promise<T> {
         return nextPromise;
     }
 
+    @Override
     public synchronized Promise<T> errorFlat(@NotNull final ErrorListener<Promise<T>> listener) {
         final PromiseImpl<T> nextPromise = new PromiseImpl<>();
         resolutionListeners.add(new ResolutionListener<T>() {
