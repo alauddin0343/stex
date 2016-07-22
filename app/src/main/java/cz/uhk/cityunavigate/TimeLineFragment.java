@@ -2,6 +2,7 @@ package cz.uhk.cityunavigate;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,10 +11,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -68,6 +73,7 @@ public class TimeLineFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_time_line, container, false);
 
+        setHasOptionsMenu(true);
 
         mSwipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 
@@ -204,4 +210,24 @@ public class TimeLineFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.menu_timeline, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {//noinspection SimplifiableIfStatement
+
+        int id = item.getItemId();
+
+        if (id == R.id.action_marker_add){
+            getActivity().startActivity(new Intent(getActivity(), AddMarkerActivity.class));
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 }

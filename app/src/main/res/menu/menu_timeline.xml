@@ -2,15 +2,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
 
-
-    <item android:id="@+id/action_map_change"
-        android:title="@string/action_change_map"
-        android:icon="@drawable/ic_map_change_w"
-        app:showAsAction="always" />
-
     <item android:id="@+id/action_marker_add"
         android:title="@string/action_marker_add"
         android:icon="@drawable/ic_btn_add"
         app:showAsAction="always"
         />
+
 </menu>
