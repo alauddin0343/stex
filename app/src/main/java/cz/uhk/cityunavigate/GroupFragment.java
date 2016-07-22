@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -56,6 +58,7 @@ public class GroupFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_group, container, false);
 
+        setHasOptionsMenu(true);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerMainContent);
 
@@ -167,6 +170,13 @@ public class GroupFragment extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+    }
+
 
     @Override
     public void onDetach() {
