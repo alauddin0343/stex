@@ -24,7 +24,9 @@ import java.util.List;
 import cz.uhk.cityunavigate.model.Comment;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.User;
+import cz.uhk.cityunavigate.util.Function;
 import cz.uhk.cityunavigate.util.Promise;
+import cz.uhk.cityunavigate.util.Run;
 
 /**
  * Created by petrw on 12.07.2016.
@@ -81,63 +83,47 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
             //view.setOnClickListener(this);
         }
 
-        public void bindView(Comment comment) {
+        public void bindView(final Comment comment) {
 
             this.comment = comment;
 
             //Setting text view title
             txtText.setText(comment.getText());
 
+            imgUser.setImageBitmap(null);
+            imgImage.setImageBitmap(null);
+            txtAuthor.setText("");
+
             Date created = new Date();
             created.setTime(comment.getCreated());
             txtDate.setText(new SimpleDateFormat("dd.MM.yyyy HH:mm").format(created));
 
-            Database.getUserById(comment.getUserId()).success(new Promise.SuccessListener<User, Void>() {
+            Database.getUserById(comment.getUserId()).successFlat(new Promise.SuccessListener<User, Promise<Bitmap>>() {
                 @Override
-                public Void onSuccess(User result) {
-                    txtAuthor.setText(result.getName());
-                    new AsyncTask<String, Void, Void>() {
-                        @Override
-                        protected Void doInBackground(String... strings) {
-                            FirebaseStorage.getInstance().getReferenceFromUrl(strings[0]).getStream().addOnSuccessListener(new OnSuccessListener<StreamDownloadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(StreamDownloadTask.TaskSnapshot taskSnapshot) {
-                                    final Bitmap bitmap = BitmapFactory.decodeStream(taskSnapshot.getStream());
-                                    runOnUiThred(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            imgUser.setImageBitmap(bitmap);
-                                        }
-                                    });
-                                }
-                            });
-                            return null;
-                        }
-                    }.execute(result.getImage().toString());
-
+                public Promise<Bitmap> onSuccess(User user) {
+                    if (comment == CustomViewHolder.this.comment)
+                        txtAuthor.setText(user.getName());
+                    return Database.downloadImage(user.getImage());
+                }
+            }).success(Run.promiseUi((Activity) mContext, new Function<Bitmap, Void>() {
+                @Override
+                public Void apply(Bitmap bitmap) {
+                    if (comment == CustomViewHolder.this.comment)
+                        imgUser.setImageBitmap(bitmap);
                     return null;
                 }
-            });
+            }));
 
             if (comment.getImage() != null) {
-                new AsyncTask<String, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(String... strings) {
-                        FirebaseStorage.getInstance().getReferenceFromUrl(strings[0]).getStream().addOnSuccessListener(new OnSuccessListener<StreamDownloadTask.TaskSnapshot>() {
+                Database.downloadImage(comment.getImage())
+                        .success(Run.promiseUi((Activity) mContext, new Function<Bitmap, Void>() {
                             @Override
-                            public void onSuccess(StreamDownloadTask.TaskSnapshot taskSnapshot) {
-                                final Bitmap bitmap = BitmapFactory.decodeStream(taskSnapshot.getStream());
-                                runOnUiThred(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        imgImage.setImageBitmap(bitmap);
-                                    }
-                                });
+                            public Void apply(Bitmap bitmap) {
+                                if (comment == CustomViewHolder.this.comment)
+                                    imgImage.setImageBitmap(bitmap);
+                                return null;
                             }
-                        });
-                        return null;
-                    }
-                }.execute(comment.getImage().toString());
+                        }));
             } else {
                 imgImage.setVisibility(View.GONE);
             }
