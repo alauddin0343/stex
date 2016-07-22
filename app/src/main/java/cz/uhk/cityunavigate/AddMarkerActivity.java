@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -15,10 +17,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import cz.uhk.cityunavigate.model.Category;
 import cz.uhk.cityunavigate.model.FeedItem;
-import cz.uhk.cityunavigate.model.Group;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
 
@@ -27,6 +33,12 @@ public class AddMarkerActivity extends AppCompatActivity {
     private MapView mapView;
     private GoogleMap map;
     private Marker marker;
+
+    private EditText editName, editText;
+    private Spinner dropdownCategories;
+    private CategorySpinnerAdapter categoryAdapter;
+    private ArrayList<Category> categoriesArray;
+    private Button btnImageUpload, btnSubmitMarker;
 
     private void centreMapToLatLng(LatLng latLng){
         if(map != null){
@@ -39,6 +51,39 @@ public class AddMarkerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_marker);
+
+        editName = (EditText)findViewById(R.id.editMarkerName);
+        editText = (EditText)findViewById(R.id.editMarkerText);
+
+        dropdownCategories = (Spinner)findViewById(R.id.spinnerCategories);
+        categoriesArray = new ArrayList<>();
+        categoryAdapter = new CategorySpinnerAdapter(this, android.R.layout.simple_spinner_dropdown_item, categoriesArray);
+        dropdownCategories.setAdapter(categoryAdapter);
+        ObservableList<Category> categories = Database.getAllCategories();
+        categories.addItemAddListener(new ObservableList.ItemAddListener<Category>() {
+            @Override
+            public void onItemAdded(@NotNull ObservableList<Category> list, @NotNull Collection<Category> addedItems) {
+                for(Category c : addedItems){
+                    if(!categoriesArray.contains(c)){
+                        categoryAdapter.add(c);
+                        categoryAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        });
+
+        btnSubmitMarker = (Button)findViewById(R.id.btnSubmitMarker);
+        btnSubmitMarker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                if(!editName.getText().toString().trim().isEmpty())
+                    if(!editText.getText().toString().trim().isEmpty())
+                        sendMarker();
+
+            }
+        });
 
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
@@ -126,20 +171,21 @@ public class AddMarkerActivity extends AppCompatActivity {
         mapView.onLowMemory();
     }
 
-    public void onSendCommentButtonClick(View v) {
+    public void sendMarker() {
 
-        // TODO load current group and category
+        // TODO load current group
         final String groupId = "-KMviPeXMiaorp1p49au";
-        final String categoryId = "-KMwmU8-iExsd_lr7t0S";
+        final Category c = (Category)dropdownCategories.getSelectedItem();
+        //final Group g = ()
 
-        final String title = ((EditText) findViewById(R.id.editNameOfThePlace)).getText().toString();
-        final String text = ((EditText) findViewById(R.id.editWhatever)).getText().toString();
+        final String title = ((EditText) findViewById(R.id.editMarkerName)).getText().toString();
+        final String text = ((EditText) findViewById(R.id.editMarkerText)).getText().toString();
 
         Database.addMarker(groupId, cz.uhk.cityunavigate.model.Marker.builder()
                 .withId(null)
                 .withIdGroup(groupId)
                 .withIdUserAuthor(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .withIdCategory(categoryId)
+                .withIdCategory(c.getId())
                 .withLocation(marker.getPosition())
                 .withTitle(title)
                 .withText(text)

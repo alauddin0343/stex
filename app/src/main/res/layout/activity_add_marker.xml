@@ -17,7 +17,7 @@
             android:layout_margin="10dp">
 
             <EditText
-                android:id="@+id/editNameOfThePlace"
+                android:id="@+id/editMarkerName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Name of the place"/>
@@ -32,21 +32,43 @@
             android:layout_marginBottom="10dp">
 
             <EditText
-                android:id="@+id/editWhatever"
+                android:id="@+id/editMarkerText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="What the hell here?"/>
+                android:hint="Text about the place"/>
 
         </android.support.design.widget.TextInputLayout>
 
-        <Button
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Submit"
-            android:onClick="onSendCommentButtonClick"
-            android:layout_gravity="center"
-            android:layout_marginBottom="5dp" />
+            android:orientation="horizontal">
 
+            <Spinner
+                android:id="@+id/spinnerCategories"
+                android:layout_width="180dp"
+                android:layout_height="40dp"
+                android:background="@android:drawable/btn_dropdown"
+                android:spinnerMode="dropdown"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"/>
+
+            <Button
+                android:id="@+id/btnUploadImage"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Image"
+                android:layout_gravity="center"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Submit"
+                android:id="@+id/btnSubmitMarker"
+
+                android:layout_gravity="center" />
+
+        </LinearLayout>
 
         <com.google.android.gms.maps.MapView
             android:id="@+id/mapview"
