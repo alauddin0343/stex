@@ -290,6 +290,33 @@ public class Database {
     }
 
     /**
+     * Returns observable collection of all marker categories.
+     * @return all categories
+     */
+    public static ObservableList<Category> getAllCategories() {
+        final ObservableList<Category> res = new ObservableList<>();
+        db().getReference("categories")
+                .addChildEventListener(new ChildEventAdapter() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        Map<String, Object> categoryMap = snapshotToMap(dataSnapshot);
+                        Category category = Category.builder()
+                                .withId(dataSnapshot.getKey())
+                                .withName((String)categoryMap.get("title"))
+                                .withHue((float)doubleFromMap(categoryMap, "color"))
+                                .build();
+                        res.add(category);
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+                        removeFromListById(res, dataSnapshot.getKey());
+                    }
+                });
+        return res;
+    }
+
+    /**
      * Resolve user info based on the user ID.
      *
      * @param userId user ID

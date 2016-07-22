@@ -10,6 +10,10 @@ public abstract class Promise<T> {
 
     public abstract Promise<T> error(@NotNull ErrorListener<T> listener);
 
+    public abstract  <R> Promise<R> successFlat(@NotNull final SuccessListener<T, Promise<R>> listener);
+
+    public abstract Promise<T> errorFlat(@NotNull final ErrorListener<Promise<T>> listener);
+
     public interface SuccessListener<T, R> {
         R onSuccess(T result);
     }
