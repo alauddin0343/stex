@@ -49,7 +49,9 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
-        <activity android:name=".AddMarkerActivity" />
+        <activity
+            android:name=".AddMarkerActivity"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"

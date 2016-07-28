@@ -6,76 +6,65 @@
     android:layout_height="match_parent"
     tools:context="cz.uhk.cityunavigate.AddMarkerActivity">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp">
-
-            <EditText
-                android:id="@+id/editMarkerName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Name of the place"/>
-
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp">
-
-            <EditText
-                android:id="@+id/editMarkerText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Text about the place"/>
-
-        </android.support.design.widget.TextInputLayout>
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <Spinner
-                android:id="@+id/spinnerCategories"
-                android:layout_width="180dp"
-                android:layout_height="40dp"
-                android:background="@android:drawable/btn_dropdown"
-                android:spinnerMode="dropdown"
-                android:layout_gravity="center"
-                android:layout_marginLeft="5dp"/>
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp">
 
-            <Button
-                android:id="@+id/btnUploadImage"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="Image"
-                android:layout_gravity="center"/>
+                <EditText
+                    android:id="@+id/editMarkerName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Name of the place"/>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="Submit"
-                android:id="@+id/btnSubmitMarker"
+            </android.support.design.widget.TextInputLayout>
 
-                android:layout_gravity="center" />
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp">
+
+                <EditText
+                    android:id="@+id/editMarkerText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Text about the place"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp">
+
+                <Spinner
+                    android:id="@+id/spinnerCategories"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/mapview"
+                android:layout_width="fill_parent"
+                android:layout_height="100dp"/>
 
         </LinearLayout>
 
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/mapview"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"/>
-
-    </LinearLayout>
+    </ScrollView>
 
 
 </RelativeLayout>

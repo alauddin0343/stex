@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+
+    <item android:id="@+id/action_marker_thumbnail"
+        android:title="Add picture"
+        android:icon="@android:drawable/ic_menu_camera"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/action_marker_save"
+        android:title="Save marker"
+        android:icon="@android:drawable/ic_menu_save"
+        app:showAsAction="always" />
+
+</menu>

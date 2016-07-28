@@ -47,6 +47,10 @@ public class Category implements Identifiable {
         return hue;
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
 
     public interface IBuild {
         Category build();
