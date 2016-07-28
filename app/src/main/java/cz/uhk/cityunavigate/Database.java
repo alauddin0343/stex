@@ -215,7 +215,7 @@ public class Database {
         db().getReference("timeline")
                 .child(groupId)
                 .orderByChild("created")
-                .limitToFirst(feedItemLimit)
+                .limitToLast(feedItemLimit)
                 .addChildEventListener(new ChildEventAdapter() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
