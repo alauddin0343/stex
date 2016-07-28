@@ -192,6 +192,12 @@ public class Database {
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 removeFromListById(res, dataSnapshot.getKey());
             }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                onChildRemoved(dataSnapshot);
+                onChildAdded(dataSnapshot, s);
+            }
         });
         return res;
     }
@@ -231,6 +237,12 @@ public class Database {
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
                         removeFromListById(result, dataSnapshot.getKey());
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                        onChildRemoved(dataSnapshot);
+                        onChildAdded(dataSnapshot, s);
                     }
                 });
         return result;
