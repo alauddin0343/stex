@@ -55,6 +55,7 @@ import cz.uhk.cityunavigate.util.Function;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
 import cz.uhk.cityunavigate.util.Run;
+import cz.uhk.cityunavigate.util.Util;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -73,10 +74,6 @@ public class DetailActivity extends AppCompatActivity {
 
     private String markerId;
     private String groupId;
-
-    private static final int PICK_PHOTO_REQUEST = 1;
-
-    private ProgressDialog progressDialog;
 
     private Uri thumbnail = null;
 
@@ -267,38 +264,34 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (requestCode == PICK_PHOTO_REQUEST) {
+        if (requestCode == Util.REQUEST_ACTIVITY_PICK_PHOTO) {
+
             if (resultCode == RESULT_OK) {
+
+                final ProgressDialog progressDialog = Util.progressDialog(this, R.string.firebase_picture_uploading);
+                progressDialog.show();
+
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
-
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 60, byteArrayOutputStream);
-
-                    byte[] bytes = byteArrayOutputStream.toByteArray();
-
-                    final StorageReference storageReference = FirebaseStorage
-                            .getInstance()
-                            .getReference()
-                            .child("comments")
-                            .child(UUID.randomUUID().toString() + ".png");
-
-                    UploadTask uploadTask = storageReference.putBytes(bytes);
-                    uploadTask.addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            progressDialog.dismiss();
-                            Toast.makeText(DetailActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
+                    Util.uploadPicture(
+                        getContentResolver(),
+                        data.getData(),
+                        "comments",
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                progressDialog.dismiss();
+                                Toast.makeText(DetailActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        } ,new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                progressDialog.dismiss();
+                                thumbnail = Uri.parse(taskSnapshot.getMetadata().getReference().toString());
+                            }
                         }
-                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            progressDialog.dismiss();
-                            thumbnail = Uri.parse(taskSnapshot.getMetadata().getReference().toString());
-                        }
-                    });
+                    );
                 } catch (IOException exception) {
-                    Toast.makeText(DetailActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, exception.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -353,12 +346,7 @@ public class DetailActivity extends AppCompatActivity {
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(getResources().getString(R.string.firebase_picture_uploading));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_PHOTO_REQUEST);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), Util.REQUEST_ACTIVITY_PICK_PHOTO);
     }
 
     public void onSendCommentButtonClick(View view) {
