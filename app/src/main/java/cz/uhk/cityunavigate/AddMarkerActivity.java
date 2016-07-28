@@ -2,10 +2,8 @@ package cz.uhk.cityunavigate;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -13,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -28,18 +25,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 import cz.uhk.cityunavigate.model.Category;
 import cz.uhk.cityunavigate.model.FeedItem;
@@ -51,67 +44,51 @@ import cz.uhk.cityunavigate.util.Util;
 public class AddMarkerActivity extends AppCompatActivity {
 
     private MapView mapView;
+
     private GoogleMap map;
+
     private com.google.android.gms.maps.model.Marker googleMapMarker;
 
     private EditText editName, editText;
+
     private Spinner spinnerCategory;
+
     private ArrayAdapter<Category> adapterCategory;
+
     private List<Category> categoriesArray;
 
     private Uri thumbnail = null;
-
-    private void centreMapToLatLng(LatLng latLng){
-        if(map != null){
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 16);
-            map.moveCamera(cameraUpdate);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_marker);
 
-        editName = (EditText)findViewById(R.id.editMarkerName);
-        editText = (EditText)findViewById(R.id.editMarkerText);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        editName = (EditText) findViewById(R.id.editMarkerName);
+        editText = (EditText) findViewById(R.id.editMarkerText);
         spinnerCategory = (Spinner) findViewById(R.id.spinnerCategories);
-        spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Category category = (Category) adapterView.getItemAtPosition(i);
-                Toast.makeText(AddMarkerActivity.this, category.getName(), Toast.LENGTH_SHORT).show();
-            }
+        mapView = (MapView) findViewById(R.id.mapview);
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
+        // spinner
         categoriesArray = new ArrayList<>();
         adapterCategory = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoriesArray);
         spinnerCategory.setAdapter(adapterCategory);
-
-        ObservableList<Category> categories = Database.getAllCategories();
-        categories.addItemAddListener(new ObservableList.ItemAddListener<Category>() {
+        Database.getAllCategories().addItemAddListener(new ObservableList.ItemAddListener<Category>() {
             @Override
             public void onItemAdded(@NotNull ObservableList<Category> list, @NotNull Collection<Category> addedItems) {
-                for(Category c : addedItems){
-                    if(!categoriesArray.contains(c)){
-                        categoriesArray.add(c);
-                        adapterCategory.notifyDataSetChanged();
+                for (Category category : addedItems){
+                    if (!categoriesArray.contains(category)) {
+                        categoriesArray.add(category);
                     }
                 }
+                adapterCategory.notifyDataSetChanged();
             }
         });
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        mapView = (MapView) findViewById(R.id.mapview);
+        // mapview
         mapView.onCreate(savedInstanceState);
-
         mapView.getMapAsync(new OnMapReadyCallback() {
 
             @Override
@@ -165,9 +142,7 @@ public class AddMarkerActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_marker_save) {
-
             sendMarker();
-
         } else if (id == R.id.action_marker_thumbnail) {
 
             Intent intent = new Intent();
@@ -179,6 +154,14 @@ public class AddMarkerActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void centreMapToLatLng(LatLng latLng){
+        if(map != null){
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 16);
+            map.moveCamera(cameraUpdate);
+        }
+    }
+
 
     //FOLLOWING METHODS ARE FOR MAPVIEW CONTROLLING (map fragment must have)
     @Override
@@ -248,8 +231,8 @@ public class AddMarkerActivity extends AppCompatActivity {
         final Category c = (Category) spinnerCategory.getSelectedItem();
         //final Group g = ()
 
-        final String title = ((EditText) findViewById(R.id.editMarkerName)).getText().toString();
-        final String text = ((EditText) findViewById(R.id.editMarkerText)).getText().toString();
+        final String title = editName.getText().toString();
+        final String text = editText.getText().toString();
 
         Marker marker = cz.uhk.cityunavigate.model.Marker.builder()
                 .withId(null)
@@ -263,10 +246,10 @@ public class AddMarkerActivity extends AppCompatActivity {
                 .withImage(thumbnail)
                 .build();
 
-        Database.addMarker(groupId, marker).success(new Promise.SuccessListener<cz.uhk.cityunavigate.model.Marker, Void>() {
+        Database.addMarker(groupId, marker).success(new Promise.SuccessListener<cz.uhk.cityunavigate.model.Marker, Object>() {
 
             @Override
-            public Void onSuccess(cz.uhk.cityunavigate.model.Marker result) {
+            public Object onSuccess(cz.uhk.cityunavigate.model.Marker result) {
 
                 FeedItem feedItem = FeedItem.builder()
                         .withId(null)
@@ -285,8 +268,6 @@ public class AddMarkerActivity extends AppCompatActivity {
                 return null;
             }
         });
-
-        thumbnail = null;
     }
 
 }
