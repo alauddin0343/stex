@@ -55,10 +55,12 @@ public class MainActivity extends AppCompatActivity
                 super.onDrawerOpened(drawerView);
             }
         };
-        drawerLayout.setDrawerListener(drawerToggle);
+        drawerLayout.addDrawerListener(drawerToggle);
         drawerLayout.getParent().getParent().requestDisallowInterceptTouchEvent(true); //při vysunutém drawer blokujeme content - nefunguje
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+        }
         drawerToggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -116,8 +118,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         }
-        /*
-        else if (id == R.id.nav_group) {
+
+        /*else if (id == R.id.nav_group) {
 
             if(grpFrag == null){
                 grpFrag = cz.uhk.cityunavigate.GroupFragment.newInstance();
@@ -132,9 +134,9 @@ public class MainActivity extends AppCompatActivity
                 }
             }
 
-        } else if (id == R.id.nav_settings) {
+        }*/ else if (id == R.id.nav_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
-        }*/
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

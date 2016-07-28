@@ -11,6 +11,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -489,6 +490,28 @@ public class Database {
             }
         });
         return res;
+    }
+
+    /**
+     * Change user name to the specified name
+     * @param user user
+     * @param newName new name
+     * @return promise
+     */
+    public static Promise<Void> changeUserName(final FirebaseUser user, final String newName) {
+        return Promise.fromTask(user.updateProfile(new UserProfileChangeRequest.Builder()
+                .setDisplayName(newName)
+                .setPhotoUri(user.getPhotoUrl())
+                .build())).successFlat(new Promise.SuccessListener<Void, Promise<Void>>() {
+                    @Override
+                    public Promise<Void> onSuccess(Void result) {
+                        return Promise.fromTask(
+                            db().getReference("users")
+                                    .child(user.getUid())
+                                    .child("name")
+                                    .setValue(newName));
+                    }
+                });
     }
 
     /**

@@ -1,5 +1,11 @@
 package cz.uhk.cityunavigate.util;
 
+import android.support.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,5 +26,27 @@ public abstract class Promise<T> {
 
     public interface ErrorListener<R> {
         R onError(Throwable error);
+    }
+
+    /**
+     * Converts Google {@link Task} to a {@link Promise}.
+     * @param task task to convert
+     * @param <T> return type
+     * @return promise
+     */
+    public static <T> Promise<T> fromTask(Task<T> task) {
+        final PromiseImpl<T> res = new PromiseImpl<>();
+        task.addOnSuccessListener(new OnSuccessListener<T>() {
+            @Override
+            public void onSuccess(T t) {
+                res.resolve(t);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                res.reject(e);
+            }
+        });
+        return res;
     }
 }

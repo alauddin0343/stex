@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCdS6LkkL1laCAqIXQzPDuVwrUwB5iU2jo" />
+            android:value="AIzaSyBirB2IjtDtHkT-dn4DX2mJlRv-kPpwCt4" />
 
         <activity
             android:name=".MainActivity"
@@ -48,12 +48,16 @@
             android:label="@string/title_activity_detail"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden"/>
+            android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".AddMarkerActivity" />
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_add_marker"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".AddMarkerActivity"></activity>
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="cz.uhk.cityunavigate.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
