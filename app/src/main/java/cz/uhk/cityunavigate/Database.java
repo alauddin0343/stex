@@ -23,6 +23,7 @@ import com.google.firebase.storage.StreamDownloadTask;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -135,25 +136,11 @@ public class Database {
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                         String groupId = dataSnapshot.getKey();
                         if (groupId != null)
-                            db().getReference("groups").child(groupId).addListenerForSingleValueEvent(new ValueEventListener() {
+                            getGroupById(groupId).success(new Promise.SuccessListener<Group, Void>() {
                                 @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    Map<String, Object> groupMap = snapshotToMap(dataSnapshot);
-                                    Map<String, Object> userMap = objectToMap(groupMap.get("users"));
-                                    List<String> users = new ArrayList<>(userMap.keySet());
-                                    Group group = Group.builder()
-                                            .withId(dataSnapshot.getKey())
-                                            .withName((String) groupMap.get("name"))
-                                            .withUniversity((String) groupMap.get("university"))
-                                            .withAdminsIds(Collections.singletonList((String) groupMap.get("administrator")))
-                                            .withUserIds(users)
-                                            .build();
+                                public Void onSuccess(Group group) {
                                     result.add(group);
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
+                                    return null;
                                 }
                             });
                     }
@@ -164,6 +151,24 @@ public class Database {
                     }
                 });
         return result;
+    }
+
+    /**
+     * Returns the first group of a user
+     * @param userId user id
+     * @return first group (asynchronously)
+     */
+    public static Promise<Group> getFirstUserGroup(String userId) {
+        return childObjectAsPromise(db().getReference("users")
+                .child(userId)
+                .child("groups")).successFlat(new Promise.SuccessListener<ChildObject, Promise<Group>>() {
+                    @Override
+                    public Promise<Group> onSuccess(ChildObject result) throws Exception {
+                        if (result.value.isEmpty())
+                            throw new Exception("User has no groups");
+                        return Database.getGroupById(result.value.keySet().iterator().next());
+                    }
+                });
     }
 
     /**
@@ -256,31 +261,23 @@ public class Database {
      * @return marker (asynchronously)
      */
     public static Promise<Marker> getMarkerById(final String groupId, String markerId) {
-        final PromiseImpl<Marker> res = new PromiseImpl<>();
-        db().getReference("markers").child(groupId).child(markerId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Object> markerMap = snapshotToMap(dataSnapshot);
-                Marker marker = Marker.builder()
-                        .withId(dataSnapshot.getKey())
-                        .withIdGroup(groupId)
-                        .withIdUserAuthor((String) markerMap.get("user"))
-                        .withIdCategory((String) markerMap.get("category"))
-                        .withLocation(new LatLng(doubleFromMap(markerMap, "lat"), doubleFromMap(markerMap, "lng")))
-                        .withTitle((String) markerMap.get("title"))
-                        .withText((String) markerMap.get("text"))
-                        .withCreated(longFromMap(markerMap, "created"))
-                        .withImage(uriFromMap(markerMap, "image"))
-                        .build();
-                res.resolve(marker);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                res.reject(databaseError.toException());
-            }
-        });
-        return res;
+        return childObjectAsPromise(db().getReference("markers").child(groupId).child(markerId))
+                .success(new Promise.SuccessListener<ChildObject, Marker>() {
+                    @Override
+                    public Marker onSuccess(ChildObject result) {
+                        return Marker.builder()
+                                .withId(result.id)
+                                .withIdGroup(groupId)
+                                .withIdUserAuthor((String) result.value.get("user"))
+                                .withIdCategory((String) result.value.get("category"))
+                                .withLocation(new LatLng(doubleFromMap(result.value, "lat"), doubleFromMap(result.value, "lng")))
+                                .withTitle((String) result.value.get("title"))
+                                .withText((String) result.value.get("text"))
+                                .withCreated(longFromMap(result.value, "created"))
+                                .withImage(uriFromMap(result.value, "image"))
+                                .build();
+                    }
+                });
     }
 
     /**
@@ -290,25 +287,17 @@ public class Database {
      * @return category object (asynchronously)
      */
     public static Promise<Category> getCategoryById(final String categoryId) {
-        final PromiseImpl<Category> res = new PromiseImpl<>();
-        db().getReference("categories").child(categoryId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Object> catMap = snapshotToMap(dataSnapshot);
-                Category category = Category.builder()
-                        .withId(dataSnapshot.getKey())
-                        .withName((String) catMap.get("title"))
-                        .withHue((float) doubleFromMap(catMap, "color"))
-                        .build();
-                res.resolve(category);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                res.reject(databaseError.toException());
-            }
-        });
-        return res;
+        return childObjectAsPromise(db().getReference("categories").child(categoryId))
+                .success(new Promise.SuccessListener<ChildObject, Category>() {
+                    @Override
+                    public Category onSuccess(ChildObject result) {
+                        return Category.builder()
+                                .withId(result.id)
+                                .withName((String) result.value.get("title"))
+                                .withHue((float) doubleFromMap(result.value, "color"))
+                                .build();
+                    }
+                });
     }
 
     /**
@@ -345,29 +334,45 @@ public class Database {
      * @return user (asynchronously)
      */
     public static Promise<User> getUserById(final String userId) {
-        final PromiseImpl<User> res = new PromiseImpl<>();
-        db().getReference("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Object> userMap = snapshotToMap(dataSnapshot);
-                User user = User.builder()
-                        .withId(dataSnapshot.getKey())
-                        .withName((String) userMap.get("name"))
-                        .withEmail((String) userMap.get("email"))
-                        .withGroups(new ArrayList<>(objectToMap(userMap.get("groups")).keySet()))
-                        .withAdministrators(new ArrayList<>(objectToMap(userMap.get("administrator")).keySet()))
-                        .withImage(uriFromMap(userMap, "image"))
-                        .withCreated(longFromMap(userMap, "created"))
-                        .build();
-                res.resolve(user);
-            }
+        return childObjectAsPromise(db().getReference("users").child(userId))
+                .success(new Promise.SuccessListener<ChildObject, User>() {
+                    @Override
+                    public User onSuccess(ChildObject result) {
+                        return User.builder()
+                                .withId(result.id)
+                                .withName((String) result.value.get("name"))
+                                .withEmail((String) result.value.get("email"))
+                                .withGroups(new ArrayList<>(objectToMap(result.value.get("groups")).keySet()))
+                                .withAdministrators(new ArrayList<>(objectToMap(result.value.get("administrator")).keySet()))
+                                .withImage(uriFromMap(result.value, "image"))
+                                .withCreated(longFromMap(result.value, "created"))
+                                .build();
+                    }
+                });
+    }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                res.reject(databaseError.toException());
-            }
-        });
-        return res;
+    /**
+     * Resolve group info based on the group ID.
+     *
+     * @param groupId group ID
+     * @return group (asynchronously)
+     */
+    public static Promise<Group> getGroupById(final String groupId) {
+        return childObjectAsPromise(db().getReference("groups").child(groupId))
+                .success(new Promise.SuccessListener<ChildObject, Group>() {
+                    @Override
+                    public Group onSuccess(ChildObject groupMap) {
+                        Map<String, Object> userMap = objectToMap(groupMap.value.get("users"));
+                        List<String> users = new ArrayList<>(userMap.keySet());
+                        return Group.builder()
+                                .withId(groupMap.id)
+                                .withName((String) groupMap.value.get("name"))
+                                .withUniversity((String) groupMap.value.get("university"))
+                                .withAdminsIds(Collections.singletonList((String) groupMap.value.get("administrator")))
+                                .withUserIds(users)
+                                .build();
+                    }
+                });
     }
 
     /**
@@ -560,6 +565,38 @@ public class Database {
             }
         });
 
+        return res;
+    }
+
+
+    private static class ChildObject {
+        private final String id;
+        private final Map<String, Object> value;
+
+        private ChildObject(String id, Map<String, Object> value) {
+            this.id = id;
+            this.value = value;
+        }
+    }
+
+    /**
+     * Returns the object-value of the given database reference as a promise to the value
+     * @param reference reference to load
+     * @return promise to the reference value
+     */
+    private static Promise<ChildObject> childObjectAsPromise(DatabaseReference reference) {
+        final PromiseImpl<ChildObject> res = new PromiseImpl<>();
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                res.resolve(new ChildObject(dataSnapshot.getKey(), snapshotToMap(dataSnapshot)));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                res.reject(databaseError.toException());
+            }
+        });
         return res;
     }
 
