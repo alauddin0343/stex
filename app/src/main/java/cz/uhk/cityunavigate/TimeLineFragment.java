@@ -111,7 +111,7 @@ public class TimeLineFragment extends Fragment {
 
     private void updateTimeLine(Group group) {
 
-        final ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), 50);
+        final ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), Integer.MAX_VALUE);
         feedItems.addItemAddListener(new ObservableList.ItemAddListener<FeedItem>() {
             @Override
             public void onItemAdded(@NotNull ObservableList<FeedItem> list, @NotNull Collection<FeedItem> addedItems) {

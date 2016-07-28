@@ -1,18 +1,26 @@
 package cz.uhk.cityunavigate;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,13 +32,21 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
 import cz.uhk.cityunavigate.model.Comment;
 import cz.uhk.cityunavigate.model.FeedItem;
@@ -51,13 +67,18 @@ public class DetailActivity extends AppCompatActivity {
     private TextView txtDetailText;
     private RecyclerView recyclerView;
     private EditText editCommentText;
-    private Button btnSendComment;
 
     private ArrayList<Comment> commentsArray;
     private CommentsRecyclerAdapter commentsAdapter;
 
     private String markerId;
     private String groupId;
+
+    private static final int PICK_PHOTO_REQUEST = 1;
+
+    private ProgressDialog progressDialog;
+
+    private Uri thumbnail = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,26 +102,13 @@ public class DetailActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         editCommentText = (EditText)findViewById(R.id.editCommentText);
-        btnSendComment = (Button)findViewById(R.id.btnSendComment);
 
         mapView = (MapView)findViewById(R.id.mapview);
         mapView.onCreate(savedInstanceState);
 
-        btnSendComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String s = editCommentText.getText().toString().trim();
-                if(s!= null && !s.isEmpty()){
-                    sendComment(s);
-                }
-
-            }
-        });
-
         commentsArray = new ArrayList<>();
         commentsAdapter = new CommentsRecyclerAdapter(this, commentsArray);
         recyclerView.setAdapter(commentsAdapter);
-
         fillDetailInfo(markerId, groupId);
     }
 
@@ -146,7 +154,7 @@ public class DetailActivity extends AppCompatActivity {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if(user != null){
+        if (user != null) {
 
             final ObservableList<Comment> comments = Database.getCommentsForMarker(markerId);
             comments.addItemAddListener(new ObservableList.ItemAddListener<Comment>() {
@@ -185,25 +193,6 @@ public class DetailActivity extends AppCompatActivity {
         else{
             Toast.makeText(this,"YOU'RE NOT LOGGED IN", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void sendComment(String s){
-        Comment c = Comment.builder().withId(null).withCreated(System.currentTimeMillis())
-                .withImage(null).withText(s).withUserId(FirebaseAuth.getInstance().getCurrentUser().getUid()).build();
-        Database.addComment(markerId,c);
-
-        //commentsAdapter.add(c);
-        editCommentText.setText("");
-
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(editCommentText.getWindowToken(),
-                InputMethodManager.RESULT_UNCHANGED_SHOWN);
-
-        FeedItem fi = FeedItem.builder().withId(null).withUserId(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .withGroupId(groupId).withMarkerId(markerId).withCreated(System.currentTimeMillis())
-                .withType(FeedItem.Type.CommentAdd).withText(s).withTitle("Commented").withThumbnail(null)
-                .build();
-        Database.addFeedItem(groupId,fi);
     }
 
     @Override
@@ -276,6 +265,46 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == PICK_PHOTO_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 60, byteArrayOutputStream);
+
+                    byte[] bytes = byteArrayOutputStream.toByteArray();
+
+                    final StorageReference storageReference = FirebaseStorage
+                            .getInstance()
+                            .getReference()
+                            .child("comments")
+                            .child(UUID.randomUUID().toString() + ".png");
+
+                    UploadTask uploadTask = storageReference.putBytes(bytes);
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            progressDialog.dismiss();
+                            Toast.makeText(DetailActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            thumbnail = Uri.parse(taskSnapshot.getMetadata().getReference().toString());
+                        }
+                    });
+                } catch (IOException exception) {
+                    Toast.makeText(DetailActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         if(mapView != null && mapView.getVisibility()==View.VISIBLE){
             mapView.setVisibility(View.GONE);
@@ -316,6 +345,61 @@ public class DetailActivity extends AppCompatActivity {
         super.onLowMemory();
         if(mapInited)
             mapView.onLowMemory();
+    }
+
+    public void onAddPhotoButtonClick(View view) {
+
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getResources().getString(R.string.firebase_picture_uploading));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_PHOTO_REQUEST);
+    }
+
+    public void onSendCommentButtonClick(View view) {
+
+        String s = editCommentText.getText().toString().trim();
+
+        if (s !=  null && !s.isEmpty()) {
+
+            Comment comment = Comment.builder()
+                    .withId(null)
+                    .withCreated(System.currentTimeMillis())
+                    .withImage(thumbnail)
+                    .withText(s)
+                    .withUserId(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .build();
+
+            Database.addComment(markerId, comment);
+
+            editCommentText.setText("");
+
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(editCommentText.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);
+
+            FeedItem feedItem = FeedItem.builder()
+                    .withId(null)
+                    .withUserId(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .withGroupId(groupId)
+                    .withMarkerId(markerId)
+                    .withCreated(System.currentTimeMillis())
+                    .withType(FeedItem.Type.CommentAdd)
+                    .withText(s)
+                    .withTitle("Commented")
+                    .withThumbnail(thumbnail)
+                    .build();
+
+            Database.addFeedItem(groupId, feedItem);
+
+            // TODO promise
+            Toast.makeText(this, R.string.detail_comment_added, Toast.LENGTH_SHORT).show();
+            thumbnail = null;
+        }
     }
 
 }

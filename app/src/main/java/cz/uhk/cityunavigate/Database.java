@@ -297,8 +297,8 @@ public class Database {
                 Map<String, Object> catMap = snapshotToMap(dataSnapshot);
                 Category category = Category.builder()
                         .withId(dataSnapshot.getKey())
-                        .withName((String) catMap.get("name"))
-                        .withHue((float) doubleFromMap(catMap, "hue"))
+                        .withName((String) catMap.get("title"))
+                        .withHue((float) doubleFromMap(catMap, "color"))
                         .build();
                 res.resolve(category);
             }
@@ -600,6 +600,8 @@ public class Database {
             return (double) res;
         if (res instanceof Float)
             return (float) (double) res;
+        if (res instanceof Long)
+            return (double) (long) res;
         return 0;
     }
 
