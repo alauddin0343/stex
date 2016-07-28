@@ -351,42 +351,48 @@ public class DetailActivity extends AppCompatActivity {
 
     public void onSendCommentButtonClick(View view) {
 
-        String s = editCommentText.getText().toString().trim();
+        final String text = editCommentText.getText().toString().trim();
 
-        if (s !=  null && !s.isEmpty()) {
+        if (text !=  null && !text.isEmpty()) {
 
             Comment comment = Comment.builder()
                     .withId(null)
                     .withCreated(System.currentTimeMillis())
                     .withImage(thumbnail)
-                    .withText(s)
+                    .withText(text)
                     .withUserId(FirebaseAuth.getInstance().getCurrentUser().getUid())
                     .build();
 
-            Database.addComment(markerId, comment);
+            Database.addComment(markerId, comment).success(new Promise.SuccessListener<Comment, Object>() {
+                @Override
+                public Object onSuccess(Comment result) {
 
-            editCommentText.setText("");
+                    editCommentText.setText("");
 
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(editCommentText.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(editCommentText.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);
 
-            FeedItem feedItem = FeedItem.builder()
-                    .withId(null)
-                    .withUserId(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .withGroupId(groupId)
-                    .withMarkerId(markerId)
-                    .withCreated(System.currentTimeMillis())
-                    .withType(FeedItem.Type.CommentAdd)
-                    .withText(s)
-                    .withTitle("Commented")
-                    .withThumbnail(thumbnail)
-                    .build();
+                    FeedItem feedItem = FeedItem.builder()
+                            .withId(null)
+                            .withUserId(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            .withGroupId(groupId)
+                            .withMarkerId(markerId)
+                            .withCreated(System.currentTimeMillis())
+                            .withType(FeedItem.Type.CommentAdd)
+                            .withText(text)
+                            .withTitle("Commented")
+                            .withThumbnail(thumbnail)
+                            .build();
 
-            Database.addFeedItem(groupId, feedItem);
+                    Database.addFeedItem(groupId, feedItem);
 
-            // TODO promise
-            Toast.makeText(this, R.string.detail_comment_added, Toast.LENGTH_SHORT).show();
-            thumbnail = null;
+                    thumbnail = null;
+
+                    Toast.makeText(DetailActivity.this, R.string.detail_comment_added, Toast.LENGTH_SHORT).show();
+
+                    return null;
+                }
+            });
         }
     }
 
