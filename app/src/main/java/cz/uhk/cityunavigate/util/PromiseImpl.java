@@ -79,21 +79,25 @@ public class PromiseImpl<T> extends Promise<T> {
         resolutionListeners.add(new ResolutionListener<T>() {
             @Override
             public void onSuccess(T result) {
-                Promise<R> r = listener.onSuccess(result);
-                r.success(new SuccessListener<R, Void>() {
-                    @Override
-                    public Void onSuccess(R result) {
-                        nextPromise.resolve(result);
-                        return null;
-                    }
-                });
-                r.error(new ErrorListener<R>() {
-                    @Override
-                    public R onError(Throwable error) {
-                        nextPromise.reject(error);
-                        return null;
-                    }
-                });
+                try {
+                    Promise<R> r = listener.onSuccess(result);
+                    r.success(new SuccessListener<R, Void>() {
+                        @Override
+                        public Void onSuccess(R result) {
+                            nextPromise.resolve(result);
+                            return null;
+                        }
+                    });
+                    r.error(new ErrorListener<R>() {
+                        @Override
+                        public R onError(Throwable error) {
+                            nextPromise.reject(error);
+                            return null;
+                        }
+                    });
+                } catch (Exception ex) {
+                    nextPromise.reject(ex);
+                }
                 resolutionListeners.remove(this);
             }
         });

@@ -21,7 +21,7 @@ public abstract class Promise<T> {
     public abstract Promise<T> errorFlat(@NotNull final ErrorListener<Promise<T>> listener);
 
     public interface SuccessListener<T, R> {
-        R onSuccess(T result);
+        R onSuccess(T result) throws Exception;
     }
 
     public interface ErrorListener<R> {
