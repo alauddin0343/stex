@@ -97,6 +97,8 @@ public class DetailActivity extends AppCompatActivity {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setNestedScrollingEnabled(false);
+
 
         editCommentText = (EditText)findViewById(R.id.editCommentText);
 
