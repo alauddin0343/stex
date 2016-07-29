@@ -2,9 +2,10 @@ package cz.uhk.cityunavigate;
 
 
 import android.annotation.TargetApi;
-import android.content.Context;
+import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.res.Configuration;
+import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -13,18 +14,24 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
+import android.widget.FrameLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import cz.uhk.cityunavigate.model.Group;
+import cz.uhk.cityunavigate.util.Function;
+import cz.uhk.cityunavigate.util.Run;
+import cz.uhk.cityunavigate.util.Util;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -37,7 +44,9 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends AppCompatPreferenceActivity {
+public class SettingsActivity extends AppCompatActivity {
+    private FrameLayout frame;
+
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -96,15 +105,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     };
 
     /**
-     * Helper method to determine if the device has an extra-large screen. For
-     * example, 10" tablets are extra-large.
-     */
-    private static boolean isXLargeTablet(Context context) {
-        return (context.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
-    }
-
-    /**
      * Binds a preference's summary to its value. More specifically, when the
      * preference's value is changed, its summary (line of text below the
      * preference title) is updated to reflect the value. The summary is also
@@ -129,9 +129,28 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupActionBar();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null)
-            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("user_name", user.getDisplayName()).apply();
+
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        setContentView(R.layout.activity_settings);
+
+        frame = (FrameLayout)findViewById(R.id.mainPreferenceFragment);
+        final ProgressDialog progress = Util.progressDialog(this, "Loading");
+        progress.show();
+
+        LoggedInUser.get(this).successFlat(Run.promiseUi(this, new Function<LoggedInUser, Void>() {
+            @Override
+            public Void apply(LoggedInUser user) {
+                prefs.edit().putString("user_name", user.getFirebaseUser().getDisplayName())
+                        .putString("user_group", user.getActiveGroup().getId())
+                        .apply();
+                progress.dismiss();
+                MainPreferenceFragment fragment = MainPreferenceFragment.newInstance(user.getGroups());
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.add(frame.getId(), fragment).commit();
+                return null;
+            }
+        }));
     }
 
     /**
@@ -146,42 +165,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            if (!super.onMenuItemSelected(featureId, item)) {
-                NavUtils.navigateUpFromSameTask(this);
-            }
-            return true;
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // app icon in action bar clicked; goto parent activity.
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onMenuItemSelected(featureId, item);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onIsMultiPane() {
-        return isXLargeTablet(this);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void onBuildHeaders(List<Header> target) {
-        loadHeadersFromResource(R.xml.pref_headers, target);
-    }
-
-    /**
-     * This method stops fragment injection in malicious applications.
-     * Make sure to deny any unknown fragments here.
-     */
-    protected boolean isValidFragment(String fragmentName) {
-        return PreferenceFragment.class.getName().equals(fragmentName)
-                || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-                || NotificationPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     /**
@@ -189,11 +181,22 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * activity is showing a two-pane settings UI.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class GeneralPreferenceFragment extends PreferenceFragment {
+    public static class MainPreferenceFragment extends PreferenceFragment {
+
+        public static MainPreferenceFragment newInstance(List<Group> groups) {
+            MainPreferenceFragment fragment = new MainPreferenceFragment();
+            Bundle args = new Bundle();
+            args.putSerializable("groups", new ArrayList<>(groups));
+            fragment.setArguments(args);
+            return fragment;
+        }
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
+
+            @SuppressWarnings("unchecked") List<Group> groups = (List<Group>)getArguments().get("groups");
+            addPreferencesFromResource(R.xml.pref_main);
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
@@ -201,36 +204,23 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("user_name"));
+            bindPreferenceSummaryToValue(findPreference("user_group"));
+
+            final ListPreference listPreference = (ListPreference) findPreference("user_group");
+            setListPreferenceData(listPreference, groups);
         }
 
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
+        protected void setListPreferenceData(final ListPreference lp, List<Group> groups) {
+            CharSequence[] entries = new CharSequence[groups.size()];
+            CharSequence[] entryValues = new CharSequence[entries.length];
+            for (int i = 0; i < groups.size(); i++) {
+                entries[i] = groups.get(i).getName();
+                entryValues[i] = groups.get(i).getId();
             }
-            return super.onOptionsItemSelected(item);
-        }
-    }
-
-    /**
-     * This fragment shows notification preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class NotificationPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_notification);
-            setHasOptionsMenu(true);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+            lp.setEntries(entries);
+            lp.setEntryValues(entryValues);
+            if (groups.size() > 0)
+                lp.setDefaultValue(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("user_group", groups.get(0).getId()));
         }
 
         @Override

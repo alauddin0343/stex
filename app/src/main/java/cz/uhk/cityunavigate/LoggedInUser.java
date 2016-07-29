@@ -26,14 +26,16 @@ public class LoggedInUser {
     private final @NotNull FirebaseUser firebaseUser;
     private final @NotNull User user;
     private @NotNull Group activeGroup;
-    private List<GroupChangeListener> groupChangeListeners = new ArrayList<>();
+    private final List<Group> groups;
+    private final List<GroupChangeListener> groupChangeListeners = new ArrayList<>();
 
     private static @Nullable LoggedInUser instance;
 
-    private LoggedInUser(@NotNull FirebaseUser firebaseUser, @NotNull User user, @NotNull Group activeGroup) {
+    private LoggedInUser(@NotNull FirebaseUser firebaseUser, @NotNull User user, @NotNull Group activeGroup, List<Group> groups) {
         this.firebaseUser = firebaseUser;
         this.user = user;
         this.activeGroup = activeGroup;
+        this.groups = groups;
     }
 
     private static Promise<FirebaseUser> resolveFirebaseUser() {
@@ -54,6 +56,9 @@ public class LoggedInUser {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
                 if ("user_group".equals(s)) {
+                    if (user.getActiveGroup().getId().equals(PreferenceManager.getDefaultSharedPreferences(context).getString(s, null)))
+                        return;
+
                     loadGroup(context, user.getUser().getId()).success(new Promise.SuccessListener<Group, Void>() {
                         @Override
                         public Void onSuccess(Group result) throws Exception {
@@ -84,6 +89,7 @@ public class LoggedInUser {
             private FirebaseUser fbUser;
             private User user;
             private Group group;
+            private List<Group> groups = new ArrayList<>();
         }
 
         return resolveFirebaseUser().success(new Promise.SuccessListener<FirebaseUser, UserParts>() {
@@ -106,6 +112,22 @@ public class LoggedInUser {
             }
         }).successFlat(new Promise.SuccessListener<UserParts, Promise<UserParts>>() {
             @Override
+            public Promise<UserParts> onSuccess(final UserParts userParts) throws Exception {
+                List<Promise<Group>> groupPromises = new ArrayList<>();
+                for (String s : userParts.user.getGroups()) {
+                    groupPromises.add(Database.getGroupById(s));
+                }
+
+                return Promise.all(groupPromises).success(new Promise.SuccessListener<List<Group>, UserParts>() {
+                    @Override
+                    public UserParts onSuccess(List<Group> result) throws Exception {
+                        userParts.groups = result;
+                        return userParts;
+                    }
+                });
+            }
+        }).successFlat(new Promise.SuccessListener<UserParts, Promise<UserParts>>() {
+            @Override
             public Promise<UserParts> onSuccess(final UserParts userParts) {
                 Promise.SuccessListener<Group, UserParts> setGroup = new Promise.SuccessListener<Group, UserParts>() {
                     @Override
@@ -119,7 +141,7 @@ public class LoggedInUser {
         }).success(new Promise.SuccessListener<UserParts, LoggedInUser>() {
             @Override
             public LoggedInUser onSuccess(UserParts result) throws Exception {
-                return new LoggedInUser(result.fbUser, result.user, result.group);
+                return new LoggedInUser(result.fbUser, result.user, result.group, result.groups);
             }
         });
     }
@@ -159,6 +181,10 @@ public class LoggedInUser {
     @NotNull
     public Group getActiveGroup() {
         return activeGroup;
+    }
+
+    public List<Group> getGroups() {
+        return groups;
     }
 
     @Nullable
