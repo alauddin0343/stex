@@ -3,12 +3,12 @@
 
     <item android:id="@+id/action_marker_thumbnail"
         android:title="Add picture"
-        android:icon="@android:drawable/ic_menu_camera"
+        android:icon="@drawable/ic_menu_camera"
         app:showAsAction="always" />
 
     <item android:id="@+id/action_marker_save"
         android:title="Save marker"
-        android:icon="@android:drawable/ic_menu_save"
+        android:icon="@drawable/ic_menu_done"
         app:showAsAction="always" />
 
 </menu>

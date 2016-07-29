@@ -4,8 +4,7 @@
 
     <item android:id="@+id/action_marker_add"
         android:title="@string/action_marker_add"
-        android:icon="@drawable/ic_btn_add"
-        app:showAsAction="always"
-        />
+        android:icon="@drawable/ic_menu_marker_add"
+        app:showAsAction="always" />
 
 </menu>

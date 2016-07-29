@@ -4,12 +4,12 @@
 
     <item android:id="@+id/action_map_change"
         android:title="@string/action_change_map"
-        android:icon="@drawable/ic_map_change_w"
+        android:icon="@drawable/ic_menu_map_change"
         app:showAsAction="always" />
 
     <item android:id="@+id/action_marker_add"
         android:title="@string/action_marker_add"
-        android:icon="@drawable/ic_btn_add"
+        android:icon="@drawable/ic_menu_marker_add"
         app:showAsAction="always"
         />
 </menu>

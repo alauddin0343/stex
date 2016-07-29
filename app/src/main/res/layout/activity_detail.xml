@@ -60,7 +60,7 @@
 
         <ImageButton
             android:layout_width="wrap_content"
-            android:src="@drawable/ic_add_a_photo_black_24dp"
+            android:src="@drawable/ic_detail_camera"
             android:layout_height="match_parent"
             android:onClick="onAddPhotoButtonClick" />
 
@@ -75,7 +75,7 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_send_black_24dp"
+            android:src="@drawable/ic_detail_send"
             android:onClick="onSendCommentButtonClick"
             android:layout_gravity="center_vertical" />
 
