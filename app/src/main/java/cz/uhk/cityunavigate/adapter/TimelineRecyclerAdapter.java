@@ -1,4 +1,4 @@
-package cz.uhk.cityunavigate;
+package cz.uhk.cityunavigate.adapter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,6 +16,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import cz.uhk.cityunavigate.Database;
+import cz.uhk.cityunavigate.DetailActivity;
+import cz.uhk.cityunavigate.R;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Marker;
 import cz.uhk.cityunavigate.model.User;
@@ -26,19 +29,20 @@ import cz.uhk.cityunavigate.util.Run;
 /**
  * Created by petrw on 12.07.2016.
  */
-public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecylerAdapter.CustomViewHolder> {
+public class TimelineRecyclerAdapter extends RecyclerView.Adapter<TimelineRecyclerAdapter.CustomViewHolder> {
 
-    private Context mContext;
+    private Context context;
+
     private List<FeedItem> feedItemList;
 
-    public TimelineRecylerAdapter(Context context, List<FeedItem> feedItemList) {
-        this.mContext = context;
+    public TimelineRecyclerAdapter(Context context, List<FeedItem> feedItemList) {
+        this.context = context;
         this.feedItemList = feedItemList;
     }
 
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.list_timeline_row, null);
+        View view = LayoutInflater.from(context).inflate(R.layout.list_timeline_row, null);
         return new CustomViewHolder(view);
     }
 
@@ -48,15 +52,14 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
         customViewHolder.bindView(feedItem);
     }
 
-    public void runOnUiThred(Runnable runnable) {
-        ((Activity) mContext).runOnUiThread(runnable);
-    }
-
     @Override
     public int getItemCount() {
-        return (null != feedItemList ? feedItemList.size() : 0);
+        if (feedItemList != null) {
+            return feedItemList.size();
+        } else {
+            return 0;
+        }
     }
-
 
     //VIEW HOLDER FOR RECYCLER ADAPTER
     public class CustomViewHolder extends RecyclerView.ViewHolder
@@ -104,7 +107,7 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
                                 txtAuthor.setText(user.getName());
                             return Database.downloadImage(user.getImage());
                         }
-                    }).successFlat(Run.promiseUi((Activity) mContext, new Function<Bitmap, Void>() {
+                    }).successFlat(Run.promiseUi((Activity) context, new Function<Bitmap, Void>() {
                         @Override
                         public Void apply(Bitmap bitmap) {
                             if (feedItem == CustomViewHolder.this.feedItem)
@@ -129,7 +132,7 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
 
             if (feedItem.getThumbnail() != null) {
                 Database.downloadImage(feedItem.getThumbnail())
-                        .successFlat(Run.promiseUi((Activity) mContext, new Function<Bitmap, Void>() {
+                        .successFlat(Run.promiseUi((Activity) context, new Function<Bitmap, Void>() {
                             @Override
                             public Void apply(Bitmap bitmap) {
                                 if (feedItem == CustomViewHolder.this.feedItem) {
@@ -155,10 +158,10 @@ public class TimelineRecylerAdapter extends RecyclerView.Adapter<TimelineRecyler
 
         @Override
         public void onClick(View view) {
-            Intent myIntent = new Intent(mContext, DetailActivity.class);
+            Intent myIntent = new Intent(context, DetailActivity.class);
             myIntent.putExtra("id", feedItem.getMarkerId());
             myIntent.putExtra("groupid", feedItem.getGroupId());
-            mContext.startActivity(myIntent);
+            context.startActivity(myIntent);
         }
 
     }

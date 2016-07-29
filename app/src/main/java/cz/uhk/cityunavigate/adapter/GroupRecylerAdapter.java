@@ -1,4 +1,4 @@
-package cz.uhk.cityunavigate;
+package cz.uhk.cityunavigate.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import cz.uhk.cityunavigate.DetailActivity;
+import cz.uhk.cityunavigate.R;
 import cz.uhk.cityunavigate.model.Group;
 
 /**
@@ -20,9 +22,9 @@ import cz.uhk.cityunavigate.model.Group;
 public class GroupRecylerAdapter extends RecyclerView.Adapter<GroupRecylerAdapter.CustomViewHolder>{
 
     private List<Group> groupList;
-    private MainActivity activity;
+    private Context activity;
 
-    public GroupRecylerAdapter(Context context, List<Group> groupList, MainActivity activity) {
+    public GroupRecylerAdapter(Context context, List<Group> groupList, Context activity) {
         this.groupList = groupList;
         this.activity = activity;
     }

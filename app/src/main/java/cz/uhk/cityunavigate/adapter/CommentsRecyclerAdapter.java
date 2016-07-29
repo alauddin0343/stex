@@ -1,11 +1,8 @@
-package cz.uhk.cityunavigate;
+package cz.uhk.cityunavigate.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,16 +10,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StreamDownloadTask;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import cz.uhk.cityunavigate.Database;
+import cz.uhk.cityunavigate.R;
 import cz.uhk.cityunavigate.model.Comment;
-import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.User;
 import cz.uhk.cityunavigate.util.Function;
 import cz.uhk.cityunavigate.util.Promise;

@@ -10,5 +10,9 @@
     <color name="colorControlHighlight">#b3164b</color>
     <color name="colorBackground">#DEDEDE</color>
 
+    <color name="colorStart">#C781A5</color>
+    <color name="centerColor">#AF4C79</color>
+    <color name="endColor">#7d2e4b</color>
+
     <color name="colorBackgroundGray">#dddddd</color>
 </resources>
