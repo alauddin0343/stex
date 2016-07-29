@@ -60,7 +60,7 @@
 
         <ImageButton
             android:layout_width="wrap_content"
-            android:src="@drawable/ic_detail_camera"
+            android:src="@drawable/ic_detail_image"
             android:layout_height="match_parent"
             android:onClick="onAddPhotoButtonClick" />
 

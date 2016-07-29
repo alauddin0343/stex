@@ -3,7 +3,7 @@
 
     <item android:id="@+id/action_marker_thumbnail"
         android:title="Add picture"
-        android:icon="@drawable/ic_menu_camera"
+        android:icon="@drawable/ic_menu_image"
         app:showAsAction="always" />
 
     <item android:id="@+id/action_marker_save"
