@@ -23,7 +23,6 @@ import com.google.firebase.storage.StreamDownloadTask;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,6 +37,7 @@ import cz.uhk.cityunavigate.model.Identifiable;
 import cz.uhk.cityunavigate.model.Marker;
 import cz.uhk.cityunavigate.model.User;
 import cz.uhk.cityunavigate.util.Cache;
+import cz.uhk.cityunavigate.util.Function;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
 import cz.uhk.cityunavigate.util.PromiseImpl;
@@ -54,6 +54,10 @@ public class Database {
     }
 
     private static final Cache<Uri, Bitmap> imageCache = new Cache<>(64);
+    private static final Cache<String, User> userCache = new Cache<>(1024);
+    private static final Cache<String, Marker> markerCache = new Cache<>(1024);
+    private static final Cache<String, Group> groupCache = new Cache<>(1024);
+    private static final Cache<String, Category> categoryCache = new Cache<>(1024);
 
     /**
      * Accept all existing and future group invitations for the given user.
@@ -261,23 +265,22 @@ public class Database {
      * @return marker (asynchronously)
      */
     public static Promise<Marker> getMarkerById(final String groupId, String markerId) {
-        return childObjectAsPromise(db().getReference("markers").child(groupId).child(markerId))
-                .success(new Promise.SuccessListener<ChildObject, Marker>() {
-                    @Override
-                    public Marker onSuccess(ChildObject result) {
-                        return Marker.builder()
-                                .withId(result.id)
-                                .withIdGroup(groupId)
-                                .withIdUserAuthor((String) result.value.get("user"))
-                                .withIdCategory((String) result.value.get("category"))
-                                .withLocation(new LatLng(doubleFromMap(result.value, "lat"), doubleFromMap(result.value, "lng")))
-                                .withTitle((String) result.value.get("title"))
-                                .withText((String) result.value.get("text"))
-                                .withCreated(longFromMap(result.value, "created"))
-                                .withImage(uriFromMap(result.value, "image"))
-                                .build();
-                    }
-                });
+        return getItemById(markerId, db().getReference("markers").child(groupId), markerCache, new Function<ChildObject, Marker>() {
+            @Override
+            public Marker apply(ChildObject result) {
+                return Marker.builder()
+                        .withId(result.id)
+                        .withIdGroup(groupId)
+                        .withIdUserAuthor((String) result.value.get("user"))
+                        .withIdCategory((String) result.value.get("category"))
+                        .withLocation(new LatLng(doubleFromMap(result.value, "lat"), doubleFromMap(result.value, "lng")))
+                        .withTitle((String) result.value.get("title"))
+                        .withText((String) result.value.get("text"))
+                        .withCreated(longFromMap(result.value, "created"))
+                        .withImage(uriFromMap(result.value, "image"))
+                        .build();
+            }
+        });
     }
 
     /**
@@ -287,17 +290,16 @@ public class Database {
      * @return category object (asynchronously)
      */
     public static Promise<Category> getCategoryById(final String categoryId) {
-        return childObjectAsPromise(db().getReference("categories").child(categoryId))
-                .success(new Promise.SuccessListener<ChildObject, Category>() {
-                    @Override
-                    public Category onSuccess(ChildObject result) {
-                        return Category.builder()
-                                .withId(result.id)
-                                .withName((String) result.value.get("title"))
-                                .withHue((float) doubleFromMap(result.value, "color"))
-                                .build();
-                    }
-                });
+        return getItemById(categoryId, db().getReference("categories"), categoryCache, new Function<ChildObject, Category>() {
+            @Override
+            public Category apply(ChildObject result) {
+                return Category.builder()
+                        .withId(result.id)
+                        .withName((String) result.value.get("title"))
+                        .withHue((float) doubleFromMap(result.value, "color"))
+                        .build();
+            }
+        });
     }
 
     /**
@@ -334,21 +336,20 @@ public class Database {
      * @return user (asynchronously)
      */
     public static Promise<User> getUserById(final String userId) {
-        return childObjectAsPromise(db().getReference("users").child(userId))
-                .success(new Promise.SuccessListener<ChildObject, User>() {
-                    @Override
-                    public User onSuccess(ChildObject result) {
-                        return User.builder()
-                                .withId(result.id)
-                                .withName((String) result.value.get("name"))
-                                .withEmail((String) result.value.get("email"))
-                                .withGroups(new ArrayList<>(objectToMap(result.value.get("groups")).keySet()))
-                                .withAdministrators(new ArrayList<>(objectToMap(result.value.get("administrator")).keySet()))
-                                .withImage(uriFromMap(result.value, "image"))
-                                .withCreated(longFromMap(result.value, "created"))
-                                .build();
-                    }
-                });
+        return getItemById(userId, db().getReference("users"), userCache, new Function<ChildObject, User>() {
+            @Override
+            public User apply(ChildObject result) {
+                return User.builder()
+                        .withId(result.id)
+                        .withName((String) result.value.get("name"))
+                        .withEmail((String) result.value.get("email"))
+                        .withGroups(new ArrayList<>(objectToMap(result.value.get("groups")).keySet()))
+                        .withAdministrators(new ArrayList<>(objectToMap(result.value.get("administrator")).keySet()))
+                        .withImage(uriFromMap(result.value, "image"))
+                        .withCreated(longFromMap(result.value, "created"))
+                        .build();
+            }
+        });
     }
 
     /**
@@ -358,21 +359,20 @@ public class Database {
      * @return group (asynchronously)
      */
     public static Promise<Group> getGroupById(final String groupId) {
-        return childObjectAsPromise(db().getReference("groups").child(groupId))
-                .success(new Promise.SuccessListener<ChildObject, Group>() {
-                    @Override
-                    public Group onSuccess(ChildObject groupMap) {
-                        Map<String, Object> userMap = objectToMap(groupMap.value.get("users"));
-                        List<String> users = new ArrayList<>(userMap.keySet());
-                        return Group.builder()
-                                .withId(groupMap.id)
-                                .withName((String) groupMap.value.get("name"))
-                                .withUniversity((String) groupMap.value.get("university"))
-                                .withAdminsIds(Collections.singletonList((String) groupMap.value.get("administrator")))
-                                .withUserIds(users)
-                                .build();
-                    }
-                });
+        return getItemById(groupId, db().getReference("groups"), groupCache, new Function<ChildObject, Group>() {
+            @Override
+            public Group apply(ChildObject groupMap) {
+                Map<String, Object> userMap = objectToMap(groupMap.value.get("users"));
+                List<String> users = new ArrayList<>(userMap.keySet());
+                return Group.builder()
+                        .withId(groupMap.id)
+                        .withName((String) groupMap.value.get("name"))
+                        .withUniversity((String) groupMap.value.get("university"))
+                        .withAdminsIds(Collections.singletonList((String) groupMap.value.get("administrator")))
+                        .withUserIds(users)
+                        .build();
+            }
+        });
     }
 
     /**
@@ -577,6 +577,49 @@ public class Database {
             this.id = id;
             this.value = value;
         }
+    }
+
+    /**
+     * Loads an object from database based on its ID and caches it. Also adds a value change
+     * listener to update the cache if the object changed in the database.
+     * @param itemId object identifier
+     * @param path path to the object holder ("users" or "groups" etc.)
+     * @param cache cache reference for the given object
+     * @param factory factory to convert from Map to the object instance
+     * @param <T> object type
+     * @return promise to the loaded object
+     */
+    private static <T extends Identifiable> Promise<T> getItemById(final String itemId, DatabaseReference path, final Cache<String, T> cache, final Function<ChildObject, T> factory) {
+        T cached = cache.getItem(itemId);
+        if (cached != null) {
+            return Promise.resolved(cached);
+        }
+
+        Promise<T> r = childObjectAsPromise(path.child(itemId))
+                .success(new Promise.SuccessListener<ChildObject, T>() {
+                    @Override
+                    public T onSuccess(ChildObject result) {
+                        T loaded = factory.apply(result);
+                        cache.cacheItem(result.id, loaded);
+                        return loaded;
+                    }
+                });
+
+        path.child(itemId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ChildObject result = new ChildObject(dataSnapshot.getKey(), snapshotToMap(dataSnapshot));
+                T loaded = factory.apply(result);
+                cache.cacheItem(result.id, loaded);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        return r;
     }
 
     /**

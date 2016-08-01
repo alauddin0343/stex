@@ -73,6 +73,18 @@ public abstract class Promise<T> {
         return resPromise;
     }
 
+    /**
+     * Create a promise that is already resolved with the given value.
+     * @param result promise result
+     * @param <T> result type
+     * @return resolved promise
+     */
+    public static <T> Promise<T> resolved(T result) {
+        PromiseImpl<T> r = new PromiseImpl<>();
+        r.resolve(result);
+        return r;
+    }
+
     private static class AllPromiseListener<T> implements SuccessListener<T, Void>, ErrorListener<Void> {
         private final int index;
         private final T[] resultList;
