@@ -8,6 +8,10 @@ import com.google.android.gms.tasks.Task;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Allows chaining and handling future/async values.
  */
@@ -48,5 +52,52 @@ public abstract class Promise<T> {
             }
         });
         return res;
+    }
+
+    /**
+     * Converts a list of promises to a promise to a list. Waits for all promises to be resolved
+     * and returns their results in a list.
+     * @param promises promises to wait for
+     * @param <T> value type
+     * @return promise to all resolved promises
+     */
+    public static <T> Promise<List<T>> all(List<Promise<T>> promises) {
+        @SuppressWarnings("unchecked") T[] results = (T[])new Object[promises.size()];
+        AtomicInteger remaining = new AtomicInteger(promises.size());
+        PromiseImpl<List<T>> resPromise = new PromiseImpl<>();
+        int i = 0;
+        for (Promise<T> promise : promises) {
+            promise.success(new AllPromiseListener<>(i, results, resPromise, remaining));
+            i++;
+        }
+        return resPromise;
+    }
+
+    private static class AllPromiseListener<T> implements SuccessListener<T, Void>, ErrorListener<Void> {
+        private final int index;
+        private final T[] resultList;
+        private final PromiseImpl<List<T>> resultPromise;
+        private final AtomicInteger remaining;
+
+        private AllPromiseListener(int index, T[] resultList, PromiseImpl<List<T>> resultPromise, AtomicInteger remaining) {
+            this.index = index;
+            this.resultList = resultList;
+            this.resultPromise = resultPromise;
+            this.remaining = remaining;
+        }
+
+        @Override
+        public Void onSuccess(T result) throws Exception {
+            resultList[index] = result;
+            if (remaining.decrementAndGet() == 0)
+                resultPromise.resolve(Arrays.asList(resultList));
+            return null;
+        }
+
+        @Override
+        public Void onError(Throwable error) {
+            resultPromise.reject(error);
+            return null;
+        }
     }
 }
