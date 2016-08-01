@@ -58,7 +58,7 @@ public class FriendsActivity extends AppCompatActivity {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                runOnUiThread(new Runnable() {
+                swipeRefreshLayout.post(new Runnable() {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
@@ -80,6 +80,12 @@ public class FriendsActivity extends AppCompatActivity {
             @Override
             public Void onSuccess(List<User> users) throws Exception {
                 updateFeedItemsInTimeLine(users);
+                swipeRefreshLayout.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
                 return null;
             }
         }).error(new Promise.ErrorListener<Void>() {

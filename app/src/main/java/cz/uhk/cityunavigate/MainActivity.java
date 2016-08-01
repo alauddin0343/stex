@@ -106,14 +106,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                runOnUiThread(new Runnable() {
+                swipeRefreshLayout.post(new Runnable() {
                     @Override
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
                     }
                 });
             }
-        }, 2500);
+        }, 5000);
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser != null) {
@@ -166,6 +166,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
 
                 timelineRecylerAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
             }
         });
     }
