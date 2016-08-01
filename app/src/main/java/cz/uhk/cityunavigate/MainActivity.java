@@ -214,11 +214,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_map) {
             Intent intent = new Intent(this, MapActivity.class);
             startActivity(intent);
-
-        } else if (id == R.id.nav_group) {
-            Intent intent = new Intent(this, GroupActivity.class);
+        } else if (id == R.id.nav_friends) {
+            Intent intent = new Intent(this, FriendsActivity.class);
             startActivity(intent);
-
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
