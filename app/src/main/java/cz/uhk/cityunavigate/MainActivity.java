@@ -2,21 +2,18 @@ package cz.uhk.cityunavigate;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -79,11 +76,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        LoggedInUser.get(this).success(new Promise.SuccessListener<LoggedInUser, Object>() {
+        LoggedInUser.get().success(new Promise.SuccessListener<LoggedInUser, Object>() {
             @Override
             public Object onSuccess(LoggedInUser result) throws Exception {
                 ((TextView) findViewById(R.id.textViewDrawerUserName)).setText(result.getUser().getName());
                 ((TextView) findViewById(R.id.textViewDrawerGroupName)).setText(result.getActiveGroup().getName());
+
+                result.addUserChangeListener(new LoggedInUser.UserChangeListener() {
+                    @Override
+                    public void userChanged(LoggedInUser newUser) {
+                        feedItemList.clear();
+                        timelineRecylerAdapter.notifyDataSetChanged();
+                        showRefreshing();
+                        reloadTimeLine();
+                    }
+                });
+
                 return null;
             }
         });
@@ -115,22 +123,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }, 5000);
 
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (firebaseUser != null) {
-
-            // TODO groups
-            ObservableList<Group> userGroups = Database.getUserGroups(firebaseUser);
-            userGroups.addItemAddListener(new ObservableList.ItemAddListener<Group>() {
-                @Override
-                public void onItemAdded(@NotNull ObservableList<Group> list, @NotNull Collection<Group> addedItems) {
-                    for (Group group : addedItems) {
-                        updateFeedItemsInTimeLine(group);
-                    }
-                }
-            });
-
-            // TODO onItemsRemoved
-        }
+        LoggedInUser.get().success(new Promise.SuccessListener<LoggedInUser, Void>() {
+            @Override
+            public Void onSuccess(LoggedInUser user) throws Exception {
+                updateFeedItemsInTimeLine(user.getActiveGroup());
+                return null;
+            }
+        });
     }
 
     private void updateFeedItemsInTimeLine(Group group) {

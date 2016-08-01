@@ -56,7 +56,7 @@ public class MapActivity extends AppCompatActivity {
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.onCreate(savedInstanceState);
 
-        LoggedInUser.get(this).success(new Promise.SuccessListener<LoggedInUser, Object>() {
+        LoggedInUser.get().success(new Promise.SuccessListener<LoggedInUser, Object>() {
 
             @Override
             public Object onSuccess(final LoggedInUser result) throws Exception {

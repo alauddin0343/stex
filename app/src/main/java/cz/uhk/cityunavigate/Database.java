@@ -343,6 +343,7 @@ public class Database {
                         .withId(result.id)
                         .withName((String) result.value.get("name"))
                         .withEmail((String) result.value.get("email"))
+                        .withActiveGroup((String)result.value.get("activeGroup"))
                         .withGroups(new ArrayList<>(objectToMap(result.value.get("groups")).keySet()))
                         .withAdministrators(new ArrayList<>(objectToMap(result.value.get("administrator")).keySet()))
                         .withImage(uriFromMap(result.value, "image"))
@@ -350,6 +351,35 @@ public class Database {
                         .build();
             }
         });
+    }
+
+    /**
+     * Listen to changes in active user group
+     * @param userId user id
+     * @param listener listener
+     */
+    public static void addUserChangeListener(final String userId, final UserChangeListener listener) {
+        db().getReference("users").child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                getUserById(userId).success(new Promise.SuccessListener<User, Void>() {
+                    @Override
+                    public Void onSuccess(User result) throws Exception {
+                        listener.userChanged(result);
+                        return null;
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public interface UserChangeListener {
+        void userChanged(@Nullable User newUser);
     }
 
     /**
@@ -529,6 +559,20 @@ public class Database {
                                     .setValue(newName));
                     }
                 });
+    }
+
+    /**
+     * Change user name to the specified name
+     * @param user user
+     * @param newGroup new name
+     * @return promise
+     */
+    public static Promise<Void> changeUserGroup(final FirebaseUser user, final String newGroup) {
+        return Promise.fromTask(
+                db().getReference("users")
+                        .child(user.getUid())
+                        .child("activeGroup")
+                        .setValue(newGroup));
     }
 
     /**

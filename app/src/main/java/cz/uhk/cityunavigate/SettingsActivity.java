@@ -1,3 +1,4 @@
+
 package cz.uhk.cityunavigate;
 
 
@@ -95,11 +96,16 @@ public class SettingsActivity extends AppCompatActivity {
                 // simple string representation.
                 preference.setSummary(stringValue);
 
+            }
+
+            if (FirebaseAuth.getInstance().getCurrentUser() != null && stringValue != null && !stringValue.trim().isEmpty()) {
                 if (preference.getKey().equals("user_name")) {
-                    if (FirebaseAuth.getInstance().getCurrentUser() != null && stringValue != null && !stringValue.trim().isEmpty())
-                        Database.changeUserName(FirebaseAuth.getInstance().getCurrentUser(), stringValue);
+                    Database.changeUserName(FirebaseAuth.getInstance().getCurrentUser(), stringValue);
+                } else if (preference.getKey().equals("user_group")) {
+                    Database.changeUserGroup(FirebaseAuth.getInstance().getCurrentUser(), stringValue);
                 }
             }
+
             return true;
         }
     };
@@ -138,7 +144,7 @@ public class SettingsActivity extends AppCompatActivity {
         final ProgressDialog progress = Util.progressDialog(this, "Loading");
         progress.show();
 
-        LoggedInUser.get(this).successFlat(Run.promiseUi(this, new Function<LoggedInUser, Void>() {
+        LoggedInUser.get().successFlat(Run.promiseUi(this, new Function<LoggedInUser, Void>() {
             @Override
             public Void apply(LoggedInUser user) {
                 prefs.edit().putString("user_name", user.getFirebaseUser().getDisplayName())
@@ -199,15 +205,15 @@ public class SettingsActivity extends AppCompatActivity {
             addPreferencesFromResource(R.xml.pref_main);
             setHasOptionsMenu(true);
 
+            final ListPreference listPreference = (ListPreference) findPreference("user_group");
+            setListPreferenceData(listPreference, groups);
+
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("user_name"));
             bindPreferenceSummaryToValue(findPreference("user_group"));
-
-            final ListPreference listPreference = (ListPreference) findPreference("user_group");
-            setListPreferenceData(listPreference, groups);
         }
 
         protected void setListPreferenceData(final ListPreference lp, List<Group> groups) {

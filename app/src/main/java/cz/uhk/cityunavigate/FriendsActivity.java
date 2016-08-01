@@ -67,7 +67,7 @@ public class FriendsActivity extends AppCompatActivity {
             }
         }, 2500);
 
-        LoggedInUser.get(this).successFlat(new Promise.SuccessListener<LoggedInUser, Promise<List<User>>>() {
+        LoggedInUser.get().successFlat(new Promise.SuccessListener<LoggedInUser, Promise<List<User>>>() {
             @Override
             public Promise<List<User>> onSuccess(LoggedInUser result) throws Exception {
                 List<Promise<User>> userPromises = new ArrayList<>();

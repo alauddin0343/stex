@@ -1,8 +1,5 @@
 package cz.uhk.cityunavigate;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -24,12 +21,12 @@ import cz.uhk.cityunavigate.util.PromiseImpl;
  */
 public class LoggedInUser {
     private final @NotNull FirebaseUser firebaseUser;
-    private final @NotNull User user;
+    private @NotNull User user;
     private @NotNull Group activeGroup;
     private final List<Group> groups;
-    private final List<GroupChangeListener> groupChangeListeners = new ArrayList<>();
+    private final List<UserChangeListener> userChangeListeners = new ArrayList<>();
 
-    private static @Nullable LoggedInUser instance;
+    private static @Nullable Promise<LoggedInUser> instance;
 
     private LoggedInUser(@NotNull FirebaseUser firebaseUser, @NotNull User user, @NotNull Group activeGroup, List<Group> groups) {
         this.firebaseUser = firebaseUser;
@@ -51,40 +48,39 @@ public class LoggedInUser {
         return res;
     }
 
-    private static void listenToPreferenceChanges(final Context context, final LoggedInUser user) {
-        PreferenceManager.getDefaultSharedPreferences(context).registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
+    private static void listenToUserChanges(final LoggedInUser user) {
+        Database.addUserChangeListener(user.getUser().getId(), new Database.UserChangeListener() {
             @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                if ("user_group".equals(s)) {
-                    if (user.getActiveGroup().getId().equals(PreferenceManager.getDefaultSharedPreferences(context).getString(s, null)))
-                        return;
-
-                    loadGroup(context, user.getUser().getId()).success(new Promise.SuccessListener<Group, Void>() {
-                        @Override
-                        public Void onSuccess(Group result) throws Exception {
-                            user.activeGroup = result;
-                            for (GroupChangeListener groupChangeListener : user.groupChangeListeners) {
-                                groupChangeListener.groupChanged(result);
-                            }
-                            return null;
-                        }
-                    });
+            public void userChanged(User newUser) {
+                user.user = newUser;
+                updateGroup(user);
+                for (UserChangeListener userChangeListener : user.userChangeListeners) {
+                    userChangeListener.userChanged(user);
                 }
-
             }
         });
     }
 
-    private static Promise<Group> loadGroup(Context context, String userId) {
-        String settingsGroupId = PreferenceManager.getDefaultSharedPreferences(context).getString("user_group", null);
+    private static void updateGroup(final LoggedInUser user) {
+        loadGroup(user.getUser()).success(new Promise.SuccessListener<Group, Void>() {
+            @Override
+            public Void onSuccess(Group result) throws Exception {
+                user.activeGroup = result;
+                return null;
+            }
+        });
+    }
+
+    private static Promise<Group> loadGroup(User user) {
+        String settingsGroupId = user.getActiveGroup();
 
         if (settingsGroupId == null)
-            return Database.getFirstUserGroup(userId);
+            return Database.getFirstUserGroup(user.getId());
         else
             return Database.getGroupById(settingsGroupId);
     }
 
-    private static Promise<LoggedInUser> initialize(final Context context) {
+    private static Promise<LoggedInUser> initialize() {
         class UserParts {
             private FirebaseUser fbUser;
             private User user;
@@ -136,12 +132,18 @@ public class LoggedInUser {
                         return userParts;
                     }
                 };
-                return loadGroup(context, userParts.fbUser.getUid()).success(setGroup);
+                return loadGroup(userParts.user).success(setGroup);
             }
         }).success(new Promise.SuccessListener<UserParts, LoggedInUser>() {
             @Override
             public LoggedInUser onSuccess(UserParts result) throws Exception {
                 return new LoggedInUser(result.fbUser, result.user, result.group, result.groups);
+            }
+        }).success(new Promise.SuccessListener<LoggedInUser, LoggedInUser>() {
+            @Override
+            public LoggedInUser onSuccess(LoggedInUser result) throws Exception {
+                listenToUserChanges(result);
+                return result;
             }
         });
     }
@@ -149,22 +151,14 @@ public class LoggedInUser {
     /**
      * Returns promise to the logged in user. The promise becomes resolved
      * as soon as all user info is downloaded.
-     * @param context application context (for user prefs)
      * @return logged in user
      */
-    public static Promise<LoggedInUser> get(final Context context) {
+    public static Promise<LoggedInUser> get() {
         if (instance != null) {
-            PromiseImpl<LoggedInUser> res = new PromiseImpl<>();
-            res.resolve(instance);
-            return res;
+            return instance;
         } else {
-            return initialize(context).success(new Promise.SuccessListener<LoggedInUser, LoggedInUser>() {
-                @Override
-                public LoggedInUser onSuccess(LoggedInUser result) throws Exception {
-                    listenToPreferenceChanges(context, result);
-                    return instance = result;
-                }
-            });
+            instance = initialize();
+            return instance;
         }
     }
 
@@ -187,20 +181,15 @@ public class LoggedInUser {
         return groups;
     }
 
-    @Nullable
-    public static LoggedInUser getInstance() {
-        return instance;
-    }
-
     /**
      * Listen to user group change events
      * @param listener listener
      */
-    public void addGroupChangeListener(@NotNull GroupChangeListener listener) {
-        groupChangeListeners.add(listener);
+    public void addUserChangeListener(@NotNull UserChangeListener listener) {
+        userChangeListeners.add(listener);
     }
 
-    public interface GroupChangeListener {
-        void groupChanged(Group newGroup);
+    public interface UserChangeListener {
+        void userChanged(LoggedInUser newUser);
     }
 }

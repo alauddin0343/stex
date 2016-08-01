@@ -11,6 +11,7 @@ public class User implements Identifiable {
     private String id;
     private String name;
     private String email;
+    private String activeGroup;
     private List<String> groups;
     private List<String> administrators;
     private Uri image;
@@ -20,18 +21,20 @@ public class User implements Identifiable {
         id = builder.id;
         name = builder.name;
         email = builder.email;
+        activeGroup = builder.activeGroup;
         groups = builder.groups;
         administrators = builder.administrators;
         image = builder.image;
         created = builder.created;
     }
 
-    public static Builder builder(User copy) {
+    public static Builder newBuilder(User copy) {
         Builder builder = new Builder();
         builder.created = copy.created;
         builder.image = copy.image;
         builder.administrators = copy.administrators;
         builder.groups = copy.groups;
+        builder.activeGroup = copy.activeGroup;
         builder.email = copy.email;
         builder.name = copy.name;
         builder.id = copy.id;
@@ -71,6 +74,10 @@ public class User implements Identifiable {
         return created;
     }
 
+    public String getActiveGroup() {
+        return activeGroup;
+    }
+
 
     public interface IBuild {
         User build();
@@ -92,8 +99,12 @@ public class User implements Identifiable {
         IAdministrators withGroups(List<String> val);
     }
 
+    public interface IActiveGroup {
+        IGroups withActiveGroup(String val);
+    }
+
     public interface IEmail {
-        IGroups withEmail(String val);
+        IActiveGroup withEmail(String val);
     }
 
     public interface IName {
@@ -104,11 +115,12 @@ public class User implements Identifiable {
         IName withId(String val);
     }
 
-    public static final class Builder implements ICreated, IImage, IAdministrators, IGroups, IEmail, IName, IId, IBuild {
+    public static final class Builder implements ICreated, IImage, IAdministrators, IGroups, IActiveGroup, IEmail, IName, IId, IBuild {
         private long created;
         private Uri image;
         private List<String> administrators;
         private List<String> groups;
+        private String activeGroup;
         private String email;
         private String name;
         private String id;
@@ -141,7 +153,13 @@ public class User implements Identifiable {
         }
 
         @Override
-        public IGroups withEmail(String val) {
+        public IGroups withActiveGroup(String val) {
+            activeGroup = val;
+            return this;
+        }
+
+        @Override
+        public IActiveGroup withEmail(String val) {
             email = val;
             return this;
         }
