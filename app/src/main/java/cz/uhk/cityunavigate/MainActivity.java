@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_marker_add) {
-            startActivity(new Intent(this, AddMarkerActivity.class));
+            startActivity(new Intent(this, MarkerAddActivity.class));
         }
 
         return super.onOptionsItemSelected(item);
@@ -216,10 +216,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.nav_timeline) {
             showRefreshing();
             reloadTimeLine();
-
         } else if (id == R.id.nav_markers) {
-//            Intent intent = new Intent(this, MarkersActivity.class);
-//            startActivity(intent);
+            Intent intent = new Intent(this, MarkersActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_map) {
             Intent intent = new Intent(this, MapActivity.class);
             startActivity(intent);

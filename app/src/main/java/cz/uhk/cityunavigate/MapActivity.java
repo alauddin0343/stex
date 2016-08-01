@@ -183,10 +183,6 @@ public class MapActivity extends AppCompatActivity {
                 mapStyle ++;
                 break;
 
-            case R.id.action_marker_add:
-                startActivity(new Intent(this, AddMarkerActivity.class));
-                break;
-
         }
 
         return super.onOptionsItemSelected(item);

@@ -1,15 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
     <item android:id="@+id/action_map_change"
         android:title="@string/action_change_map"
         android:icon="@drawable/ic_menu_map_change"
         app:showAsAction="always" />
 
-    <item android:id="@+id/action_marker_add"
-        android:title="@string/action_marker_add"
-        android:icon="@drawable/ic_menu_marker_add"
-        app:showAsAction="always"
-        />
 </menu>

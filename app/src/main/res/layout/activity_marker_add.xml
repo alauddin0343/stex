@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cz.uhk.cityunavigate.AddMarkerActivity">
+    tools:context=".MarkerAddActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -50,10 +50,12 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp">
 
-                <Spinner
-                    android:id="@+id/spinnerCategories"
+                <Button
+                    android:id="@+id/buttonChooseCategory"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:text="Category"
+                    android:onClick="onChooseCategoryButtonClick" />
 
             </android.support.design.widget.TextInputLayout>
 
