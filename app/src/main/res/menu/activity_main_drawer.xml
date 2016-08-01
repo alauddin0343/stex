@@ -15,10 +15,6 @@
             android:icon="@drawable/ic_drawer_group"
             android:title="Friends" />
         <item
-            android:id="@+id/nav_share"
-            android:icon="@drawable/ic_drawer_share"
-            android:title="Share" />
-        <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_drawer_settings"
             android:title="Settings" />
