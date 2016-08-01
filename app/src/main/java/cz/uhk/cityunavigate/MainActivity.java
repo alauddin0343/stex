@@ -211,6 +211,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             showRefreshing();
             reloadTimeLine();
 
+        } else if (id == R.id.nav_markers) {
+//            Intent intent = new Intent(this, MarkersActivity.class);
+//            startActivity(intent);
         } else if (id == R.id.nav_map) {
             Intent intent = new Intent(this, MapActivity.class);
             startActivity(intent);
