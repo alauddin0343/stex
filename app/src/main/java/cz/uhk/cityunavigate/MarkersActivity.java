@@ -23,6 +23,7 @@ import java.util.TimerTask;
 
 import cz.uhk.cityunavigate.adapter.FriendsRecyclerAdapter;
 import cz.uhk.cityunavigate.adapter.MarkersRecyclerAdapter;
+import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Group;
 import cz.uhk.cityunavigate.model.Marker;
 import cz.uhk.cityunavigate.model.User;
@@ -56,16 +57,16 @@ public class MarkersActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                reloadFriends();
+                reloadMarkers();
             }
         });
 
         showRefreshing();
-        reloadFriends();
+        reloadMarkers();
 
     }
 
-    private void reloadFriends() {
+    private void reloadMarkers() {
 
         new Timer().schedule(new TimerTask() {
             @Override
@@ -78,6 +79,56 @@ public class MarkersActivity extends AppCompatActivity {
                 });
             }
         }, 2500);
+
+        LoggedInUser.get(this).success(new Promise.SuccessListener<LoggedInUser, Object>() {
+            @Override
+            public Object onSuccess(LoggedInUser result) throws Exception {
+
+                Group group = result.getActiveGroup();
+
+                final ObservableList<Marker> markers = Database.getGroupMarkers(group.getId());
+                markers.addItemAddListener(new ObservableList.ItemAddListener<Marker>() {
+                    @Override
+                    public void onItemAdded(@NotNull ObservableList<Marker> list, @NotNull Collection<Marker> addedItems) {
+
+                        for (Marker addedMarker : addedItems) {
+
+                            boolean itemWasAdded = false;
+
+                            for (int i = 0; i < markerList.size(); i++) {
+
+                                Marker marker = markerList.get(i);
+
+                                if (marker.getId().equals(addedMarker.getId())) {
+                                    itemWasAdded = true;
+                                    break;
+                                }
+
+                                if (addedMarker.getCreated() > marker.getCreated()) {
+                                    markerList.add(i, addedMarker);
+                                    itemWasAdded = true;
+                                    break;
+                                }
+                            }
+
+                            if (!itemWasAdded) {
+                                markerList.add(addedMarker);
+                            }
+                        }
+
+                        markersRecyclerAdapter.notifyDataSetChanged();
+                        swipeRefreshLayout.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
+                    }
+                });
+
+                return null;
+            }
+        });
     }
 
     private void showRefreshing() {

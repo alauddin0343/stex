@@ -2,6 +2,7 @@ package cz.uhk.cityunavigate.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 import cz.uhk.cityunavigate.Database;
+import cz.uhk.cityunavigate.DetailActivity;
 import cz.uhk.cityunavigate.R;
 import cz.uhk.cityunavigate.model.Marker;
 import cz.uhk.cityunavigate.model.User;
@@ -89,36 +91,40 @@ public class MarkersRecyclerAdapter extends RecyclerView.Adapter<MarkersRecycler
             Date created = new Date();
             created.setTime(feedItem.getCreated());
 
-            Database.getUserById(feedItem.getId())
-                    .successFlat(new Promise.SuccessListener<User, Promise<Bitmap>>() {
-                        @Override
-                        public Promise<Bitmap> onSuccess(User user) {
-                            if (feedItem == CustomViewHolder.this.feedItem) {
-                                txtTitle.setText(user.getName());
-                                txtText.setText(user.getEmail());
-                            }
-                            return Database.downloadImage(user.getImage());
-                        }
-                    }).successFlat(Run.promiseUi((Activity) context, new Function<Bitmap, Void>() {
-                        @Override
-                        public Void apply(Bitmap bitmap) {
-                            if (feedItem == CustomViewHolder.this.feedItem) {
-                                imgUser.setImageBitmap(bitmap);
-                            }
-                            return null;
-                        }
-                    })).error(new Promise.ErrorListener<Void>() {
-                        @Override
-                        public Void onError(Throwable error) {
-                            Log.e("Bitmap", "Error loading bitmap", error);
-                            return null;
-                        }
-                    });
+//            Database.getUserById(feedItem.getId())
+//                    .successFlat(new Promise.SuccessListener<User, Promise<Bitmap>>() {
+//                        @Override
+//                        public Promise<Bitmap> onSuccess(User user) {
+//                            if (feedItem == CustomViewHolder.this.feedItem) {
+//                                txtTitle.setText(user.getName());
+//                                txtText.setText(user.getEmail());
+//                            }
+//                            return Database.downloadImage(user.getImage());
+//                        }
+//                    }).successFlat(Run.promiseUi((Activity) context, new Function<Bitmap, Void>() {
+//                        @Override
+//                        public Void apply(Bitmap bitmap) {
+//                            if (feedItem == CustomViewHolder.this.feedItem) {
+//                                imgUser.setImageBitmap(bitmap);
+//                            }
+//                            return null;
+//                        }
+//                    })).error(new Promise.ErrorListener<Void>() {
+//                        @Override
+//                        public Void onError(Throwable error) {
+//                            Log.e("Bitmap", "Error loading bitmap", error);
+//                            return null;
+//                        }
+//                    });
         }
 
         @Override
         public void onClick(View view) {
 
+            Intent detailIntent = new Intent(context, DetailActivity.class);
+            detailIntent.putExtra("id", feedItem.getId());
+            detailIntent.putExtra("groupid", feedItem.getIdGroup());
+            context.startActivity(detailIntent);
         }
 
     }
