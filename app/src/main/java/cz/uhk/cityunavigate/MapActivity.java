@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -55,6 +57,8 @@ public class MapActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         markers = new ArrayList<>();
         circles = new ArrayList<>();
@@ -214,24 +218,30 @@ public class MapActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {//noinspection SimplifiableIfStatement
+    public boolean onOptionsItemSelected(MenuItem item) {
 
-        int id = item.getItemId();
+        switch (item.getItemId()) {
 
-        if (id == R.id.action_map_change) {
-            if(mapStyle == 0){
-                map.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-            }else if (mapStyle == 1){
-                map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-            }else if (mapStyle == 2){
-                mapStyle = -1;
-                map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-            }
-            mapStyle++;
-        }
+            case android.R.id.home:
+                finish();
+                break;
 
-        if (id == R.id.action_marker_add){
-            startActivity(new Intent(this, AddMarkerActivity.class));
+            case R.id.action_map_change:
+                if (mapStyle == 0) {
+                    map.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                } else if (mapStyle == 1) {
+                    map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                } else if (mapStyle == 2) {
+                    mapStyle = -1;
+                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                }
+                mapStyle ++;
+                break;
+
+            case R.id.action_marker_add:
+                startActivity(new Intent(this, AddMarkerActivity.class));
+                break;
+
         }
 
         return super.onOptionsItemSelected(item);
