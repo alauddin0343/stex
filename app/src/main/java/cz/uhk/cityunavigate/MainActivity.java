@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,6 +30,7 @@ import cz.uhk.cityunavigate.adapter.TimelineRecyclerAdapter;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Group;
 import cz.uhk.cityunavigate.util.ObservableList;
+import cz.uhk.cityunavigate.util.Promise;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         layoutManager = new LinearLayoutManager(this);
@@ -74,6 +76,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onRefresh() {
                 reloadTimeLine();
+            }
+        });
+
+        LoggedInUser.get(this).success(new Promise.SuccessListener<LoggedInUser, Object>() {
+            @Override
+            public Object onSuccess(LoggedInUser result) throws Exception {
+                ((TextView) findViewById(R.id.textViewDrawerUserName)).setText(result.getUser().getName());
+                ((TextView) findViewById(R.id.textViewDrawerGroupName)).setText(result.getActiveGroup().getName());
+                return null;
             }
         });
 
@@ -191,7 +202,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -208,8 +218,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_group) {
             Intent intent = new Intent(this, GroupActivity.class);
             startActivity(intent);
-
-        } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);

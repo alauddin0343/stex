@@ -72,11 +72,11 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_detail);
 
         markerId = getIntent().getStringExtra("id");
         groupId = getIntent().getStringExtra("groupid");
 
-        setContentView(R.layout.activity_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -202,11 +202,9 @@ public class DetailActivity extends AppCompatActivity {
                 break;
 
             case R.id.action_show_marker_on_map_again_and_again:
-                if (!mapInited) {
-                    initMap();
-                } else {
-                    mapView.setVisibility(View.VISIBLE);
-                }
+                Intent intent = new Intent(this, MapActivity.class);
+                intent.putExtra("detail", markerId);
+                startActivity(intent);
                 break;
 
         }
