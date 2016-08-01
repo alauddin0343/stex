@@ -1,10 +1,12 @@
 package cz.uhk.cityunavigate.util;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -67,34 +69,79 @@ public class Util {
         return progressDialog;
     }
 
-    /**
-     * Method for uploading PNG image to Firebase
-     * @param contentResolver
-     * @param uri
-     * @param directory
-     * @param onFailureListener
-     * @param onSuccessListener
-     * @throws IOException
-     */
-    public static void uploadPicture(ContentResolver contentResolver, Uri uri, String directory, OnFailureListener onFailureListener, OnSuccessListener<UploadTask.TaskSnapshot> onSuccessListener) throws IOException {
+    public static Promise<Uri> uploadPicture(final Activity activity, final ContentResolver contentResolver, final Uri uri, final String directory) throws IOException {
 
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri);
+        final Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri);
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 60, byteArrayOutputStream);
+        final PromiseImpl<Uri> promiseThumbnail = new PromiseImpl<>();
 
-        byte[] bytes = byteArrayOutputStream.toByteArray();
+        final ProgressDialog progressDialog = Util.progressDialog(activity, R.string.firebase_picture_uploading);
+        progressDialog.show();
 
-        final StorageReference storageReference = FirebaseStorage
-                .getInstance()
-                .getReference()
-                .child(directory)
-                .child(UUID.randomUUID().toString() + ".png");
+        new AsyncTask<Bitmap, Void, Void>() {
 
-        UploadTask uploadTask = storageReference.putBytes(bytes);
-        uploadTask
-                .addOnFailureListener(onFailureListener)
-                .addOnSuccessListener(onSuccessListener);
+            @Override
+            protected Void doInBackground(Bitmap... bitmaps) {
+
+                int width = 640;
+
+                Bitmap bitmap = bitmaps[0];
+
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+                float ratio = (float) bitmap.getWidth() / (float) bitmap.getHeight();
+                int height = (int) (width / ratio);
+
+                Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height);
+                resizedBitmap.compress(Bitmap.CompressFormat.PNG, 60, byteArrayOutputStream);
+
+                byte[] bytes = byteArrayOutputStream.toByteArray();
+
+                bitmap.recycle();
+
+                final StorageReference storageReference = FirebaseStorage
+                        .getInstance()
+                        .getReference()
+                        .child(directory)
+                        .child(UUID.randomUUID().toString() + ".png");
+
+                UploadTask uploadTask = storageReference.putBytes(bytes);
+                uploadTask
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull final Exception exception) {
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
+                                promiseThumbnail.reject(exception);
+                            }
+                        })
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(final UploadTask.TaskSnapshot taskSnapshot) {
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(activity, "Success", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
+                                promiseThumbnail.resolve(Uri.parse(taskSnapshot.getMetadata().getReference().toString()));
+                            }
+                        });
+
+                return null;
+            }
+
+        }.execute(bitmap);
+
+        return promiseThumbnail;
     }
 
 }
