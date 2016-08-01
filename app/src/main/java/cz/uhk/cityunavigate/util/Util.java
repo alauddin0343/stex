@@ -69,7 +69,7 @@ public class Util {
         return progressDialog;
     }
 
-    public static Promise<Uri> uploadPicture(final Activity activity, final ContentResolver contentResolver, final Uri uri, final String directory) throws IOException {
+    public static Promise<Uri> uploadPicture(final Activity activity, final ContentResolver contentResolver, final Uri uri, final String directory, final int width) throws IOException {
 
         final Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri);
 
@@ -82,8 +82,6 @@ public class Util {
 
             @Override
             protected Void doInBackground(Bitmap... bitmaps) {
-
-                int width = 640;
 
                 Bitmap bitmap = bitmaps[0];
 

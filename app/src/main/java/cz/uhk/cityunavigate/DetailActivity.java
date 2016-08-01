@@ -269,7 +269,8 @@ public class DetailActivity extends AppCompatActivity {
                         this,
                         getContentResolver(),
                         data.getData(),
-                        "comments"
+                        "comments",
+                        640
                     ).success(new Promise.SuccessListener<Uri, Object>() {
                         @Override
                         public Object onSuccess(Uri result) throws Exception {

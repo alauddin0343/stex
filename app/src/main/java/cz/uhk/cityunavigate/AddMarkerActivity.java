@@ -200,7 +200,8 @@ public class AddMarkerActivity extends AppCompatActivity {
                         this,
                         getContentResolver(),
                         data.getData(),
-                        "markers"
+                        "markers",
+                        640
                     ).success(new Promise.SuccessListener<Uri, Object>() {
                         @Override
                         public Object onSuccess(Uri result) throws Exception {
