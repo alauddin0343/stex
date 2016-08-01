@@ -195,28 +195,19 @@ public class AddMarkerActivity extends AppCompatActivity {
 
             if (resultCode == RESULT_OK) {
 
-                final ProgressDialog progressDialog = Util.progressDialog(this, R.string.firebase_picture_uploading);
-                progressDialog.show();
-
                 try {
                     Util.uploadPicture(
+                        this,
                         getContentResolver(),
                         data.getData(),
-                        "markers",
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-                                progressDialog.dismiss();
-                                Toast.makeText(AddMarkerActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-                        } ,new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                progressDialog.dismiss();
-                                thumbnail = Uri.parse(taskSnapshot.getMetadata().getReference().toString());
-                            }
+                        "markers"
+                    ).success(new Promise.SuccessListener<Uri, Object>() {
+                        @Override
+                        public Object onSuccess(Uri result) throws Exception {
+                            thumbnail = result;
+                            return null;
                         }
-                    );
+                    });
                 } catch (IOException exception) {
                     Toast.makeText(this, exception.getMessage(), Toast.LENGTH_LONG).show();
                 }

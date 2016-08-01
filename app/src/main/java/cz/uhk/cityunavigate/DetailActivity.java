@@ -194,19 +194,21 @@ public class DetailActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == android.R.id.home) {
-            this.finish();
-            return true;
-        }
+        switch (item.getItemId()) {
 
-        if (id == R.id.action_show_marker_on_map_again_and_again){
-            if(!mapInited)
-                initMap();
-            else
-                mapView.setVisibility(View.VISIBLE);
+            case android.R.id.home:
+                finish();
+                break;
+
+            case R.id.action_show_marker_on_map_again_and_again:
+                if (!mapInited) {
+                    initMap();
+                } else {
+                    mapView.setVisibility(View.VISIBLE);
+                }
+                break;
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -262,28 +264,19 @@ public class DetailActivity extends AppCompatActivity {
 
             if (resultCode == RESULT_OK) {
 
-                final ProgressDialog progressDialog = Util.progressDialog(this, R.string.firebase_picture_uploading);
-                progressDialog.show();
-
                 try {
                     Util.uploadPicture(
+                        this,
                         getContentResolver(),
                         data.getData(),
-                        "comments",
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-                                progressDialog.dismiss();
-                                Toast.makeText(DetailActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-                        } ,new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                progressDialog.dismiss();
-                                thumbnail = Uri.parse(taskSnapshot.getMetadata().getReference().toString());
-                            }
+                        "comments"
+                    ).success(new Promise.SuccessListener<Uri, Object>() {
+                        @Override
+                        public Object onSuccess(Uri result) throws Exception {
+                            thumbnail = result;
+                            return null;
                         }
-                    );
+                    });
                 } catch (IOException exception) {
                     Toast.makeText(this, exception.getMessage(), Toast.LENGTH_LONG).show();
                 }
