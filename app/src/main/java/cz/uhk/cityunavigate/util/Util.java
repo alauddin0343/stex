@@ -90,7 +90,7 @@ public class Util {
                 float ratio = (float) bitmap.getWidth() / (float) bitmap.getHeight();
                 int height = (int) (width / ratio);
 
-                Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height);
+                Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
                 resizedBitmap.compress(Bitmap.CompressFormat.PNG, 60, byteArrayOutputStream);
 
                 byte[] bytes = byteArrayOutputStream.toByteArray();
