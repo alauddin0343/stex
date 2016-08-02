@@ -80,7 +80,7 @@ public class MarkersActivity extends AppCompatActivity {
             }
         }, 2500);
 
-        LoggedInUser.get(this).success(new Promise.SuccessListener<LoggedInUser, Object>() {
+        LoggedInUser.get().success(new Promise.SuccessListener<LoggedInUser, Object>() {
             @Override
             public Object onSuccess(LoggedInUser result) throws Exception {
 
@@ -104,7 +104,7 @@ public class MarkersActivity extends AppCompatActivity {
                                     break;
                                 }
 
-                                if (addedMarker.getCreated() > marker.getCreated()) {
+                                if (addedMarker.getTitle().compareToIgnoreCase(marker.getTitle()) < 0) {
                                     markerList.add(i, addedMarker);
                                     itemWasAdded = true;
                                     break;

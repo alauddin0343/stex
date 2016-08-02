@@ -76,6 +76,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        setLoggedInUser();
+
+        showRefreshing();
+        reloadTimeLine();
+    }
+
+    private void setLoggedInUser() {
+
         LoggedInUser.get().success(new Promise.SuccessListener<LoggedInUser, Object>() {
             @Override
             public Object onSuccess(LoggedInUser result) throws Exception {
@@ -95,9 +103,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return null;
             }
         });
+    }
 
-        showRefreshing();
-        reloadTimeLine();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setLoggedInUser();
     }
 
     private void showRefreshing() {

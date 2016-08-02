@@ -243,8 +243,8 @@ public class MarkerAddActivity extends AppCompatActivity {
 
     public void sendMarker() {
 
-        LoggedInUser.get(this).success(new Promise.SuccessListener<LoggedInUser, Object>() {
-            
+        LoggedInUser.get().success(new Promise.SuccessListener<LoggedInUser, Object>() {
+
             @Override
             public Object onSuccess(LoggedInUser result) throws Exception {
 

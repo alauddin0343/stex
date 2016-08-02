@@ -32,8 +32,7 @@
                         android:layout_marginRight="5dp"
                         android:adjustViewBounds="true"
                         android:scaleType="centerCrop"
-                        android:id="@+id/imgUser"
-                        android:src="@drawable/tmp_user"/>
+                        android:id="@+id/imgUser" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
