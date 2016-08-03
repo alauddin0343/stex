@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 import cz.uhk.cityunavigate.adapter.CommentsRecyclerAdapter;
 import cz.uhk.cityunavigate.model.Comment;
@@ -331,7 +332,10 @@ public class DetailActivity extends AppCompatActivity {
 
     public void onSendCommentButtonClick(View view) {
 
-        final String text = editCommentText.getText().toString().trim();
+        final String text = editCommentText.getText() == null ? null : editCommentText.getText().toString().trim();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null)
+            return;
 
         if (text !=  null && !text.isEmpty()) {
 
@@ -340,7 +344,7 @@ public class DetailActivity extends AppCompatActivity {
                     .withCreated(System.currentTimeMillis())
                     .withImage(thumbnail)
                     .withText(text)
-                    .withUserId(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .withUserId(user.getUid())
                     .build();
 
             Database.addComment(markerId, comment).success(new Promise.SuccessListener<Comment, Object>() {
@@ -354,7 +358,7 @@ public class DetailActivity extends AppCompatActivity {
 
                     FeedItem feedItem = FeedItem.builder()
                             .withId(null)
-                            .withUserId(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            .withUserId(user.getUid())
                             .withGroupId(groupId)
                             .withMarkerId(markerId)
                             .withCreated(System.currentTimeMillis())
@@ -362,6 +366,9 @@ public class DetailActivity extends AppCompatActivity {
                             .withText(text)
                             .withTitle("Commented")
                             .withThumbnail(thumbnail)
+                            .withReadBy(new HashMap<String, Long>() {{
+                                put(user.getUid(), System.currentTimeMillis());
+                            }})
                             .build();
 
                     Database.addFeedItem(groupId, feedItem);

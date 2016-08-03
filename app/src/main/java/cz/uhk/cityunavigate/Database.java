@@ -229,6 +229,13 @@ public class Database {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                         Map<String, Object> itemMap = snapshotToMap(dataSnapshot);
+                        Map<String, Object> readByMapRaw = objectToMap(itemMap.get("read"));
+                        Map<String, Long> readByMap = new HashMap<>();
+                        for (Map.Entry<String, Object> entry : readByMapRaw.entrySet()) {
+                            if (entry.getValue() instanceof Long)
+                                readByMap.put(entry.getKey(), (Long)entry.getValue());
+                        }
+
                         FeedItem item = FeedItem.builder()
                                 .withId(dataSnapshot.getKey())
                                 .withUserId((String) itemMap.get("user"))
@@ -239,6 +246,7 @@ public class Database {
                                 .withText((String) itemMap.get("text"))
                                 .withTitle((String) itemMap.get("title"))
                                 .withThumbnail(uriFromMap(itemMap, "thumbnail"))
+                                .withReadBy(readByMap)
                                 .build();
                         result.add(item);
                     }
@@ -255,6 +263,44 @@ public class Database {
                     }
                 });
         return result;
+    }
+
+    /**
+     * Waits for a feed item to become read by the given user.
+     * @param feedItem feed item to observe
+     * @param userId user ID to check for
+     * @param listener action to be performed
+     */
+    public static void observeFeedItemRead(final FeedItem feedItem, final String userId, final FeedItemReadListener listener) {
+        final DatabaseReference ref = db().getReference("timeline").child(feedItem.getGroupId()).child(feedItem.getId()).child("read")
+                .child(userId);
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listener.itemRead(feedItem, userId);
+                ref.removeEventListener(this);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                ref.removeEventListener(this);
+            }
+        });
+    }
+
+    public interface FeedItemReadListener {
+        void itemRead(FeedItem feedItem, String readByUserId);
+    }
+
+    /**
+     * Marks the given {@link FeedItem} as read
+     * @param feedItem feed item
+     * @param userId user that read the message
+     * @return promise that gets fulfilled when the item is marked as read
+     */
+    public static Promise<Void> markFeedItemAsRead(FeedItem feedItem, String userId) {
+        return Promise.fromTask(db().getReference("timeline").child(feedItem.getGroupId()).child(feedItem.getId()).child("read")
+                .child(userId).setValue(System.currentTimeMillis()));
     }
 
     /**
@@ -491,6 +537,9 @@ public class Database {
             if (feedItem.getThumbnail() != null)
                 put("thumbnail", feedItem.getThumbnail().toString());
             put("user", feedItem.getUserId());
+            put("read", new HashMap<String, Object>() {{
+               put(feedItem.getUserId(), System.currentTimeMillis());
+            }});
         }}).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

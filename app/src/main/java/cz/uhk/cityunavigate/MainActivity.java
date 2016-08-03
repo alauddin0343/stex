@@ -26,6 +26,7 @@ import java.util.TimerTask;
 import cz.uhk.cityunavigate.adapter.TimelineRecyclerAdapter;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Group;
+import cz.uhk.cityunavigate.services.NotificationService;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
 
@@ -77,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         setLoggedInUser();
+
+        startService(new Intent(this, NotificationService.class));
 
         showRefreshing();
         reloadTimeLine();
@@ -137,13 +140,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LoggedInUser.get().success(new Promise.SuccessListener<LoggedInUser, Void>() {
             @Override
             public Void onSuccess(LoggedInUser user) throws Exception {
-                updateFeedItemsInTimeLine(user.getActiveGroup());
+                updateFeedItemsInTimeLine(user, user.getActiveGroup());
                 return null;
             }
         });
     }
 
-    private void updateFeedItemsInTimeLine(Group group) {
+    private void updateFeedItemsInTimeLine(final LoggedInUser user, Group group) {
 
         final ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), Integer.MAX_VALUE);
         feedItems.addItemAddListener(new ObservableList.ItemAddListener<FeedItem>() {
@@ -173,6 +176,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (!itemWasAdded) {
                         feedItemList.add(addedItem);
                     }
+
+                    if (!addedItem.getReadBy().containsKey(user.getUser().getId()))
+                        Database.markFeedItemAsRead(addedItem, user.getUser().getId());
                 }
 
                 timelineRecylerAdapter.notifyDataSetChanged();

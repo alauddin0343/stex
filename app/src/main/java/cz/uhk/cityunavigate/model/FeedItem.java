@@ -6,6 +6,8 @@ import com.google.firebase.database.IgnoreExtraProperties;
 
 import android.net.Uri;
 
+import java.util.Map;
+
 /**
  * User feed item
  */
@@ -20,6 +22,7 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
     private String text;
     private String title;
     private Uri thumbnail;
+    private Map<String, Long> readBy; // Map of userId/time of users that displayed this feed item
 
     private FeedItem(Builder builder) {
         id = builder.id;
@@ -31,10 +34,16 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
         text = builder.text;
         title = builder.title;
         thumbnail = builder.thumbnail;
+        readBy = builder.readBy;
+    }
+
+    public static IId builder() {
+        return new Builder();
     }
 
     public static Builder builder(FeedItem copy) {
         Builder builder = new Builder();
+        builder.readBy = copy.readBy;
         builder.thumbnail = copy.thumbnail;
         builder.title = copy.title;
         builder.text = copy.text;
@@ -45,10 +54,6 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
         builder.userId = copy.userId;
         builder.id = copy.id;
         return builder;
-    }
-
-    public static IId builder() {
-        return new Builder();
     }
 
     public String getId() {
@@ -87,6 +92,10 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
         return markerId;
     }
 
+    public Map<String, Long> getReadBy() {
+        return readBy;
+    }
+
     @Override
     public int compareTo(@NonNull FeedItem feedItem) {
         return (int)(feedItem.created - created);
@@ -103,7 +112,7 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
     }
 
     public interface IThumbnail {
-        IBuild withThumbnail(Uri val);
+        IReadBy withThumbnail(Uri val);
     }
 
     public interface ITitle {
@@ -139,7 +148,11 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
         IUserId withId(String val);
     }
 
-    public static final class Builder implements IThumbnail, ITitle, IText, IType, ICreated, IMarkerId, IGroupId, IUserId, IId, IBuild {
+    public interface IReadBy {
+        IBuild withReadBy(Map<String, Long> val);
+    }
+
+    public static final class Builder implements IThumbnail, ITitle, IText, IType, ICreated, IMarkerId, IGroupId, IUserId, IId, IBuild, IReadBy {
         private Uri thumbnail;
         private String title;
         private String text;
@@ -149,12 +162,13 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
         private String groupId;
         private String userId;
         private String id;
+        private Map<String, Long> readBy;
 
         private Builder() {
         }
 
         @Override
-        public IBuild withThumbnail(Uri val) {
+        public IReadBy withThumbnail(Uri val) {
             thumbnail = val;
             return this;
         }
@@ -210,5 +224,12 @@ public class FeedItem implements Comparable<FeedItem>, Identifiable {
         public FeedItem build() {
             return new FeedItem(this);
         }
+
+        @Override
+        public IBuild withReadBy(Map<String, Long> val) {
+            readBy = val;
+            return this;
+        }
     }
+
 }
