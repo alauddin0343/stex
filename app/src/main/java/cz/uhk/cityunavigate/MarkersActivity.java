@@ -1,13 +1,11 @@
 package cz.uhk.cityunavigate;
 
 import android.content.Intent;
-import android.provider.ContactsContract;
+import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -15,18 +13,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cz.uhk.cityunavigate.adapter.FriendsRecyclerAdapter;
 import cz.uhk.cityunavigate.adapter.MarkersRecyclerAdapter;
-import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Group;
 import cz.uhk.cityunavigate.model.Marker;
-import cz.uhk.cityunavigate.model.User;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
 
