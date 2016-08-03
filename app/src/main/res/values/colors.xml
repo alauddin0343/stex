@@ -14,5 +14,6 @@
     <color name="centerColor">#AF4C79</color>
     <color name="endColor">#7d2e4b</color>
 
-    <color name="colorBackgroundGray">#dddddd</color>
+    <color name="colorBackgroundGray">#ddd</color>
+    <color name="colorBackgroundDarkGray">#999</color>
 </resources>
