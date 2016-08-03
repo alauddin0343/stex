@@ -17,7 +17,6 @@ import java.util.List;
 import cz.uhk.cityunavigate.Database;
 import cz.uhk.cityunavigate.R;
 import cz.uhk.cityunavigate.model.User;
-import cz.uhk.cityunavigate.util.Function;
 import cz.uhk.cityunavigate.util.Promise;
 import cz.uhk.cityunavigate.util.Run;
 
@@ -98,9 +97,9 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
                             }
                             return Database.downloadImage(user.getImage());
                         }
-                    }).successFlat(Run.promiseUi((Activity) context, new Function<Bitmap, Void>() {
+                    }).successFlat(Run.promiseUi((Activity) context, new Promise.SuccessListener<Bitmap, Void>() {
                         @Override
-                        public Void apply(Bitmap bitmap) {
+                        public Void onSuccess(Bitmap bitmap) {
                             if (feedItem == CustomViewHolder.this.feedItem) {
                                 imgUser.setImageBitmap(bitmap);
                             }

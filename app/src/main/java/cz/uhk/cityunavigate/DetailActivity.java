@@ -1,12 +1,10 @@
 package cz.uhk.cityunavigate;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,11 +25,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.storage.UploadTask;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -43,7 +38,6 @@ import cz.uhk.cityunavigate.adapter.CommentsRecyclerAdapter;
 import cz.uhk.cityunavigate.model.Comment;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Marker;
-import cz.uhk.cityunavigate.util.Function;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
 import cz.uhk.cityunavigate.util.Run;
@@ -117,9 +111,9 @@ public class DetailActivity extends AppCompatActivity {
 
                     if (result.getImage() != null) {
                         Database.downloadImage(result.getImage())
-                            .success(Run.promiseUi(DetailActivity.this, new Function<Bitmap, Void>() {
+                            .success(Run.promiseUi(DetailActivity.this, new Promise.SuccessListener<Bitmap, Void>() {
                                 @Override
-                                public Void apply(Bitmap bitmap) {
+                                public Void onSuccess(Bitmap bitmap) {
                                     imageView.setImageBitmap(bitmap);
                                     return null;
                                 }

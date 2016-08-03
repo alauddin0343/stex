@@ -39,14 +39,28 @@ public final class Run {
         return res;
     }
 
-    public static <T, R> Promise.SuccessListener<T, Promise<R>> promiseUi(final Activity ui, final Function<T, R> function) {
+    public static <T, R> Promise.SuccessListener<T, Promise<R>> promiseUi(final Activity ui, final Promise.SuccessListener<T, R> function) {
         return new Promise.SuccessListener<T, Promise<R>>() {
             @Override
             public Promise<R> onSuccess(final T result) {
                 return runInUI(ui, new Supplier<R>() {
                     @Override
                     public R supply() throws Exception {
-                        return function.apply(result);
+                        return function.onSuccess(result);
+                    }
+                });
+            }
+        };
+    }
+
+    public static <R> Promise.ErrorListener<Promise<R>> promiseUi(final Activity ui, final Promise.ErrorListener<R> function) {
+        return new Promise.ErrorListener<Promise<R>>() {
+            @Override
+            public Promise<R> onError(final Throwable error) {
+                return runInUI(ui, new Supplier<R>() {
+                    @Override
+                    public R supply() throws Exception {
+                        return function.onError(error);
                     }
                 });
             }
