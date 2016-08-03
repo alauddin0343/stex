@@ -277,8 +277,10 @@ public class Database {
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                listener.itemRead(feedItem, userId);
-                ref.removeEventListener(this);
+                if (dataSnapshot.getValue() instanceof Long) {
+                    listener.itemRead(feedItem, userId);
+                    ref.removeEventListener(this);
+                }
             }
 
             @Override

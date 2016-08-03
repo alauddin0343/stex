@@ -37,6 +37,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private List<FeedItem> feedItemList;
 
+    private final List<Runnable> visibleActions = new ArrayList<>();
+
+    private boolean isVisible = false;
+
     private RecyclerView recyclerView;
 
     private TimelineRecyclerAdapter timelineRecylerAdapter;
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        isVisible = true;
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -85,6 +90,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         reloadTimeLine();
     }
 
+
+
     private void setLoggedInUser() {
 
         LoggedInUser.get().success(new Promise.SuccessListener<LoggedInUser, Object>() {
@@ -111,7 +118,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
+        isVisible = true;
+        synchronized (visibleActions) {
+            for (Runnable visibleAction : visibleActions) {
+                visibleAction.run();
+            }
+            visibleActions.clear();
+        }
         setLoggedInUser();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isVisible = false;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isVisible = false;
     }
 
     private void showRefreshing() {
@@ -153,7 +179,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onItemAdded(@NotNull ObservableList<FeedItem> list, @NotNull Collection<FeedItem> addedItems) {
 
-                for (FeedItem addedItem : addedItems) {
+                final List<FeedItem> markAsRead = new ArrayList<>();
+                for (final FeedItem addedItem : addedItems) {
 
                     boolean itemWasAdded = false;
 
@@ -177,9 +204,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         feedItemList.add(addedItem);
                     }
 
-                    if (!addedItem.getReadBy().containsKey(user.getUser().getId()))
-                        Database.markFeedItemAsRead(addedItem, user.getUser().getId());
+                    if (!addedItem.getReadBy().containsKey(user.getUser().getId())) {
+                        markAsRead.add(addedItem);
+                    }
                 }
+
+                addOnVisibleAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (FeedItem feedItem : markAsRead) {
+                            Database.markFeedItemAsRead(feedItem, user.getUser().getId());
+                        }
+                    }
+                });
 
                 timelineRecylerAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.post(new Runnable() {
@@ -190,6 +227,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
             }
         });
+    }
+
+    private void addOnVisibleAction(Runnable action) {
+        if (isVisible)
+            action.run();
+        else {
+            synchronized (visibleActions) {
+                visibleActions.add(action);
+            }
+        }
     }
 
     @Override
