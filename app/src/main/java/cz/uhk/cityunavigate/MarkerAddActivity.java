@@ -35,7 +35,6 @@ import java.util.List;
 import cz.uhk.cityunavigate.model.Category;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Marker;
-import cz.uhk.cityunavigate.util.Function;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
 import cz.uhk.cityunavigate.util.Run;
@@ -218,9 +217,9 @@ public class MarkerAddActivity extends AppCompatActivity {
                             markerThumbnail = result;
 
                             Database.downloadImage(markerThumbnail)
-                                    .successFlat(Run.promiseUi(MarkerAddActivity.this, new Function<Bitmap, Void>() {
+                                    .successFlat(Run.promiseUi(MarkerAddActivity.this, new Promise.SuccessListener<Bitmap, Void>() {
                                         @Override
-                                        public Void apply(Bitmap bitmap) {
+                                        public Void onSuccess(Bitmap bitmap) {
                                             imgMarkerPhoto.setImageBitmap(bitmap);
                                             imgMarkerPhoto.setVisibility(View.VISIBLE);
                                             txtMarkerPhoto.setVisibility(View.GONE);
@@ -364,6 +363,9 @@ public class MarkerAddActivity extends AppCompatActivity {
                             .withText(markerText)
                             .withTitle("Added marker")
                             .withThumbnail(markerThumbnail)
+                            .withReadBy(new HashMap<String, Long>() {{
+                                put(markerUserId, System.currentTimeMillis());
+                            }})
                             .build();
 
                     Database.addFeedItem(markerGroupId, feedItem);
