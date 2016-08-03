@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import java.util.List;
 import cz.uhk.cityunavigate.Database;
 import cz.uhk.cityunavigate.DetailActivity;
 import cz.uhk.cityunavigate.R;
+import cz.uhk.cityunavigate.model.Category;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Marker;
 import cz.uhk.cityunavigate.model.User;
@@ -67,7 +69,10 @@ public class TimelineRecyclerAdapter extends RecyclerView.Adapter<TimelineRecycl
         private FeedItem feedItem;
 
         private ImageView imgUser, imgImage;
+
         private TextView txtTitle, txtText, txtAuthor, txtDate;
+
+        private View viewCategory;
 
         public CustomViewHolder(View view) {
             super(view);
@@ -79,6 +84,9 @@ public class TimelineRecyclerAdapter extends RecyclerView.Adapter<TimelineRecycl
             txtText = (TextView) view.findViewById(R.id.txtText);
             txtAuthor = (TextView) view.findViewById(R.id.txtAuthor);
             txtDate = (TextView) view.findViewById(R.id.txtDate);
+
+            viewCategory = view.findViewById(R.id.viewCategory);
+
             view.setOnClickListener(this);
         }
 
@@ -125,6 +133,16 @@ public class TimelineRecyclerAdapter extends RecyclerView.Adapter<TimelineRecycl
                 @Override
                 public Void onSuccess(Marker result) {
                     txtTitle.setText(feedItem.getTitle() + " " + result.getTitle());
+
+                    Database.getCategoryById(result.getIdCategory())
+                            .success(new Promise.SuccessListener<Category, Object>() {
+                                @Override
+                                public Object onSuccess(Category result) throws Exception {
+                                    viewCategory.setBackgroundColor(Color.HSVToColor(150, new float[] { result.getHue(), 0.8f, 1f }));
+                                    return null;
+                                }
+                            });
+
                     return null;
                 }
             });

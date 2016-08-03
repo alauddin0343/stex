@@ -21,6 +21,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -54,11 +55,9 @@ public class MarkerAddActivity extends AppCompatActivity {
 
     private MapView mapView;
 
-
     private String markerTitle, markerText, markerCategoryId, markerUserId, markerGroupId;
 
     private Uri markerThumbnail;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,13 +74,12 @@ public class MarkerAddActivity extends AppCompatActivity {
         imgMarkerPhoto = (ImageView) findViewById(R.id.imgMarkerPhoto);
 
         mapView = (MapView) findViewById(R.id.mapView);
-
         // spinner
         categoriesArray = new ArrayList<>();
         Database.getAllCategories().addItemAddListener(new ObservableList.ItemAddListener<Category>() {
             @Override
             public void onItemAdded(@NotNull ObservableList<Category> list, @NotNull Collection<Category> addedItems) {
-                for (Category category : addedItems){
+                for (Category category : addedItems) {
                     if (!categoriesArray.contains(category)) {
                         categoriesArray.add(category);
                     }
@@ -113,9 +111,9 @@ public class MarkerAddActivity extends AppCompatActivity {
                 map.getUiSettings().setCompassEnabled(true);
                 map.getUiSettings().setMyLocationButtonEnabled(true);
                 map.getUiSettings().setMapToolbarEnabled(true);
+                map.getUiSettings().setZoomControlsEnabled(true);
 
                 //CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(22.336292, 114.173910), 10);
-                //TODO - ADD CENTER TO MY POSITION
                 centreMapToLatLng(new LatLng(22.336292, 114.173910));
 
                 //PUT MARKER IN THE MIDDLE OF SCREEN AND IT IS FULLY DRAGGABLE OR YOU CAN CLICK SOMEWHERE TO CHANGE HIS LOC
@@ -304,9 +302,8 @@ public class MarkerAddActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int which) {
                         Category category = categoriesArray.get(which);
                         markerCategoryId = category.getId();
-
                         txtMarkerCategory.setText(category.getName());
-
+                        googleMapMarker.setIcon(BitmapDescriptorFactory.defaultMarker(category.getHue()));
                         dialogInterface.dismiss();
                     }
                 })

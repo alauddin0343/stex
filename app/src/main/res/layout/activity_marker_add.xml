@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/scrollView"
     tools:context=".MarkerAddActivity">
 
     <LinearLayout
@@ -16,12 +17,12 @@
 
             <TextView
                 style="@style/SettingsItemTextViewTitle"
-                android:text="Title" />
+                android:text="Name of place" />
 
             <TextView
                 style="@style/SettingsItemTextViewValue"
                 android:id="@+id/txtMarkerTitle"
-                android:text="Text" />
+                android:text="---" />
 
         </LinearLayout>
 
@@ -39,7 +40,7 @@
             <TextView
                 style="@style/SettingsItemTextViewValue"
                 android:id="@+id/txtMarkerText"
-                android:text="Text" />
+                android:text="---" />
 
         </LinearLayout>
 
@@ -56,7 +57,7 @@
             <TextView
                 style="@style/SettingsItemTextViewValue"
                 android:id="@+id/txtMarkerCategory"
-                android:text="Title" />
+                android:text="---" />
 
         </LinearLayout>
 
@@ -91,7 +92,7 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:paddingTop="10dp"
-            android:text="Map" />
+            android:text="Select place on map" />
 
         <com.google.android.gms.maps.MapView
             android:id="@+id/mapView"

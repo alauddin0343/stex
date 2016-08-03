@@ -97,7 +97,7 @@ public class MarkersRecyclerAdapter extends RecyclerView.Adapter<MarkersRecycler
                     .success(new Promise.SuccessListener<Category, Object>() {
                         @Override
                         public Object onSuccess(Category result) throws Exception {
-                            viewCategory.setBackgroundColor(Color.HSVToColor(new float[] { result.getHue(), 1.0f, 1.0f }));
+                            viewCategory.setBackgroundColor(Color.HSVToColor(150, new float[] { result.getHue(), 0.8f, 1.0f }));
                             return null;
                         }
                     });
