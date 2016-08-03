@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.formats.NativeAd;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -56,6 +57,8 @@ public class DetailActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText editCommentText;
 
+    private ImageView imgCommentPhoto;
+
     private ArrayList<Comment> commentsArray;
     private CommentsRecyclerAdapter commentsAdapter;
 
@@ -88,6 +91,7 @@ public class DetailActivity extends AppCompatActivity {
 
 
         editCommentText = (EditText)findViewById(R.id.editCommentText);
+        imgCommentPhoto = (ImageView) findViewById(R.id.imgCommentPhoto);
 
         mapView = (MapView)findViewById(R.id.mapview);
         mapView.onCreate(savedInstanceState);
@@ -259,11 +263,18 @@ public class DetailActivity extends AppCompatActivity {
 
                 try {
                     Util.uploadPicture(
-                        this,
-                        getContentResolver(),
-                        data.getData(),
-                        "comments",
-                        640
+                            this,
+                            getContentResolver(),
+                            data.getData(),
+                            "comments",
+                            640,
+                            new Util.BitmapPictureResizer() {
+                                @Override
+                                public void onBitmapPictureResized(Bitmap bitmap) {
+                                    imgCommentPhoto.setImageBitmap(bitmap);
+                                    imgCommentPhoto.setVisibility(View.VISIBLE);
+                                }
+                            }
                     ).success(new Promise.SuccessListener<Uri, Object>() {
                         @Override
                         public Object onSuccess(Uri result) throws Exception {
@@ -352,6 +363,7 @@ public class DetailActivity extends AppCompatActivity {
                 public Object onSuccess(Comment result) {
 
                     editCommentText.setText("");
+                    imgCommentPhoto.setVisibility(View.GONE);
 
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(editCommentText.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);

@@ -69,7 +69,7 @@ public class Util {
         return progressDialog;
     }
 
-    public static Promise<Uri> uploadPicture(final Activity activity, final ContentResolver contentResolver, final Uri uri, final String directory, final int width) throws IOException {
+    public static Promise<Uri> uploadPicture(final Activity activity, final ContentResolver contentResolver, final Uri uri, final String directory, final int width, final BitmapPictureResizer bitmapPictureResizer) throws IOException {
 
         final Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri);
 
@@ -78,10 +78,10 @@ public class Util {
         final ProgressDialog progressDialog = Util.progressDialog(activity, R.string.firebase_picture_uploading);
         progressDialog.show();
 
-        new AsyncTask<Bitmap, Void, Void>() {
+        new AsyncTask<Bitmap, Void, Bitmap>() {
 
             @Override
-            protected Void doInBackground(Bitmap... bitmaps) {
+            protected Bitmap doInBackground(Bitmap... bitmaps) {
 
                 Bitmap bitmap = bitmaps[0];
 
@@ -94,8 +94,6 @@ public class Util {
                 resizedBitmap.compress(Bitmap.CompressFormat.PNG, 60, byteArrayOutputStream);
 
                 byte[] bytes = byteArrayOutputStream.toByteArray();
-
-                bitmap.recycle();
 
                 final StorageReference storageReference = FirebaseStorage
                         .getInstance()
@@ -133,12 +131,21 @@ public class Util {
                             }
                         });
 
-                return null;
+                return resizedBitmap;
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                bitmapPictureResizer.onBitmapPictureResized(bitmap);
             }
 
         }.execute(bitmap);
 
         return promiseThumbnail;
+    }
+
+    public interface BitmapPictureResizer {
+        void onBitmapPictureResized(Bitmap bitmap);
     }
 
 }

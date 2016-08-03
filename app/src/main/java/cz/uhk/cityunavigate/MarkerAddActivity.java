@@ -204,32 +204,23 @@ public class MarkerAddActivity extends AppCompatActivity {
 
                 try {
                     Util.uploadPicture(
-                        this,
-                        getContentResolver(),
-                        data.getData(),
-                        "markers",
-                        640
+                            this,
+                            getContentResolver(),
+                            data.getData(),
+                            "markers",
+                            640,
+                            new Util.BitmapPictureResizer() {
+                                @Override
+                                public void onBitmapPictureResized(Bitmap bitmap) {
+                                    imgMarkerPhoto.setImageBitmap(bitmap);
+                                    imgMarkerPhoto.setVisibility(View.VISIBLE);
+                                    txtMarkerPhoto.setVisibility(View.GONE);
+                                }
+                            }
                     ).success(new Promise.SuccessListener<Uri, Object>() {
                         @Override
                         public Object onSuccess(Uri result) throws Exception {
                             markerThumbnail = result;
-
-                            Database.downloadImage(markerThumbnail)
-                                    .successFlat(Run.promiseUi(MarkerAddActivity.this, new Promise.SuccessListener<Bitmap, Void>() {
-                                        @Override
-                                        public Void onSuccess(Bitmap bitmap) {
-                                            imgMarkerPhoto.setImageBitmap(bitmap);
-                                            imgMarkerPhoto.setVisibility(View.VISIBLE);
-                                            txtMarkerPhoto.setVisibility(View.GONE);
-                                            return null;
-                                        }
-                                    })).error(new Promise.ErrorListener<Void>() {
-                                @Override
-                                public Void onError(Throwable error) {
-                                    Log.e("Bitmap", "Error loading thumbnail bitmap", error);
-                                    return null;
-                                }
-                            });
                             return null;
                         }
                     });
