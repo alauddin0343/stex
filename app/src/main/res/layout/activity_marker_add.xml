@@ -1,72 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MarkerAddActivity">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            style="@style/SettingsItemLinearLayout"
+            android:onClick="onMarkerSetTitleClick">
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp">
+            <TextView
+                style="@style/SettingsItemTextViewTitle"
+                android:text="Title" />
 
-                <EditText
-                    android:id="@+id/editMarkerName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Name of the place"/>
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp">
-
-                <EditText
-                    android:id="@+id/editMarkerText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Text about the place"/>
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp">
-
-                <Button
-                    android:id="@+id/buttonChooseCategory"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Category"
-                    android:onClick="onChooseCategoryButtonClick" />
-
-            </android.support.design.widget.TextInputLayout>
-
-            <com.google.android.gms.maps.MapView
-                android:id="@+id/mapview"
-                android:layout_width="fill_parent"
-                android:layout_height="100dp"/>
+            <TextView
+                style="@style/SettingsItemTextViewValue"
+                android:id="@+id/txtMarkerTitle"
+                android:text="Text" />
 
         </LinearLayout>
 
-    </ScrollView>
+        <View style="@style/SettingsItemSeparator" />
 
 
-</RelativeLayout>
+        <LinearLayout
+            style="@style/SettingsItemLinearLayout"
+            android:onClick="onMarkerSetTextClick">
+
+            <TextView
+                style="@style/SettingsItemTextViewTitle"
+                android:text="Description" />
+
+            <TextView
+                style="@style/SettingsItemTextViewValue"
+                android:id="@+id/txtMarkerText"
+                android:text="Text" />
+
+        </LinearLayout>
+
+        <View style="@style/SettingsItemSeparator" />
+
+        <LinearLayout
+            style="@style/SettingsItemLinearLayout"
+            android:onClick="onMarkerSetCategoryClick">
+
+            <TextView
+                style="@style/SettingsItemTextViewTitle"
+                android:text="Category" />
+
+            <TextView
+                style="@style/SettingsItemTextViewValue"
+                android:id="@+id/txtMarkerCategory"
+                android:text="Title" />
+
+        </LinearLayout>
+
+        <View style="@style/SettingsItemSeparator" />
+
+        <LinearLayout
+            style="@style/SettingsItemLinearLayout"
+            android:onClick="onMarkerSetPhotoClick">
+
+            <TextView
+                style="@style/SettingsItemTextViewTitle"
+                android:text="Photo" />
+
+            <TextView
+                style="@style/SettingsItemTextViewValue"
+                android:id="@+id/txtMarkerPhoto"
+                android:text="No photo selected" />
+
+            <ImageView
+                android:id="@+id/imgMarkerPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:visibility="gone"
+                android:scaleType="centerCrop" />
+
+        </LinearLayout>
+
+        <View style="@style/SettingsItemSeparator" />
+
+        <TextView
+            style="@style/SettingsItemTextViewTitle"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="10dp"
+            android:text="Map" />
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

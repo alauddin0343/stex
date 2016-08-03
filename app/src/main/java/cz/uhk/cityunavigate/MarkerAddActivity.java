@@ -2,14 +2,18 @@ package cz.uhk.cityunavigate;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -30,25 +34,31 @@ import java.util.List;
 import cz.uhk.cityunavigate.model.Category;
 import cz.uhk.cityunavigate.model.FeedItem;
 import cz.uhk.cityunavigate.model.Marker;
+import cz.uhk.cityunavigate.util.Function;
 import cz.uhk.cityunavigate.util.ObservableList;
 import cz.uhk.cityunavigate.util.Promise;
+import cz.uhk.cityunavigate.util.Run;
 import cz.uhk.cityunavigate.util.Util;
 
 public class MarkerAddActivity extends AppCompatActivity {
-
-    private MapView mapView;
 
     private GoogleMap map;
 
     private com.google.android.gms.maps.model.Marker googleMapMarker;
 
-    private EditText editName, editText;
-
     private List<Category> categoriesArray;
 
-    private Uri thumbnail = null;
+    private TextView txtMarkerTitle, txtMarkerText, txtMarkerPhoto, txtMarkerCategory;
 
-    private String selectedCategoryId;
+    private ImageView imgMarkerPhoto;
+
+    private MapView mapView;
+
+
+    private String markerTitle, markerText, markerCategoryId, markerUserId, markerGroupId;
+
+    private Uri markerThumbnail;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +67,14 @@ public class MarkerAddActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        editName = (EditText) findViewById(R.id.editMarkerName);
-        editText = (EditText) findViewById(R.id.editMarkerText);
-        mapView = (MapView) findViewById(R.id.mapview);
+        txtMarkerTitle = (TextView) findViewById(R.id.txtMarkerTitle);
+        txtMarkerText = (TextView) findViewById(R.id.txtMarkerText);
+        txtMarkerCategory = (TextView) findViewById(R.id.txtMarkerCategory);
+        txtMarkerPhoto = (TextView) findViewById(R.id.txtMarkerPhoto);
+
+        imgMarkerPhoto = (ImageView) findViewById(R.id.imgMarkerPhoto);
+
+        mapView = (MapView) findViewById(R.id.mapView);
 
         // spinner
         categoriesArray = new ArrayList<>();
@@ -71,6 +86,15 @@ public class MarkerAddActivity extends AppCompatActivity {
                         categoriesArray.add(category);
                     }
                 }
+            }
+        });
+
+        LoggedInUser.get().success(new Promise.SuccessListener<LoggedInUser, Object>() {
+            @Override
+            public Object onSuccess(LoggedInUser result) throws Exception {
+                markerUserId = result.getFirebaseUser().getUid();
+                markerGroupId = result.getActiveGroup().getId();
+                return null;
             }
         });
 
@@ -135,13 +159,6 @@ public class MarkerAddActivity extends AppCompatActivity {
             case R.id.action_marker_save:
                 sendMarker();
                 break;
-
-            case R.id.action_marker_thumbnail:
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), Util.REQUEST_ACTIVITY_PICK_PHOTO);
-                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -197,7 +214,24 @@ public class MarkerAddActivity extends AppCompatActivity {
                     ).success(new Promise.SuccessListener<Uri, Object>() {
                         @Override
                         public Object onSuccess(Uri result) throws Exception {
-                            thumbnail = result;
+                            markerThumbnail = result;
+
+                            Database.downloadImage(markerThumbnail)
+                                    .successFlat(Run.promiseUi(MarkerAddActivity.this, new Function<Bitmap, Void>() {
+                                        @Override
+                                        public Void apply(Bitmap bitmap) {
+                                            imgMarkerPhoto.setImageBitmap(bitmap);
+                                            imgMarkerPhoto.setVisibility(View.VISIBLE);
+                                            txtMarkerPhoto.setVisibility(View.GONE);
+                                            return null;
+                                        }
+                                    })).error(new Promise.ErrorListener<Void>() {
+                                @Override
+                                public Void onError(Throwable error) {
+                                    Log.e("Bitmap", "Error loading thumbnail bitmap", error);
+                                    return null;
+                                }
+                            });
                             return null;
                         }
                     });
@@ -208,7 +242,48 @@ public class MarkerAddActivity extends AppCompatActivity {
         }
     }
 
-    public void onChooseCategoryButtonClick(View view) {
+    public void onMarkerSetTitleClick(View view) {
+
+        final EditText editText = new EditText(this);
+        editText.setText(markerTitle);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Enter name")
+                .setView(editText, 19, 8, 19, 8)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        markerTitle = editText.getText().toString();
+                        txtMarkerTitle.setText(markerTitle);
+                    }
+                })
+                .create()
+                .show();
+
+    }
+
+    public void onMarkerSetTextClick(View view) {
+
+        final EditText editText = new EditText(this);
+        editText.setText(markerText);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Enter description")
+                .setView(editText, 19, 8, 19, 8)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        markerText = editText.getText().toString();
+                        txtMarkerText.setText(markerText);
+                    }
+                })
+                .create()
+                .show();
+    }
+
+    public void onMarkerSetCategoryClick(View view) {
 
         int selectedCategoryIndex = 0;
 
@@ -216,78 +291,86 @@ public class MarkerAddActivity extends AppCompatActivity {
         for (int i = 0; i < categoriesArray.size(); i++) {
             Category category = categoriesArray.get(i);
             categoryNames[i] = category.getName();
-            if (category.getId().equals(selectedCategoryId)) {
+            if (category.getId().equals(markerCategoryId)) {
                 selectedCategoryIndex = i;
             }
         }
 
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Choose category")
+        AlertDialog alertDialog =
+                new AlertDialog.Builder(this)
+                .setTitle("Select category")
                 .setSingleChoiceItems(categoryNames, selectedCategoryIndex, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
                         Category category = categoriesArray.get(which);
-                        selectedCategoryId = category.getId();
-                        Toast.makeText(MarkerAddActivity.this, category.getName(), Toast.LENGTH_LONG).show();
+                        markerCategoryId = category.getId();
+
+                        txtMarkerCategory.setText(category.getName());
+
                         dialogInterface.dismiss();
                     }
                 })
-                .setCancelable(true)
+                .setCancelable(false)
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
                 .create();
 
         alertDialog.show();
+
+    }
+
+    public void onMarkerSetPhotoClick(View view) {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), Util.REQUEST_ACTIVITY_PICK_PHOTO);
     }
 
     public void sendMarker() {
 
-        LoggedInUser.get().success(new Promise.SuccessListener<LoggedInUser, Object>() {
+        if (markerTitle == null || markerText == null || markerCategoryId == null) {
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_LONG).show();
+        } else {
 
-            @Override
-            public Object onSuccess(LoggedInUser result) throws Exception {
+            Marker marker = cz.uhk.cityunavigate.model.Marker.builder()
+                    .withId(null)
+                    .withIdGroup(markerGroupId)
+                    .withIdUserAuthor(markerUserId)
+                    .withIdCategory(markerCategoryId)
+                    .withLocation(googleMapMarker.getPosition())
+                    .withTitle(markerTitle)
+                    .withText(markerText)
+                    .withCreated(System.currentTimeMillis())
+                    .withImage(markerThumbnail)
+                    .build();
 
-                final String userId = result.getFirebaseUser().getUid();
-                final String groupId = result.getActiveGroup().getId();
+            Database.addMarker(markerGroupId, marker).success(new Promise.SuccessListener<cz.uhk.cityunavigate.model.Marker, Object>() {
 
-                final String title = editName.getText().toString();
-                final String text = editText.getText().toString();
+                @Override
+                public Object onSuccess(cz.uhk.cityunavigate.model.Marker result) {
 
-                Marker marker = cz.uhk.cityunavigate.model.Marker.builder()
-                        .withId(null)
-                        .withIdGroup(groupId)
-                        .withIdUserAuthor(userId)
-                        .withIdCategory(selectedCategoryId)
-                        .withLocation(googleMapMarker.getPosition())
-                        .withTitle(title)
-                        .withText(text)
-                        .withCreated(System.currentTimeMillis())
-                        .withImage(thumbnail)
-                        .build();
+                    FeedItem feedItem = FeedItem.builder()
+                            .withId(null)
+                            .withUserId(markerUserId)
+                            .withGroupId(markerGroupId)
+                            .withMarkerId(result.getId())
+                            .withCreated(System.currentTimeMillis())
+                            .withType(FeedItem.Type.MarkerAdd)
+                            .withText(markerText)
+                            .withTitle("Added marker")
+                            .withThumbnail(markerThumbnail)
+                            .build();
 
-                Database.addMarker(groupId, marker).success(new Promise.SuccessListener<cz.uhk.cityunavigate.model.Marker, Object>() {
-
-                    @Override
-                    public Object onSuccess(cz.uhk.cityunavigate.model.Marker result) {
-
-                        FeedItem feedItem = FeedItem.builder()
-                                .withId(null)
-                                .withUserId(userId)
-                                .withGroupId(groupId)
-                                .withMarkerId(result.getId())
-                                .withCreated(System.currentTimeMillis())
-                                .withType(FeedItem.Type.MarkerAdd)
-                                .withText(text)
-                                .withTitle("Added marker")
-                                .withThumbnail(thumbnail)
-                                .build();
-
-                        Database.addFeedItem(groupId, feedItem);
-                        finish();
-                        return null;
-                    }
-                });
-                return null;
-            }
-        });
+                    Database.addFeedItem(markerGroupId, feedItem);
+                    finish();
+                    return null;
+                }
+            });
+        }
     }
 
 }

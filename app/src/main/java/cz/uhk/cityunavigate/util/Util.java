@@ -126,7 +126,6 @@ public class Util {
                                     @Override
                                     public void run() {
                                         progressDialog.dismiss();
-                                        Toast.makeText(activity, "Success", Toast.LENGTH_LONG).show();
                                     }
                                 });
 

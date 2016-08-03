@@ -202,7 +202,7 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
 
             @SuppressWarnings("unchecked") List<Group> groups = (List<Group>)getArguments().get("groups");
-            addPreferencesFromResource(R.xml.pref_main);
+            addPreferencesFromResource(R.xml.pref_settings);
             setHasOptionsMenu(true);
 
             final ListPreference listPreference = (ListPreference) findPreference("user_group");
