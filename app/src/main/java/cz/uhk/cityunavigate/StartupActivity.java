@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
-import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -35,12 +34,7 @@ public class StartupActivity extends Activity {
 
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
-            startActivityForResult(
-                    AuthUI.getInstance().createSignInIntentBuilder()
-                            .setProviders("email")
-                            .setTheme(R.style.PurpleTheme)
-                            .build(),
-                    RC_SIGN_IN);
+            startActivity(new Intent(this, LoginActivity.class));
             return;
         }
 

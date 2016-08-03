@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cz.uhk.cityunavigate.model.Group;
-import cz.uhk.cityunavigate.util.Function;
+import cz.uhk.cityunavigate.util.Promise;
 import cz.uhk.cityunavigate.util.Run;
 import cz.uhk.cityunavigate.util.Util;
 
@@ -144,9 +144,9 @@ public class SettingsActivity extends AppCompatActivity {
         final ProgressDialog progress = Util.progressDialog(this, "Loading");
         progress.show();
 
-        LoggedInUser.get().successFlat(Run.promiseUi(this, new Function<LoggedInUser, Void>() {
+        LoggedInUser.get().successFlat(Run.promiseUi(this, new Promise.SuccessListener<LoggedInUser, Void>() {
             @Override
-            public Void apply(LoggedInUser user) {
+            public Void onSuccess(LoggedInUser user) {
                 prefs.edit().putString("user_name", user.getFirebaseUser().getDisplayName())
                         .putString("user_group", user.getActiveGroup().getId())
                         .apply();

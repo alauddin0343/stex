@@ -18,7 +18,6 @@ import cz.uhk.cityunavigate.Database;
 import cz.uhk.cityunavigate.R;
 import cz.uhk.cityunavigate.model.Comment;
 import cz.uhk.cityunavigate.model.User;
-import cz.uhk.cityunavigate.util.Function;
 import cz.uhk.cityunavigate.util.Promise;
 import cz.uhk.cityunavigate.util.Run;
 
@@ -99,9 +98,9 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
                         txtAuthor.setText(user.getName());
                     return Database.downloadImage(user.getImage());
                 }
-            }).success(Run.promiseUi((Activity) mContext, new Function<Bitmap, Void>() {
+            }).success(Run.promiseUi((Activity) mContext, new Promise.SuccessListener<Bitmap, Void>() {
                 @Override
-                public Void apply(Bitmap bitmap) {
+                public Void onSuccess(Bitmap bitmap) {
                     if (comment == CustomViewHolder.this.comment)
                         imgUser.setImageBitmap(bitmap);
                     return null;
@@ -110,9 +109,9 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
             if (comment.getImage() != null) {
                 Database.downloadImage(comment.getImage())
-                        .success(Run.promiseUi((Activity) mContext, new Function<Bitmap, Void>() {
+                        .success(Run.promiseUi((Activity) mContext, new Promise.SuccessListener<Bitmap, Void>() {
                             @Override
-                            public Void apply(Bitmap bitmap) {
+                            public Void onSuccess(Bitmap bitmap) {
                                 if (comment == CustomViewHolder.this.comment)
                                     imgImage.setImageBitmap(bitmap);
                                 return null;
