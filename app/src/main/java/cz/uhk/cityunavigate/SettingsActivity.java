@@ -147,7 +147,7 @@ public class SettingsActivity extends AppCompatActivity {
         LoggedInUser.get().successFlat(Run.promiseUi(this, new Promise.SuccessListener<LoggedInUser, Void>() {
             @Override
             public Void onSuccess(LoggedInUser user) {
-                prefs.edit().putString("user_name", user.getFirebaseUser().getDisplayName())
+                prefs.edit().putString("user_name", user.getUser().getName())
                         .putString("user_group", user.getActiveGroup().getId())
                         .apply();
                 progress.dismiss();

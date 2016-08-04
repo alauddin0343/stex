@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.ChildEventListener;
@@ -131,11 +132,17 @@ public class Database {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
                     // Add the user if not present
+                    final String displayName = user.getDisplayName() != null ? user.getDisplayName() : emailToUserName(user.getEmail());
                     Promise.fromTask(userRef.setValue(new HashMap<String, Object>() {{
                         put("created", System.currentTimeMillis());
                         put("email", user.getEmail());
-                        put("name", user.getDisplayName() != null ? user.getDisplayName() : emailToUserName(user.getEmail()));
-                    }})).success(new Promise.SuccessListener<Void, Void>() {
+                        put("name", displayName);
+                    }})).successFlat(new Promise.SuccessListener<Void, Promise<Void>>() {
+                        @Override
+                        public Promise<Void> onSuccess(Void result) throws Exception {
+                            return Promise.fromTask(user.updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(displayName).build()));
+                        }
+                    }).success(new Promise.SuccessListener<Void, Void>() {
                         @Override
                         public Void onSuccess(Void result) throws Exception {
                             resPromise.resolve(user);
