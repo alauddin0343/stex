@@ -24,6 +24,7 @@ import com.google.firebase.storage.StreamDownloadTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -64,10 +65,12 @@ public class Database {
      *
      * @param user logged in user
      */
-    public static void acceptInvitations(@NotNull final FirebaseUser user) {
+    public static Promise<FirebaseUser> acceptInvitations(@NotNull final FirebaseUser user) {
+        final PromiseImpl<FirebaseUser> resPromise = new PromiseImpl<>();
+        final String md5Mail = Util.MD5(user.getEmail());
         DatabaseReference invitations = db()
                 .getReference("invitations")
-                .child(Util.MD5(user.getEmail()))
+                .child(md5Mail)
                 .child("groups");
 
         invitations.addChildEventListener(new ChildEventAdapter() {
@@ -79,19 +82,35 @@ public class Database {
                         .child(groupId)
                         .child("users")
                         .child(user.getUid());
-                groupUsers.setValue(System.currentTimeMillis());
+                Promise<Void> groupUsersPromise = Promise.fromTask(groupUsers.setValue(System.currentTimeMillis()));
 
                 DatabaseReference userGroups = db()
                         .getReference("users")
                         .child(user.getUid())
                         .child("groups")
                         .child(groupId);
-                userGroups.setValue(System.currentTimeMillis());
+                Promise<Void> userGroupsPromise = Promise.fromTask(userGroups.setValue(System.currentTimeMillis()));
 
-                snapshot.getRef().removeValue();
+                Promise<Void> removePromise = Promise.fromTask(snapshot.getRef().removeValue());
+                Promise<Void> groupRemovePromise = Promise.fromTask(db().getReference("groups").child(groupId).child("invitations").child(md5Mail).removeValue());
+                Promise.all(Arrays.asList(groupUsersPromise, userGroupsPromise, removePromise, groupRemovePromise))
+                        .success(new Promise.SuccessListener<List<Void>, Void>() {
+                            @Override
+                            public Void onSuccess(List<Void> result) throws Exception {
+                                resPromise.resolve(user);
+                                return null;
+                            }
+                        }).error(new Promise.ErrorListener<Void>() {
+                            @Override
+                            public Void onError(Throwable error) {
+                                resPromise.reject(error);
+                                return null;
+                            }
+                        });
             }
 
         });
+        return resPromise;
     }
 
     /**
@@ -100,27 +119,57 @@ public class Database {
      *
      * @param user registered user
      */
-    public static void registerUserToDatabase(@NotNull final FirebaseUser user) {
+    public static Promise<FirebaseUser> registerUserToDatabase(@NotNull final FirebaseUser user) {
         final DatabaseReference userRef = FirebaseDatabase.getInstance()
                 .getReference("users")
                 .child(user.getUid());
+
+        final PromiseImpl<FirebaseUser> resPromise = new PromiseImpl<>();
 
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
                     // Add the user if not present
-                    userRef.child("created").setValue(System.currentTimeMillis());
-                    userRef.child("email").setValue(user.getEmail());
-                    userRef.child("name").setValue(user.getDisplayName());
+                    Promise.fromTask(userRef.setValue(new HashMap<String, Object>() {{
+                        put("created", System.currentTimeMillis());
+                        put("email", user.getEmail());
+                        put("name", user.getDisplayName() != null ? user.getDisplayName() : emailToUserName(user.getEmail()));
+                    }})).success(new Promise.SuccessListener<Void, Void>() {
+                        @Override
+                        public Void onSuccess(Void result) throws Exception {
+                            resPromise.resolve(user);
+                            return null;
+                        }
+                    }).error(new Promise.ErrorListener<Void>() {
+                        @Override
+                        public Void onError(Throwable error) {
+                            resPromise.reject(error);
+                            return null;
+                        }
+                    });
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                resPromise.reject(databaseError.toException());
             }
         });
+        return resPromise;
+    }
+
+    private static String emailToUserName(String email) {
+        if (email.indexOf('@') < 0)
+            return email;
+        String namePart = email.substring(0, email.indexOf('@'));
+        String[] parts = namePart.split("\\.");
+        StringBuilder res = new StringBuilder();
+        for (String part : parts) {
+            if (part.length() > 0)
+                res.append(part.substring(0, 1).toUpperCase()).append(part.substring(1).toLowerCase()).append(' ');
+        }
+        return res.toString().trim();
     }
 
     /**

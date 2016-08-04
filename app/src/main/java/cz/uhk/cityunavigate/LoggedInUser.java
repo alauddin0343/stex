@@ -65,7 +65,8 @@ public class LoggedInUser {
         loadGroup(user.getUser()).success(new Promise.SuccessListener<Group, Void>() {
             @Override
             public Void onSuccess(Group result) throws Exception {
-                user.activeGroup = result;
+                if (result != null)
+                    user.activeGroup = result;
                 return null;
             }
         });

@@ -23,23 +23,28 @@ public class StartupActivity extends Activity {
         FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                firebaseAuth.removeAuthStateListener(this);
                 final FirebaseUser loggedInUser = firebaseAuth.getCurrentUser();
-                if (loggedInUser == null)
+                if (loggedInUser == null) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startActivity(new Intent(StartupActivity.this, LoginActivity.class));
+                            finish();
+                        }
+                    });
                     return;
+                }
 
-                Database.acceptInvitations(loggedInUser);
-                Database.registerUserToDatabase(loggedInUser);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        startActivity(new Intent(StartupActivity.this, MainActivity.class));
+                        finish();
+                    }
+                });
             }
         });
-
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-            return;
-        }
-
-        startActivity(new Intent(this, MainActivity.class));
-        finish();
     }
 
     @Override

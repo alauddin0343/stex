@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private LinearLayoutManager layoutManager;
 
+    private String lastLoadedGroup = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,10 +105,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 result.addUserChangeListener(new LoggedInUser.UserChangeListener() {
                     @Override
                     public void userChanged(LoggedInUser newUser) {
-                        feedItemList.clear();
-                        timelineRecylerAdapter.notifyDataSetChanged();
-                        showRefreshing();
-                        reloadTimeLine();
+                        if (lastLoadedGroup == null || !lastLoadedGroup.equals(newUser.getActiveGroup().getId())) {
+                            feedItemList.clear();
+                            timelineRecylerAdapter.notifyDataSetChanged();
+                            showRefreshing();
+                            reloadTimeLine();
+                        }
                     }
                 });
 
@@ -173,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void updateFeedItemsInTimeLine(final LoggedInUser user, Group group) {
-
+        lastLoadedGroup = group.getId();
         final ObservableList<FeedItem> feedItems = Database.getGroupFeed(group.getId(), Integer.MAX_VALUE);
         feedItems.addItemAddListener(new ObservableList.ItemAddListener<FeedItem>() {
             @Override
