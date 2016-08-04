@@ -66,6 +66,12 @@ public class NotificationService extends Service {
         });
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        return Service.START_STICKY;
+    }
+
     private Notification notifyNewFeedItem(FeedItem feedItem, String userId) {
         Notification res = new Notification.Builder(getApplicationContext())
                 .setContentTitle(feedItem.getTitle())
