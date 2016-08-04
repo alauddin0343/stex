@@ -19,17 +19,11 @@
         android:layout_weight="1">
 
         <ImageView
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:src="@drawable/logo_fim"
-            android:scaleType="fitCenter"
-            android:layout_weight="1" />
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="60dp"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:src="@drawable/cityu_logo"
-            android:scaleType="fitCenter"
+            android:scaleType="fitStart"
             android:layout_weight="1" />
 
     </LinearLayout>

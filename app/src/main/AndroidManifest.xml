@@ -70,7 +70,7 @@
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login" />
+            android:windowSoftInputMode="stateHidden" />
 
         <service
             android:name=".services.NotificationService"
