@@ -668,6 +668,28 @@ public class Database {
     }
 
     /**
+     * Change user photo to the specified url
+     * @param user user
+     * @param photoUri new photo Url
+     * @return promise
+     */
+    public static Promise<Void> changeUserPhotoUri(final FirebaseUser user, final Uri photoUri) {
+        return Promise.fromTask(user.updateProfile(new UserProfileChangeRequest.Builder()
+                .setPhotoUri(photoUri)
+                .setPhotoUri(user.getPhotoUrl())
+                .build())).successFlat(new Promise.SuccessListener<Void, Promise<Void>>() {
+            @Override
+            public Promise<Void> onSuccess(Void result) {
+                return Promise.fromTask(
+                        db().getReference("users")
+                                .child(user.getUid())
+                                .child("image")
+                                .setValue(photoUri.toString()));
+            }
+        });
+    }
+
+    /**
      * Change user name to the specified name
      * @param user user
      * @param newGroup new name

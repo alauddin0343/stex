@@ -23,10 +23,15 @@
             />
 
         <Preference
+            android:key="avatar"
+            android:title="Change your avatar"
+            />
+
+        <Preference
             android:key="logout"
             android:title="@string/pref_title_signout"
             android:selectable="true"
-        />
+            />
 
     </PreferenceCategory>
 

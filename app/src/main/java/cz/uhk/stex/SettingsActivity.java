@@ -7,6 +7,7 @@ import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -23,9 +24,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -182,6 +185,46 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == Util.REQUEST_ACTIVITY_PICK_PHOTO) {
+
+            if (resultCode == RESULT_OK) {
+
+                try {
+                    Util.uploadPicture(
+                            this,
+                            getContentResolver(),
+                            data.getData(),
+                            "avatars",
+                            100,
+                            new Util.BitmapPictureResizer() {
+                                @Override
+                                public void onBitmapPictureResized(Bitmap bitmap) {
+
+                                }
+                            }
+                    ).success(new Promise.SuccessListener<Uri, Object>() {
+                        @Override
+                        public Object onSuccess(Uri result) throws Exception {
+                            Database.changeUserPhotoUri(FirebaseAuth.getInstance().getCurrentUser(), result).success(new Promise.SuccessListener<Void, Object>() {
+                                @Override
+                                public Object onSuccess(Void result) throws Exception {
+                                    Toast.makeText(SettingsActivity.this, "Your avatar was changed", Toast.LENGTH_LONG).show();
+                                    return null;
+                                }
+                            });
+                            return null;
+                        }
+                    });
+                } catch (IOException exception) {
+                    Toast.makeText(this, exception.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+
     /**
      * This fragment shows general preferences only. It is used when the
      * activity is showing a two-pane settings UI.
@@ -226,6 +269,17 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
+            findPreference("avatar").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+
+                    getActivity().startActivityForResult(Intent.createChooser(intent, "Select Picture"), Util.REQUEST_ACTIVITY_PICK_PHOTO);
+                    return true;
+                }
+            });
         }
 
         protected void setListPreferenceData(final ListPreference lp, List<Group> groups) {
