@@ -46,9 +46,6 @@ import cz.uhk.stex.util.Util;
 
 public class DetailActivity extends AppCompatActivity {
 
-    private boolean mapInited = false;
-    private MapView mapView;
-    private GoogleMap map;
     private Marker myMarker;
 
     //private TextView txtDetailTitle;
@@ -91,9 +88,6 @@ public class DetailActivity extends AppCompatActivity {
 
         editCommentText = (EditText)findViewById(R.id.editCommentText);
         imgCommentPhoto = (ImageView) findViewById(R.id.imgCommentPhoto);
-
-        mapView = (MapView)findViewById(R.id.mapview);
-        mapView.onCreate(savedInstanceState);
 
         commentsArray = new ArrayList<>();
         commentsAdapter = new CommentsRecyclerAdapter(this, commentsArray);
@@ -210,49 +204,6 @@ public class DetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void initMap(){
-        mapView.getMapAsync(new OnMapReadyCallback() {
-
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                map = googleMap;
-                map.getUiSettings().setMyLocationButtonEnabled(false);
-                map.setBuildingsEnabled(true);
-                map.getUiSettings().setAllGesturesEnabled(true);
-                map.getUiSettings().setCompassEnabled(true);
-                map.getUiSettings().setMyLocationButtonEnabled(true);
-                map.getUiSettings().setMapToolbarEnabled(true);
-
-                map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                    @Override
-                    public boolean onMarkerClick(com.google.android.gms.maps.model.Marker marker) {
-                        //WE DONT NEED AN INFO WINDOW ANYWAY
-                        return false;
-                    }
-                });
-
-                mapInited = true;
-
-                mapView.setVisibility(View.VISIBLE);
-
-                mapView.onResume();
-
-                putMarker(myMarker);
-            }
-        });
-    }
-
-    private void putMarker(final cz.uhk.stex.model.Marker marker) { //TODO STILL IN DEPLOY
-
-        map.addMarker(new MarkerOptions() //saving in List<Marker> to be able to clear only one from all possible markers
-                .position(marker.getLocation())
-                .title(marker.getTitle())
-                .snippet(marker.getText()));
-
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(marker.getLocation(), 16);
-        map.moveCamera(cameraUpdate);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -288,47 +239,15 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if(mapView != null && mapView.getVisibility()==View.VISIBLE){
-            mapView.setVisibility(View.GONE);
-        }else{
-            super.onBackPressed();
-        }
-    }
-
     //FOLLOWING METHODS ARE FOR MAPVIEW CONTROLLING (map fragment must have)
     @Override
     public void onResume() {
-        if(mapInited)
-            mapView.onResume();
         //METHOD FOR HIDING KEYBOARD AFTER ACTIVITY OPENS..
         if(getCurrentFocus()!=null) {
             InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
         super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if(mapInited)
-            mapView.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(mapInited)
-            mapView.onDestroy();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        if(mapInited)
-            mapView.onLowMemory();
     }
 
     public void onAddPhotoButtonClick(View view) {
