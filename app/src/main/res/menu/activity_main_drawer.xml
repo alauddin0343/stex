@@ -13,7 +13,7 @@
         <item
             android:id="@+id/nav_markers"
             android:icon="@drawable/ic_drawer_markers"
-            android:title="Markers" />
+            android:title="Places" />
         <item
             android:id="@+id/nav_friends"
             android:icon="@drawable/ic_drawer_group"
