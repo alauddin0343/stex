@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="colorPrimary">#ba2d7d</color>
-    <color name="colorPrimaryDark">#74033e</color>
-    <color name="colorAccent">#b3164b</color>
+    <color name="colorPrimary">#1976D2</color>
+    <color name="colorPrimaryDark">#0D47A1</color>
+    <color name="colorAccent">#1565C0</color>
 
-    <color name="colorControlNormal">#ba2d7d</color>
-    <color name="colorControlActivated">#74033e</color>
-    <color name="colorControlHighlight">#b3164b</color>
+    <color name="colorControlNormal">#42A5F5</color>
+    <color name="colorControlActivated">#0D47A1</color>
+    <color name="colorControlHighlight">#1E88E5</color>
     <color name="colorBackground">#DEDEDE</color>
 
-    <color name="colorStart">#C781A5</color>
-    <color name="centerColor">#AF4C79</color>
-    <color name="endColor">#7d2e4b</color>
+    <color name="colorStart">#81C784</color>
+    <color name="centerColor">#66BB6A</color>
+    <color name="endColor">#43A047</color>
 
     <color name="colorBackgroundGray">#ddd</color>
     <color name="colorBackgroundDarkGray">#999</color>

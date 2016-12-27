@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:src="@drawable/cityu_logo"
+            android:src="@drawable/logo_horizontal"
             android:scaleType="fitStart"
             android:layout_weight="1" />
 

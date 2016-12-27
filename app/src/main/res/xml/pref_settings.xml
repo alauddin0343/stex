@@ -21,6 +21,13 @@
             android:title="@string/pref_title_group"
             android:key="user_group"
             />
+
+        <Preference
+            android:key="logout"
+            android:title="@string/pref_title_signout"
+            android:selectable="true"
+        />
+
     </PreferenceCategory>
 
     <PreferenceCategory

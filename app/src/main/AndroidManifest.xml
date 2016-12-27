@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cz.uhk.cityunavigate" >
+    package="cz.uhk.stex" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -24,10 +24,10 @@
         android:theme="@style/AppTheme" >
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBirB2IjtDtHkT-dn4DX2mJlRv-kPpwCt4" />
+            android:value="AIzaSyAAaPBvs3DG2zd3Own-mSVeikbZOGGUews" />
 
         <activity
-            android:name=".StartupActivity"
+            android:name="cz.uhk.stex.StartupActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
@@ -37,48 +37,51 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name"
+            android:name="cz.uhk.stex.MainActivity"
+            android:label="@string/app_name_long"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".DetailActivity"
+            android:name="cz.uhk.stex.DetailActivity"
             android:label="@string/title_activity_detail"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".MarkerAddActivity"
+            android:name="cz.uhk.stex.MarkerAddActivity"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".SettingsActivity"
+            android:name="cz.uhk.stex.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName="cz.uhk.stex.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="cz.uhk.stex.MainActivity" />
         </activity>
-        <activity android:name=".MapActivity" />
+        <activity
+            android:name="cz.uhk.stex.MapActivity"
+            android:label="@string/app_name_long" />
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".FriendsActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name="cz.uhk.stex.FriendsActivity"
+            android:parentActivityName="cz.uhk.stex.MainActivity" />
         <activity
-            android:name=".MarkersActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name="cz.uhk.stex.MarkersActivity"
+            android:parentActivityName="cz.uhk.stex.MainActivity" />
         <activity
-            android:name=".LoginActivity"
+            android:name="cz.uhk.stex.LoginActivity"
+            android:label="@string/app_name_long"
             android:windowSoftInputMode="stateHidden" />
 
         <service
-            android:name=".services.NotificationService"
+            android:name="cz.uhk.stex.services.NotificationService"
             android:enabled="true"
             >
         </service>
 
-        <receiver android:name=".services.BootReceiver">
+        <receiver android:name="cz.uhk.stex.services.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>

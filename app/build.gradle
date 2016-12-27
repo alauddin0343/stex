@@ -10,7 +10,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "cz.uhk.cityunavigate"
+        applicationId "cz.uhk.stex"
         minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
