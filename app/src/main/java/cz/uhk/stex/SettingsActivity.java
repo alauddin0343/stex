@@ -261,6 +261,7 @@ public class SettingsActivity extends AppCompatActivity {
             findPreference("logout").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
                     FirebaseAuth.getInstance().signOut();
+                    LoggedInUser.clear();
 
                     Intent intent = new Intent(getActivity().getApplicationContext(), StartupActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

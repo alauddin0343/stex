@@ -114,6 +114,48 @@ public class Database {
     }
 
     /**
+     * Insert FirebaseUser to existing group by groupbID
+     *
+     * @param user logged in user
+     * @param groupId groupId
+     */
+    public static Promise<FirebaseUser> insertUserToGroup(@NotNull final FirebaseUser user, @NotNull final String groupId) {
+        final PromiseImpl<FirebaseUser> resPromise = new PromiseImpl<>();
+
+        DatabaseReference groupUsers = db()
+                .getReference("groups")
+                .child(groupId)
+                .child("users")
+                .child(user.getUid());
+        Promise<Void> groupUsersPromise = Promise.fromTask(groupUsers.setValue(System.currentTimeMillis()));
+
+        DatabaseReference userGroups = db()
+                .getReference("users")
+                .child(user.getUid())
+                .child("groups")
+                .child(groupId);
+        Promise<Void> userGroupsPromise = Promise.fromTask(userGroups.setValue(System.currentTimeMillis()));
+
+        Promise<Void> changeUserGroupPromise = changeUserGroup(user, groupId);
+
+        Promise.all(Arrays.asList(groupUsersPromise, userGroupsPromise, changeUserGroupPromise))
+                .success(new Promise.SuccessListener<List<Void>, Void>() {
+                    @Override
+                    public Void onSuccess(List<Void> result) throws Exception {
+                        resPromise.resolve(user);
+                        return null;
+                    }
+                }).error(new Promise.ErrorListener<Void>() {
+            @Override
+            public Void onError(Throwable error) {
+                resPromise.reject(error);
+                return null;
+            }
+        });
+        return resPromise;
+    }
+
+    /**
      * Adds a freshly registered user to the database. Does nothing if the user is already
      * registered in the database.
      *

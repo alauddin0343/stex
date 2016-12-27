@@ -173,7 +173,8 @@ public class LoginActivity extends AppCompatActivity {
                     .successFlat(new Promise.SuccessListener<FirebaseUser, Promise<FirebaseUser>>() {
                         @Override
                         public Promise<FirebaseUser> onSuccess(FirebaseUser result) throws Exception {
-                            return Database.acceptInvitations(result);
+                            return Database.insertUserToGroup(result, "-KOGmIa_p-nEJp26XzHi");
+//                            return Database.acceptInvitations(result);
                         }
                     })
                     .successFlat(Run.promiseUi(this, onSuccess))

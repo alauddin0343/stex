@@ -163,6 +163,14 @@ public class LoggedInUser {
         }
     }
 
+    /**
+     * Clears instance.
+     * Use for logout.
+     */
+    public static void clear() {
+        instance = null;
+    }
+
     @NotNull
     public FirebaseUser getFirebaseUser() {
         return firebaseUser;
