@@ -35,6 +35,7 @@ public class MarkersActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_markers);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -142,14 +143,17 @@ public class MarkersActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_marker_add) {
-            startActivity(new Intent(this, MarkerAddActivity.class));
+        switch (item.getItemId()) {
+
+            case android.R.id.home:
+                finish();
+                break;
+
+            case R.id.action_marker_add:
+                startActivity(new Intent(this, MarkerAddActivity.class));
+                break;
+
         }
 
         return super.onOptionsItemSelected(item);

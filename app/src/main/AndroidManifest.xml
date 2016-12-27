@@ -66,10 +66,10 @@
 
         <activity
             android:name="cz.uhk.stex.FriendsActivity"
-            android:parentActivityName="cz.uhk.stex.MainActivity" />
+            android:label="@string/app_name_long" />
         <activity
             android:name="cz.uhk.stex.MarkersActivity"
-            android:parentActivityName="cz.uhk.stex.MainActivity" />
+            android:label="@string/app_name_long" />
         <activity
             android:name="cz.uhk.stex.LoginActivity"
             android:label="@string/app_name_long"

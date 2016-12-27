@@ -45,10 +45,9 @@ public class MapActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         markerId = getIntent().getStringExtra("detail");
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         markers = new ArrayList<>();
         markerIds = new HashMap<>();
