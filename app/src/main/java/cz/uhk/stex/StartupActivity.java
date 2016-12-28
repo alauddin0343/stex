@@ -2,7 +2,6 @@ package cz.uhk.stex;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
@@ -13,8 +12,10 @@ import com.google.firebase.auth.FirebaseUser;
 /**
  * Decides whether to switch to login activity or directly to main activity
  * if we have stored the credentials already.
+ * Created by Karelp on 12.07.2016.
  */
 public class StartupActivity extends Activity {
+
     private static final int RC_SIGN_IN = 100;
 
     @Override

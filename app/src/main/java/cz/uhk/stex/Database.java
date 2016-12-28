@@ -119,7 +119,7 @@ public class Database {
      * @param user logged in user
      * @param groupId groupId
      */
-    public static Promise<FirebaseUser> insertUserToGroup(@NotNull final FirebaseUser user, @NotNull final String groupId) {
+    public static Promise<FirebaseUser> addUserToGroup(@NotNull final FirebaseUser user, @NotNull final String groupId) {
         final PromiseImpl<FirebaseUser> resPromise = new PromiseImpl<>();
 
         DatabaseReference groupUsers = db()
