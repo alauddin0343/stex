@@ -7,6 +7,7 @@ import android.util.Log;
 
 /**
  * Runs the notification service after the device is rebooted
+ * Created by Karelp on 12.07.2016.
  */
 public class BootReceiver extends BroadcastReceiver {
 

@@ -25,7 +25,12 @@ import cz.uhk.stex.model.Group;
 import cz.uhk.stex.util.ObservableList;
 import cz.uhk.stex.util.Promise;
 
+/**
+ * Notification service
+ * Created by Karelp on 12.07.2016.
+ */
 public class NotificationService extends Service {
+
     private final AtomicInteger idGenerator = new AtomicInteger(0);
     private final Map<String, Integer> feedItemToNotificationMap = new HashMap<>();
     private final Database.FeedItemReadListener feedItemReadListener = new Database.FeedItemReadListener() {
