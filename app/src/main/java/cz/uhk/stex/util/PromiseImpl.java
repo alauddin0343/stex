@@ -9,6 +9,7 @@ import java.util.Set;
 
 /**
  * Allows chaining and handling future/async values. Implementation of {@link Promise}.
+ * Created by Karelp on 12.07.2016.
  */
 public class PromiseImpl<T> extends Promise<T> {
     private @Nullable T value;

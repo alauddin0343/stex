@@ -13,6 +13,7 @@ import java.util.Map;
 
 /**
  * Simple cache class for caching various network resources
+ * Created by Karelp on 12.07.2016.
  */
 public class Cache<Key, Value> {
 

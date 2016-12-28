@@ -16,6 +16,7 @@ import java.util.Map;
 /**
  * List that allows observers to detect changes such as adding
  * or removing elements.
+ * Created by Karelp on 12.07.2016.
  */
 public class ObservableList<E> implements List<E>, Serializable {
     private ArrayList<E> data = new ArrayList<>();

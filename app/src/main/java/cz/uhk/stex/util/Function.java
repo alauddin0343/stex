@@ -1,5 +1,10 @@
 package cz.uhk.stex.util;
 
+/**
+ * Created by Karelp on 12.07.2016.
+ * @param <T>
+ * @param <R>
+ */
 public interface Function<T, R> {
 
     /**

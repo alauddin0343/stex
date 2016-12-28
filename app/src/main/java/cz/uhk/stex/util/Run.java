@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 /**
  * Allows asynchronously running various tasks
+ * Created by Karelp on 12.07.2016.
  */
 public final class Run {
     public static <R> Promise<R> runInUI(Activity ui, final Supplier<R> task) {

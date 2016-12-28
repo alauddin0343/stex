@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Allows chaining and handling future/async values.
+ * Created by Karelp on 12.07.2016.
  */
 public abstract class Promise<T> {
     public abstract <R> Promise<R> success(@NotNull SuccessListener<T, R> listener);

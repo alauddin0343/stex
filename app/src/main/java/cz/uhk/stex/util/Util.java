@@ -26,6 +26,7 @@ import cz.uhk.stex.R;
 
 /**
  * Utility methods
+ * Created by Alzaq on 12.07.2016.
  */
 public class Util {
 
