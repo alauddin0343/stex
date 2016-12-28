@@ -7,6 +7,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
 
 /**
  * Marker DTO
+ * Created by Karelp on 12.07.2016.
  */
 @IgnoreExtraProperties
 public class Marker implements Identifiable {

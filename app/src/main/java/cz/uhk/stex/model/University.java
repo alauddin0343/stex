@@ -9,6 +9,7 @@ import java.net.URL;
 
 /**
  * University DTO
+ * Created by Karelp on 12.07.2016.
  */
 @IgnoreExtraProperties
 public class University implements Identifiable {

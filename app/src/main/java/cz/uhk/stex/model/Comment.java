@@ -4,6 +4,7 @@ import android.net.Uri;
 
 /**
  * User comment
+ * Created by Karelp on 12.07.2016.
  */
 public class Comment implements Identifiable {
     private String id;

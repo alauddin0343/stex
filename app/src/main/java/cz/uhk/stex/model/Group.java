@@ -6,6 +6,7 @@ import java.util.List;
 
 /**
  * Group DTO
+ * Created by Karelp on 12.07.2016.
  */
 @IgnoreExtraProperties
 public class Group implements Identifiable {

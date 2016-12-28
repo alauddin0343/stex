@@ -6,6 +6,7 @@ import java.util.List;
 
 /**
  * Information about a user from the database
+ * Created by Karelp on 12.07.2016.
  */
 public class User implements Identifiable {
     private String id;

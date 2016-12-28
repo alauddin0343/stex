@@ -4,6 +4,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
 
 /**
  * Marker category
+ * Created by Karelp on 12.07.2016.
  */
 @IgnoreExtraProperties
 public class Category implements Identifiable {

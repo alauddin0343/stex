@@ -10,6 +10,7 @@ import java.util.Map;
 
 /**
  * User feed item
+ * Created by Karelp on 12.07.2016.
  */
 @IgnoreExtraProperties
 public class FeedItem implements Comparable<FeedItem>, Identifiable {
