@@ -29,6 +29,8 @@ import cz.uhk.stex.util.Promise;
 
 public class MapActivity extends AppCompatActivity {
 
+    public static final String EXTRA_MARKER_ID = "detail";
+
     private MapView mapView;
 
     private GoogleMap map;
@@ -47,7 +49,7 @@ public class MapActivity extends AppCompatActivity {
         setContentView(R.layout.activity_map);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        markerId = getIntent().getStringExtra("detail");
+        markerId = getIntent().getStringExtra(EXTRA_MARKER_ID);
 
         markers = new ArrayList<>();
         markerIds = new HashMap<>();
@@ -82,8 +84,8 @@ public class MapActivity extends AppCompatActivity {
                             public void onInfoWindowClick(com.google.android.gms.maps.model.Marker marker) {
                                 marker.hideInfoWindow();
                                 Intent detailIntent = new Intent(MapActivity.this, DetailActivity.class);
-                                detailIntent.putExtra("id", markerIds.get(marker).getId());
-                                detailIntent.putExtra("groupid", markerIds.get(marker).getIdGroup());
+                                detailIntent.putExtra(DetailActivity.EXTRA_ID, markerIds.get(marker).getId());
+                                detailIntent.putExtra(DetailActivity.EXTRA_GROUP_ID, markerIds.get(marker).getIdGroup());
                                 startActivity(detailIntent);
                             }
                         });
@@ -99,7 +101,6 @@ public class MapActivity extends AppCompatActivity {
                 return null;
             }
         });
-
 
     }
 
@@ -176,8 +177,8 @@ public class MapActivity extends AppCompatActivity {
                 } else if (mapStyle == 1) {
                     map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 } else if (mapStyle == 2) {
-                    mapStyle = -1;
                     map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    mapStyle = -1;
                 }
                 mapStyle ++;
                 break;
@@ -187,7 +188,6 @@ public class MapActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    //FOLLOWING METHODS ARE FOR MAPVIEW CONTROLLING (map fragment must have)
     @Override
     public void onResume() {
         mapView.onResume();

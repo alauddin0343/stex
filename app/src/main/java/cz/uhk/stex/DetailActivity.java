@@ -49,9 +49,6 @@ public class DetailActivity extends AppCompatActivity {
     public static final String EXTRA_ID = "id";
     public static final String EXTRA_GROUP_ID = "groupid";
 
-    private Marker myMarker;
-
-    //private TextView txtDetailTitle;
     private TextView txtDetailText;
     private RecyclerView recyclerView;
     private EditText editCommentText;
@@ -80,14 +77,13 @@ public class DetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         txtDetailText = (TextView)findViewById(R.id.txtDetailText);
-        //txtDetailTitle = (TextView)findViewById(R.id.txtDetailTitle);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerComments);
+
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setNestedScrollingEnabled(false);
-
 
         editCommentText = (EditText)findViewById(R.id.editCommentText);
         imgCommentPhoto = (ImageView) findViewById(R.id.imgCommentPhoto);
@@ -95,90 +91,76 @@ public class DetailActivity extends AppCompatActivity {
         commentsArray = new ArrayList<>();
         commentsAdapter = new CommentsRecyclerAdapter(this, commentsArray);
         recyclerView.setAdapter(commentsAdapter);
-        fillDetailInfo(markerId, groupId);
-    }
-
-    private void fillDetailInfo(final String markerId, final String groupId){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if(user != null){
-            Promise<Marker> marker = Database.getMarkerById(groupId, markerId);
-            marker.success(new Promise.SuccessListener<Marker, Object>() {
-                @Override
-                public Object onSuccess(Marker result) {
-
-                    ((CollapsingToolbarLayout)findViewById(R.id.toolbar_layout)).setTitle(result.getTitle());
-                    final ImageView imageView = (ImageView) findViewById(R.id.toolbar_layout).findViewById(R.id.header);
-
-                    if (result.getImage() != null) {
-                        Database.downloadImage(result.getImage())
-                            .success(Run.promiseUi(DetailActivity.this, new Promise.SuccessListener<Bitmap, Void>() {
-                                @Override
-                                public Void onSuccess(Bitmap bitmap) {
-                                    imageView.setImageBitmap(bitmap);
-                                    return null;
-                                }
-                            }));
-                    }
-
-                    txtDetailText.setText(result.getText());
-
-                    fillComments(markerId);
-
-                    myMarker = result;
-
-                    return null;
-                }
-            });
-
-        }
-        else{
-            Toast.makeText(this,"YOU'RE NOT LOGGED IN", Toast.LENGTH_SHORT).show();
-        }
-    }
-    private void fillComments(String markerId){
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
         if (user != null) {
+            fillDetailInfo(markerId, groupId);
+        }
+    }
 
-            final ObservableList<Comment> comments = Database.getCommentsForMarker(markerId);
-            comments.addItemAddListener(new ObservableList.ItemAddListener<Comment>() {
-                @Override
-                public void onItemAdded(@NotNull ObservableList<Comment> list, @NotNull Collection<Comment> addedItems) {
-                    for (Comment addedItem : addedItems) {
+    private void fillDetailInfo(final String markerId, final String groupId) {
 
-                        boolean itemWasAdded = false;
+        Promise<Marker> marker = Database.getMarkerById(groupId, markerId);
+        marker.success(new Promise.SuccessListener<Marker, Object>() {
+            @Override
+            public Object onSuccess(Marker result) {
 
-                        for (int i = 0; i < commentsArray.size(); i++) {
+                ((CollapsingToolbarLayout)findViewById(R.id.toolbar_layout)).setTitle(result.getTitle());
+                final ImageView imageView = (ImageView) findViewById(R.id.toolbar_layout).findViewById(R.id.header);
 
-                            Comment commentItem = commentsArray.get(i);
-
-                            if (commentItem.getId().equals(addedItem.getId())) {
-                                itemWasAdded = true;
-                                break;
+                if (result.getImage() != null) {
+                    Database.downloadImage(result.getImage())
+                        .success(Run.promiseUi(DetailActivity.this, new Promise.SuccessListener<Bitmap, Void>() {
+                            @Override
+                            public Void onSuccess(Bitmap bitmap) {
+                                imageView.setImageBitmap(bitmap);
+                                return null;
                             }
+                        }));
+                }
 
-                            if (addedItem.getCreated() > commentItem.getCreated()) {
-                                commentsArray.add(i, addedItem);
-                                itemWasAdded = true;
-                                break;
-                            }
+                txtDetailText.setText(result.getText());
+                fillComments(markerId);
+
+                return null;
+            }
+        });
+    }
+
+    private void fillComments(String markerId) {
+
+        ObservableList<Comment> comments = Database.getCommentsForMarker(markerId);
+        comments.addItemAddListener(new ObservableList.ItemAddListener<Comment>() {
+            @Override
+            public void onItemAdded(@NotNull ObservableList<Comment> list, @NotNull Collection<Comment> addedItems) {
+                for (Comment addedItem : addedItems) {
+
+                    boolean itemWasAdded = false;
+
+                    for (int i = 0; i < commentsArray.size(); i++) {
+
+                        Comment commentItem = commentsArray.get(i);
+
+                        if (commentItem.getId().equals(addedItem.getId())) {
+                            itemWasAdded = true;
+                            break;
                         }
 
-                        if (!itemWasAdded) {
-                            commentsArray.add(addedItem);
+                        if (addedItem.getCreated() > commentItem.getCreated()) {
+                            commentsArray.add(i, addedItem);
+                            itemWasAdded = true;
+                            break;
                         }
                     }
 
-                    commentsAdapter.notifyDataSetChanged();
+                    if (!itemWasAdded) {
+                        commentsArray.add(addedItem);
+                    }
                 }
-            });
 
-        }
-        else{
-            Toast.makeText(this,"YOU'RE NOT LOGGED IN", Toast.LENGTH_SHORT).show();
-        }
+                commentsAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -198,7 +180,7 @@ public class DetailActivity extends AppCompatActivity {
 
             case R.id.action_show_marker_on_map_again_and_again:
                 Intent intent = new Intent(this, MapActivity.class);
-                intent.putExtra("detail", markerId);
+                intent.putExtra(MapActivity.EXTRA_MARKER_ID, markerId);
                 startActivity(intent);
                 break;
 
@@ -242,11 +224,9 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    //FOLLOWING METHODS ARE FOR MAPVIEW CONTROLLING (map fragment must have)
     @Override
     public void onResume() {
-        //METHOD FOR HIDING KEYBOARD AFTER ACTIVITY OPENS..
-        if(getCurrentFocus()!=null) {
+        if (getCurrentFocus() != null) {
             InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }

@@ -24,7 +24,7 @@ public class FriendsActivity extends AppCompatActivity {
 
     private List<User> userList;
 
-    private FriendsRecyclerAdapter friendsRecylerAdapter;
+    private FriendsRecyclerAdapter friendsRecyclerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +36,11 @@ public class FriendsActivity extends AppCompatActivity {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
         userList = new ArrayList<>();
-        friendsRecylerAdapter = new FriendsRecyclerAdapter(this, userList);
+        friendsRecyclerAdapter = new FriendsRecyclerAdapter(this, userList);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.friendsMainContent);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(friendsRecylerAdapter);
+        recyclerView.setAdapter(friendsRecyclerAdapter);
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -52,7 +52,6 @@ public class FriendsActivity extends AppCompatActivity {
 
         showRefreshing();
         reloadFriends();
-
     }
 
     private void reloadFriends() {
@@ -109,7 +108,7 @@ public class FriendsActivity extends AppCompatActivity {
             }
         });
 
-        friendsRecylerAdapter.notifyDataSetChanged();
+        friendsRecyclerAdapter.notifyDataSetChanged();
     }
 
     private void showRefreshing() {

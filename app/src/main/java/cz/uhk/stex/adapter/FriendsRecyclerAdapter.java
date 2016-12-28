@@ -76,7 +76,7 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
             txtTitle.setText(user.getName());
             txtText.setText(user.getEmail());
 
-            imgUser.setImageBitmap(null);
+            imgUser.setImageResource(R.drawable.ic_person);
 
             Date created = new Date();
             created.setTime(user.getCreated());
@@ -95,7 +95,9 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
                         @Override
                         public Void onSuccess(Bitmap bitmap) {
                             if (user == CustomViewHolder.this.user) {
-                                imgUser.setImageBitmap(bitmap);
+                                if (bitmap != null) {
+                                    imgUser.setImageBitmap(bitmap);
+                                }
                             }
                             return null;
                         }

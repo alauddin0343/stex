@@ -92,7 +92,7 @@ public class TimelineRecyclerAdapter extends RecyclerView.Adapter<TimelineRecycl
             txtText.setText(feedItem.getText());
 
             txtAuthor.setText("");
-            imgUser.setImageBitmap(null);
+            imgUser.setImageResource(R.drawable.ic_person);
             imgImage.setImageBitmap(null);
 
             Date created = new Date();
@@ -103,15 +103,19 @@ public class TimelineRecyclerAdapter extends RecyclerView.Adapter<TimelineRecycl
                     .successFlat(new Promise.SuccessListener<User, Promise<Bitmap>>() {
                         @Override
                         public Promise<Bitmap> onSuccess(User user) {
-                            if (feedItem == CustomViewHolder.this.feedItem)
+                            if (feedItem == CustomViewHolder.this.feedItem) {
                                 txtAuthor.setText(user.getName());
+                            }
                             return Database.downloadImage(user.getImage());
                         }
                     }).successFlat(Run.promiseUi((Activity) mContext, new Promise.SuccessListener<Bitmap, Void>() {
                         @Override
                         public Void onSuccess(Bitmap bitmap) {
-                            if (feedItem == CustomViewHolder.this.feedItem)
-                                imgUser.setImageBitmap(bitmap);
+                            if (feedItem == CustomViewHolder.this.feedItem) {
+                                if (bitmap != null) {
+                                    imgUser.setImageBitmap(bitmap);
+                                }
+                            }
                             return null;
                         }
                     })).error(new Promise.ErrorListener<Void>() {

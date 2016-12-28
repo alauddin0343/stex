@@ -77,7 +77,7 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
             txtText.setText(comment.getText());
 
-            imgUser.setImageBitmap(null);
+            imgUser.setImageResource(R.drawable.ic_person);
             imgImage.setImageBitmap(null);
             txtAuthor.setText("");
 
@@ -88,15 +88,19 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
             Database.getUserById(comment.getUserId()).successFlat(new Promise.SuccessListener<User, Promise<Bitmap>>() {
                 @Override
                 public Promise<Bitmap> onSuccess(User user) {
-                    if (comment == CustomViewHolder.this.comment)
+                    if (comment == CustomViewHolder.this.comment) {
                         txtAuthor.setText(user.getName());
+                    }
                     return Database.downloadImage(user.getImage());
                 }
             }).success(Run.promiseUi((Activity) mContext, new Promise.SuccessListener<Bitmap, Void>() {
                 @Override
                 public Void onSuccess(Bitmap bitmap) {
-                    if (comment == CustomViewHolder.this.comment)
-                        imgUser.setImageBitmap(bitmap);
+                    if (comment == CustomViewHolder.this.comment) {
+                        if (bitmap != null) {
+                            imgUser.setImageBitmap(bitmap);
+                        }
+                    }
                     return null;
                 }
             }));
@@ -106,8 +110,9 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
                         .success(Run.promiseUi((Activity) mContext, new Promise.SuccessListener<Bitmap, Void>() {
                             @Override
                             public Void onSuccess(Bitmap bitmap) {
-                                if (comment == CustomViewHolder.this.comment)
+                                if (comment == CustomViewHolder.this.comment) {
                                     imgImage.setImageBitmap(bitmap);
+                                }
                                 return null;
                             }
                         }));
