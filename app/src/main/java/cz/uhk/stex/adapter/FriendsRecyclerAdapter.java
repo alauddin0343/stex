@@ -21,47 +21,42 @@ import cz.uhk.stex.util.Promise;
 import cz.uhk.stex.util.Run;
 
 /**
- * Friends list
+ * Created by Alzaq on 12.07.2016.
  */
 public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecyclerAdapter.CustomViewHolder> {
 
-    private Context context;
+    private Context mContext;
 
-    private List<User> feedItemList;
+    private List<User> mUserList;
 
-    public FriendsRecyclerAdapter(Context context, List<User> feedItemList) {
-        this.context = context;
-        this.feedItemList = feedItemList;
+    public FriendsRecyclerAdapter(Context context, List<User> userList) {
+        this.mContext = context;
+        this.mUserList = userList;
     }
 
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_friend_row, null);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.list_friend_row, null);
         return new CustomViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
-        User feedItem = feedItemList.get(i);
+        User feedItem = mUserList.get(i);
         customViewHolder.bindView(feedItem);
     }
 
     @Override
     public int getItemCount() {
-        if (feedItemList != null) {
-            return feedItemList.size();
-        } else {
-            return 0;
-        }
+        return (null != mUserList ? mUserList.size() : 0);
     }
 
-    //VIEW HOLDER FOR RECYCLER ADAPTER
-    public class CustomViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+    public class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private User feedItem;
+        private User user;
 
         private ImageView imgUser;
+
         private TextView txtTitle, txtText;
 
         public CustomViewHolder(View view) {
@@ -74,33 +69,32 @@ public class FriendsRecyclerAdapter extends RecyclerView.Adapter<FriendsRecycler
             view.setOnClickListener(this);
         }
 
-        public void bindView(final User feedItem) {
+        public void bindView(final User user) {
 
-            this.feedItem = feedItem;
+            this.user = user;
 
-            //Setting text view title
-            txtTitle.setText(feedItem.getName());
-            txtText.setText(feedItem.getEmail());
+            txtTitle.setText(user.getName());
+            txtText.setText(user.getEmail());
 
             imgUser.setImageBitmap(null);
 
             Date created = new Date();
-            created.setTime(feedItem.getCreated());
+            created.setTime(user.getCreated());
 
-            Database.getUserById(feedItem.getId())
+            Database.getUserById(user.getId())
                     .successFlat(new Promise.SuccessListener<User, Promise<Bitmap>>() {
                         @Override
                         public Promise<Bitmap> onSuccess(User user) {
-                            if (feedItem == CustomViewHolder.this.feedItem) {
+                            if (user == CustomViewHolder.this.user) {
                                 txtTitle.setText(user.getName());
                                 txtText.setText(user.getEmail());
                             }
                             return Database.downloadImage(user.getImage());
                         }
-                    }).successFlat(Run.promiseUi((Activity) context, new Promise.SuccessListener<Bitmap, Void>() {
+                    }).successFlat(Run.promiseUi((Activity) mContext, new Promise.SuccessListener<Bitmap, Void>() {
                         @Override
                         public Void onSuccess(Bitmap bitmap) {
-                            if (feedItem == CustomViewHolder.this.feedItem) {
+                            if (user == CustomViewHolder.this.user) {
                                 imgUser.setImageBitmap(bitmap);
                             }
                             return null;

@@ -28,43 +28,37 @@ import cz.uhk.stex.util.Promise;
 import cz.uhk.stex.util.Run;
 
 /**
- * Created by petrw on 12.07.2016.
+ * Created by Alzaq on 12.07.2016.
  */
 public class TimelineRecyclerAdapter extends RecyclerView.Adapter<TimelineRecyclerAdapter.CustomViewHolder> {
 
-    private Context context;
+    private Context mContext;
 
-    private List<FeedItem> feedItemList;
+    private List<FeedItem> mFeedItemList;
 
     public TimelineRecyclerAdapter(Context context, List<FeedItem> feedItemList) {
-        this.context = context;
-        this.feedItemList = feedItemList;
+        this.mContext = context;
+        this.mFeedItemList = feedItemList;
     }
 
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_timeline_row, null);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.list_timeline_row, null);
         return new CustomViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
-        FeedItem feedItem = feedItemList.get(i);
+        FeedItem feedItem = mFeedItemList.get(i);
         customViewHolder.bindView(feedItem);
     }
 
     @Override
     public int getItemCount() {
-        if (feedItemList != null) {
-            return feedItemList.size();
-        } else {
-            return 0;
-        }
+        return (null != mFeedItemList ? mFeedItemList.size() : 0);
     }
 
-    //VIEW HOLDER FOR RECYCLER ADAPTER
-    public class CustomViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+    public class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private FeedItem feedItem;
 
@@ -94,7 +88,6 @@ public class TimelineRecyclerAdapter extends RecyclerView.Adapter<TimelineRecycl
 
             this.feedItem = feedItem;
 
-            //Setting text view title
             txtTitle.setText(feedItem.getTitle());
             txtText.setText(feedItem.getText());
 
@@ -114,7 +107,7 @@ public class TimelineRecyclerAdapter extends RecyclerView.Adapter<TimelineRecycl
                                 txtAuthor.setText(user.getName());
                             return Database.downloadImage(user.getImage());
                         }
-                    }).successFlat(Run.promiseUi((Activity) context, new Promise.SuccessListener<Bitmap, Void>() {
+                    }).successFlat(Run.promiseUi((Activity) mContext, new Promise.SuccessListener<Bitmap, Void>() {
                         @Override
                         public Void onSuccess(Bitmap bitmap) {
                             if (feedItem == CustomViewHolder.this.feedItem)
@@ -149,7 +142,7 @@ public class TimelineRecyclerAdapter extends RecyclerView.Adapter<TimelineRecycl
 
             if (feedItem.getThumbnail() != null) {
                 Database.downloadImage(feedItem.getThumbnail())
-                        .successFlat(Run.promiseUi((Activity) context, new Promise.SuccessListener<Bitmap, Void>() {
+                        .successFlat(Run.promiseUi((Activity) mContext, new Promise.SuccessListener<Bitmap, Void>() {
                             @Override
                             public Void onSuccess(Bitmap bitmap) {
                                 if (feedItem == CustomViewHolder.this.feedItem) {
@@ -168,17 +161,14 @@ public class TimelineRecyclerAdapter extends RecyclerView.Adapter<TimelineRecycl
             } else {
                 imgImage.setVisibility(View.GONE);
             }
-
-            //customViewHolder.imgUser.setImageURI(feedItem.getThumbnail());
-
         }
 
         @Override
         public void onClick(View view) {
-            Intent myIntent = new Intent(context, DetailActivity.class);
+            Intent myIntent = new Intent(mContext, DetailActivity.class);
             myIntent.putExtra("id", feedItem.getMarkerId());
             myIntent.putExtra("groupid", feedItem.getGroupId());
-            context.startActivity(myIntent);
+            mContext.startActivity(myIntent);
         }
 
     }

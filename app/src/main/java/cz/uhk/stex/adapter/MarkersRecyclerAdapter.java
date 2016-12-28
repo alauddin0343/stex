@@ -21,47 +21,42 @@ import cz.uhk.stex.model.Marker;
 import cz.uhk.stex.util.Promise;
 
 /**
- * Friends list
+ * Created by Alzaq on 12.07.2016.
  */
 public class MarkersRecyclerAdapter extends RecyclerView.Adapter<MarkersRecyclerAdapter.CustomViewHolder> {
 
-    private Context context;
+    private Context mContext;
 
-    private List<Marker> markerList;
+    private List<Marker> mMarkerList;
 
     public MarkersRecyclerAdapter(Context context, List<Marker> markerList) {
-        this.context = context;
-        this.markerList = markerList;
+        this.mContext = context;
+        this.mMarkerList = markerList;
     }
 
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_marker_row, null);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.list_marker_row, null);
         return new CustomViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
-        Marker feedItem = markerList.get(i);
+        Marker feedItem = mMarkerList.get(i);
         customViewHolder.bindView(feedItem);
     }
 
     @Override
     public int getItemCount() {
-        if (markerList != null) {
-            return markerList.size();
-        } else {
-            return 0;
-        }
+        return (null != mMarkerList ? mMarkerList.size() : 0);
     }
 
-    //VIEW HOLDER FOR RECYCLER ADAPTER
-    public class CustomViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+    public class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private Marker feedItem;
+        private Marker marker;
 
         private ImageView imgUser;
+
         private TextView txtTitle, txtText;
 
         private View viewCategory;
@@ -78,15 +73,15 @@ public class MarkersRecyclerAdapter extends RecyclerView.Adapter<MarkersRecycler
             view.setOnClickListener(this);
         }
 
-        public void bindView(final Marker feedItem) {
+        public void bindView(final Marker marker) {
 
-            this.feedItem = feedItem;
+            this.marker = marker;
 
             //Setting text view title
-            txtTitle.setText(feedItem.getTitle());
-            txtText.setText(feedItem.getText());
+            txtTitle.setText(marker.getTitle());
+            txtText.setText(marker.getText());
 
-            Database.getCategoryById(feedItem.getIdCategory())
+            Database.getCategoryById(marker.getIdCategory())
                     .success(new Promise.SuccessListener<Category, Object>() {
                         @Override
                         public Object onSuccess(Category result) throws Exception {
@@ -95,8 +90,8 @@ public class MarkersRecyclerAdapter extends RecyclerView.Adapter<MarkersRecycler
                         }
                     });
 
-            if (feedItem.getImage() != null) {
-                Database.downloadImage(feedItem.getImage())
+            if (marker.getImage() != null) {
+                Database.downloadImage(marker.getImage())
                         .success(new Promise.SuccessListener<Bitmap, Object>() {
                             @Override
                             public Object onSuccess(Bitmap result) throws Exception {
@@ -119,11 +114,10 @@ public class MarkersRecyclerAdapter extends RecyclerView.Adapter<MarkersRecycler
 
         @Override
         public void onClick(View view) {
-
-            Intent detailIntent = new Intent(context, DetailActivity.class);
-            detailIntent.putExtra("id", feedItem.getId());
-            detailIntent.putExtra("groupid", feedItem.getIdGroup());
-            context.startActivity(detailIntent);
+            Intent detailIntent = new Intent(mContext, DetailActivity.class);
+            detailIntent.putExtra(DetailActivity.EXTRA_ID, marker.getId());
+            detailIntent.putExtra(DetailActivity.EXTRA_GROUP_ID, marker.getIdGroup());
+            mContext.startActivity(detailIntent);
         }
 
     }

@@ -22,16 +22,17 @@ import cz.uhk.stex.util.Promise;
 import cz.uhk.stex.util.Run;
 
 /**
- * Created by petrw on 12.07.2016.
+ * Created by Alzaq on 12.07.2016.
  */
 public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecyclerAdapter.CustomViewHolder>{
 
     private Context mContext;
-    private List<Comment> commentList;
+
+    private List<Comment> mCommentList;
 
     public CommentsRecyclerAdapter(Context context, List<Comment> commentList) {
         this.mContext = context;
-        this.commentList = commentList;
+        this.mCommentList = commentList;
     }
 
     @Override
@@ -41,27 +42,21 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
 
     @Override
     public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
-        Comment comment = commentList.get(i);
+        Comment comment = mCommentList.get(i);
         customViewHolder.bindView(comment);
-    }
-
-    public void runOnUiThred(Runnable runnable) {
-        ((Activity) mContext).runOnUiThread(runnable);
     }
 
     @Override
     public int getItemCount() {
-        return (null != commentList ? commentList.size() : 0);
+        return (null != mCommentList ? mCommentList.size() : 0);
     }
 
-
-    //VIEW HOLDER FOR RECYCLER ADAPTER
-    public class CustomViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener{
+    public class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         private Comment comment;
 
         private ImageView imgUser, imgImage;
+
         private TextView txtText, txtAuthor, txtDate;
 
         public CustomViewHolder(View view) {
@@ -73,14 +68,13 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
             txtText = (TextView) view.findViewById(R.id.txtText);
             txtAuthor = (TextView) view.findViewById(R.id.txtAuthor);
             txtDate = (TextView) view.findViewById(R.id.txtDate);
-            //view.setOnClickListener(this);
+            view.setOnClickListener(this);
         }
 
         public void bindView(final Comment comment) {
 
             this.comment = comment;
 
-            //Setting text view title
             txtText.setText(comment.getText());
 
             imgUser.setImageBitmap(null);
@@ -120,9 +114,6 @@ public class CommentsRecyclerAdapter extends RecyclerView.Adapter<CommentsRecycl
             } else {
                 imgImage.setVisibility(View.GONE);
             }
-
-            //customViewHolder.imgUser.setImageURI(feedItem.getThumbnail());
-
         }
 
         @Override

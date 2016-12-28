@@ -46,6 +46,9 @@ import cz.uhk.stex.util.Util;
 
 public class DetailActivity extends AppCompatActivity {
 
+    public static final String EXTRA_ID = "id";
+    public static final String EXTRA_GROUP_ID = "groupid";
+
     private Marker myMarker;
 
     //private TextView txtDetailTitle;
@@ -68,8 +71,8 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        markerId = getIntent().getStringExtra("id");
-        groupId = getIntent().getStringExtra("groupid");
+        markerId = getIntent().getStringExtra(EXTRA_ID);
+        groupId = getIntent().getStringExtra(EXTRA_GROUP_ID);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
